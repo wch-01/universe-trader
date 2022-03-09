@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Universe Trader",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Universe Trader",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "c8cf1ae5"
+}
