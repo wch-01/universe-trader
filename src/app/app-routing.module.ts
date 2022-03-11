@@ -1,20 +1,47 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+//import { redirectUnauthorizedTo,redirectLoggedInTo,canActivate } from '@angular/fire/auth-guard';
+//https://github.com/angular/angularfire/blob/master/docs/auth/router-guards.md
+import { AngularFireAuthGuard, hasCustomClaim, redirectUnauthorizedTo, redirectLoggedInTo } from '@angular/fire/compat/auth-guard';
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login-register']);
+const redirectLoggedInToDashboard = () => redirectLoggedInTo(['dashboard']);
+const adminOnly = () => hasCustomClaim('superAdmin');
+
+//const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login-register']);
+//const redirectLoggedInToHome = () => redirectLoggedInTo(['dashboard']);
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'folder/Inbox',
-    pathMatch: 'full'
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
   {
-    path: 'folder/:id',
-    loadChildren: () => import('./folder/folder.module').then( m => m.FolderPageModule)
-  },  {
-    path: 'login',
-    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
-  }
-
+    path: 'login-register',
+    loadChildren: () => import('./login-register/login-register.module').then( m => m.LoginRegisterPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectLoggedInToDashboard }
+    //...canActivate(redirectLoggedInToHome),
+  },
+  {
+    path: 'logout',
+    redirectTo: 'login-register',
+  },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./dashboard/dashboard.module').then( m => m.DashboardPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+    //...canActivate(redirectUnauthorizedToLogin),
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.module').then( m => m.AdminPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: adminOnly }
+  },
+  {//todo this needs to be last all the time
+    path: '**',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },
 ];
 
 @NgModule({

@@ -7,13 +7,30 @@
           <ion-note>hi@ionicframework.com</ion-note>
 
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-            <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+            <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected"><!--*ngIf="p.role === 'user role'"-->
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false" *ngIf="user">
+            <ion-item routerDirection="root" routerLink="/" lines="none" detail="false" routerLinkActive="selected" (click)="logout()"><!--*ngIf="p.role === 'user role'"-->
+              <ion-icon slot="start"></ion-icon>
+              <ion-label>Logout</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <!-- This works, but it would not let me put a NGif on the menu item to determine user role.
+          <ion-menu-toggle auto-hide="false" >
+            <ion-item *ngFor="let p of appPages; let i = index" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+              <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+              <ion-label>{{ p.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+          -->
         </ion-list>
 
+        <!--
         <ion-list id="labels-list">
           <ion-list-header>Labels</ion-list-header>
 
@@ -22,6 +39,7 @@
             <ion-label>{{ label }}</ion-label>
           </ion-item>
         </ion-list>
+        -->
       </ion-content>
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>

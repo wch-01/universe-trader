@@ -6,6 +6,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 //region @angular/fire
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
@@ -16,6 +17,9 @@ import { provideFunctions,getFunctions } from '@angular/fire/functions';
 import { provideMessaging,getMessaging } from '@angular/fire/messaging';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireFunctionsModule, REGION } from '@angular/fire/compat/functions';
+// https://dev.to/dailydevtips1/adding-firebase-google-authentication-to-an-ionic-app-o57
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+
 //endregion
 
 @NgModule({
@@ -29,9 +33,13 @@ import { AngularFireFunctionsModule, REGION } from '@angular/fire/compat/functio
     provideFunctions(() => getFunctions()),
     provideMessaging(() => getMessaging()),
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFireFunctionsModule
+    AngularFireFunctionsModule,
+    AngularFireAuthModule// https://dev.to/dailydevtips1/adding-firebase-google-authentication-to-an-ionic-app-o57
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {provide: LocationStrategy, useClass: HashLocationStrategy}
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -18,4 +18,23 @@
     <ion-button type="submit" expand="block" [disabled]="!credentials.valid">Log in</ion-button>
     <ion-button type="button" expand="block" color="secondary" (click)="register()">Create account</ion-button>
   </form>
+
+  <form *ngIf="!user">
+    <ion-row>
+      <ion-col>
+        <ion-button type="submit" color="success" (click)="loginG()" expand="block">Login with Google</ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
+
+  <ion-card *ngIf="user">
+    <ion-img [src]="user.photoURL"></ion-img>
+    <ion-card-header>
+      <ion-card-subtitle>{{user.email}}</ion-card-subtitle>
+      <ion-card-title>{{user.displayName}}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button (click)="logoutG()" expand="block" color="danger">Logout</ion-button>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
