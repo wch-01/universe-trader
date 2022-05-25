@@ -1,0 +1,34 @@
+<!--
+<ion-header>
+  <ion-toolbar>
+    <ion-title>warehouse</ion-title>
+  </ion-toolbar>
+</ion-header>
+-->
+
+<ion-content>
+  <ion-card>
+    <ion-grid>
+      <ion-row class="">
+        <ion-col>Item</ion-col>
+        <ion-col>Quantity</ion-col>
+        <ion-col>COG</ion-col>
+        <ion-col>Total Value</ion-col>
+      </ion-row>
+      <ion-row *ngFor="let item of ws.aInventory; let i = index" class="" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+        <ion-col>
+          {{item.displayName}}
+        </ion-col>
+        <ion-col>
+          {{item.quantity | number}}
+        </ion-col>
+        <ion-col>
+          {{item.cost / item.quantity | number}}
+        </ion-col>
+        <ion-col>
+          {{item.cost | number}}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>

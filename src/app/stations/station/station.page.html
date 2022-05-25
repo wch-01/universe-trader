@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Station</ion-title>
+    <ion-buttons slot="end" *ngIf="isModal">
+      <ion-button color="danger" fill="solid" (click)="dismissModal()">Exit</ion-button>
+    </ion-buttons>
+    <ion-segment [(ngModel)]="nsTab">
+      <ion-segment-button value="market">
+        <ion-label>Market</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="listedItems">
+        <ion-label>Listed Items</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="listItems">
+        <ion-label>List Items</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [ngSwitch]="nsTab">
+  <ion-card>
+    <ion-card-header>
+      <ion-title>Station Details</ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            Access: {{stationS.aStation.access}}
+          </ion-col>
+          <ion-col>
+            Market Fee: {{stationS.aStation.marketFee}}%
+          </ion-col>
+          <ion-col>
+            Listing Fee: {{stationS.aStation.listFee}} One time for each listing.
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngSwitchCase="'market'">
+    <ion-card-header>
+      <ion-title>Market</ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <app-trade [market]="'station'" [trader]="trader"></app-trade>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngSwitchCase="'listedItems'">
+    <ion-card-header>
+      <ion-title>Your Listed Items</ion-title>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card *ngSwitchCase="'listItems'">
+    <ion-card-header>
+      <ion-title>List Items</ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <app-list-items [trader]="trader"></app-list-items>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

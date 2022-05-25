@@ -1,24 +1,76 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>dashboard</ion-title>
+    <!--
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    -->
+    <ion-title>Dashboard</ion-title>
+
+    <!--<ion-segment (ionChange)="segmentChanged($event)" value="ships">-->
+    <ion-segment [(ngModel)]="segment">
+      <ion-segment-button value="ships">
+        <ion-label>Ships</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="warehouses">
+        <ion-label>Warehouses</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-Dashboard Works
-  <ion-card>
-    <ion-card-header>Dashboard</ion-card-header>
-  </ion-card>
-  <!--
-  <ion-card *ngIf="user">
-    <ion-img [src]="user.photoURL"></ion-img>
+<ion-content [ngSwitch]="segment">
+  <ion-card id="ships" *ngSwitchCase="'ships'">
     <ion-card-header>
-      <ion-card-subtitle>{{user.email}}</ion-card-subtitle>
-      <ion-card-title>{{user.displayName}}</ion-card-title>
+      <ion-title>
+
+      </ion-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-button (click)="logoutG()" expand="block" color="danger">Logout</ion-button>
+      <ion-list>
+        <ion-item>
+          <ion-label>Name</ion-label>
+          <ion-label>Status</ion-label>
+          <ion-label>Solar System</ion-label>
+          <ion-label>Solar Body</ion-label>
+          <ion-item>View</ion-item>
+        </ion-item>
+
+
+        <ion-item *ngFor="let ship of cs.aCharacterShips">
+          <ion-label>
+            <!--<ion-button (click)="viewShipModal(ship)" color="secondary">{{ship.name}}</ion-button>-->
+            <ion-button (click)="viewShip(ship)" color="primary">{{ship.name}}</ion-button>
+          </ion-label>
+          <ion-label>{{ship.status}}</ion-label>
+          <ion-label>{{ship.solarSystemName}}</ion-label>
+          <ion-label>{{ship.solarBodyName}}</ion-label>
+          <ion-item><ion-button (click)="viewShip(ship)" color="primary">View</ion-button></ion-item>
+        </ion-item>
+      </ion-list>
     </ion-card-content>
   </ion-card>
-  -->
+
+  <ion-card id="warehouses" *ngSwitchCase="'warehouses'">
+    <ion-card-header>
+      <ion-title>
+        Warehouses
+      </ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Name</ion-label>
+          <ion-label>Status</ion-label>
+          <ion-label>View</ion-label>
+        </ion-item>
+        <ion-item *ngFor="let ship of characterShips | async">
+          <ion-label>{{ship.name}}</ion-label>
+          <ion-label>{{ship.status}}</ion-label>
+          <ion-label>WIP</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>

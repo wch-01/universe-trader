@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Shipyard at {{us.aSolarBody.name}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title></ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col>Module</ion-col>
+          <ion-col>Required Resources</ion-col>
+          <ion-col>Buy</ion-col>
+        </ion-row>
+        <ion-row *ngFor="let module of aShipyardInventory">
+          <ion-col>
+            {{module.name}}
+          </ion-col>
+          <ion-col>
+            <p *ngFor="let resource of ss.aDefaultItems[module.name].producedConsumes">
+              {{resource.amount}} {{ss.aDefaultItems[resource.name].displayName}}
+            </p>
+          </ion-col>
+          <ion-col>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  {{displayPrice(module)}}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

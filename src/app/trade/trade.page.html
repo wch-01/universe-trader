@@ -1,0 +1,169 @@
+<!--This page should always be included in another page.-->
+
+
+
+<ion-card>
+  <!--
+  <ion-card-header>
+    <ion-card-title>Colonies at {{us.aSolarBody.name}}</ion-card-title>
+    <ion-item *ngIf="coloniesLoaded">
+      <ion-label position="floating">Select Colony for Trading</ion-label>
+      <ion-select name="colony" [(ngModel)]="colonyS.aColony.id" (ngModelChange)="getColonyInventory(aColony)">
+        <ion-select-option *ngFor="let colony of us.aColonies" [value]="colony.id">{{colony.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card-header>
+  -->
+  <ion-card-content *ngIf="showTrade">
+    <span *ngIf="trader === 'ship'">
+      Ship Capacity: {{capacityAvailable}}
+    </span>
+    <span *ngIf="trader === 'warehouse'">
+        Warehouse Capacity: {{capacityAvailable}}
+      </span>
+
+    <ion-grid>
+      <ion-row class="item-list-border">
+        <ion-col>
+          <ion-item fill="solid" class="ion-margin-bottom">
+            <ion-label position="floating">
+              Item
+              <span *ngIf="sortField === 'name'">
+                    <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                    <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                  </span>
+            </ion-label>
+            <ion-input type="text" name="filterName" [(ngModel)]="aMarketInventoryFilters.name" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item fill="solid" class="ion-margin-bottom">
+            <ion-label position="floating">
+              Type
+              <span *ngIf="sortField === 'type'">
+                <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+              </span>
+            </ion-label>
+            <ion-input type="text" name="filterType" [(ngModel)]="aMarketInventoryFilters.type" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
+          </ion-item>
+        </ion-col>
+
+        <ion-col>
+          <ion-item>
+            <ion-label (click)="sortMarketItems('quantity', sortOrder= !sortOrder)">
+              Quantity
+              <span *ngIf="sortField === 'quantity'; else qReady">
+                <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+              </span>
+              <ng-template #qReady>
+                <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                <ion-icon name="arrow-down-circle-outline"></ion-icon>
+              </ng-template>
+            </ion-label>
+          </ion-item>
+
+        </ion-col>
+        <ion-col>
+          Price
+          <br />
+          Buy (Sell)
+        </ion-col>
+        <ion-col>Buy(Sell)</ion-col>
+        <!--<ion-col *ngIf="market === 'colony'">Sell</ion-col>-->
+      </ion-row>
+      <ion-row *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
+        <ion-col>
+          {{ss.aDefaultItems[item.name].displayName}}
+        </ion-col>
+        <ion-col>
+          {{item.type}}
+        </ion-col>
+        <ion-col>
+          {{item.quantity | number}}
+        </ion-col>
+        <ion-col>
+          {{item.listPrice | number}}
+          <span *ngIf="market === 'colony'">({{item.buyPrice}})</span>
+        </ion-col>
+        <!--
+        <ion-col *ngIf="market === 'colony'">
+          {{colonyS.aColony[item.name+'Demand'] * 100}}%
+        </ion-col>
+        -->
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col style="text-align: center">
+                Buy {{buySellAmount.value}} @ {{item.listPrice | number}} = {{buySellAmount.value * item.listPrice | number}}
+                <br />
+                (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">Amount</ion-label>
+                  <ion-input
+                    name="buySellAmount_{{item.name}}"
+                    type="number"
+                    #buySellAmount
+                    min="0"
+                  >
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col class="center-content">
+                <ion-button (click)="confirmTradeAlert('buy', item, buySellAmount.value, item.listPrice, buySellAmount.value * item.listPrice)" color="danger" fill="solid">Buy</ion-button>
+
+                <ion-button *ngIf="market === 'colony'" (click)="confirmTradeAlert('sell', item, buySellAmount.value, item.buyPrice, buySellAmount.value * item.buyPrice)" color="danger" fill="solid">Sell</ion-button>
+              </ion-col>
+            </ion-row>
+
+          </ion-grid>
+        </ion-col>
+        <!--
+        <ion-col *ngIf="market === 'colony'">
+          <ion-grid>
+            <ion-row>
+              <ion-col style="text-align: center">
+                Sell
+                {{sellAmount.value}}
+                @
+                <span *ngIf="market === 'colony'">{{item.cog * colonyS.aColony[item.name+'Demand'] | number}}</span>
+                <span *ngIf="market === 'station'">{{item.listPrice | number}}</span>
+                =
+                <span *ngIf="market === 'colony'">{{sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'] | number}}</span>
+                <span *ngIf="market === 'station'">{{buyAmount.value * item.listPrice | number}}</span>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">
+                    Amount
+                  </ion-label>
+                  <ion-input
+                    name="sellAmount_{{item.name}}"
+                    type="number"
+                    #sellAmount
+                    max="{{aaInventoryLevels[item.name].quantity}}"
+                    min="0"
+                    placeholder="{{aaInventoryLevels[item.name].quantity}}"
+                  >
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col class="center-content">
+                <ion-button (click)="confirmTradeAlert('sell', item, sellAmount.value, item.cog * colonyS.aColony[item.name+'Demand'], sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'])" color="danger" fill="solid">Sell</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        -->
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>

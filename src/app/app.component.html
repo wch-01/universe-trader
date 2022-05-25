@@ -1,47 +1,132 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+  <ion-split-pane contentId="main-content" *ngIf="bootDone | async">
+    <ion-menu contentId="main-content" type="overlay"><!--*ngIf="userLoggedIn | async"-->
       <ion-content>
-        <ion-list id="inbox-list">
-          <ion-list-header>Inbox</ion-list-header>
-          <ion-note>hi@ionicframework.com</ion-note>
+        <ion-list id="character-details">
 
-          <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-            <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected"><!--*ngIf="p.role === 'user role'"-->
-              <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-              <ion-label>{{ p.title }}</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
+          <span #notLoggedIn *ngIf="!authService.userLoggedIn">
+            <ion-list-header>Welcome Captain</ion-list-header>
+            <ion-note>
+              <ion-item routerDirection="root" routerLink="/login-register" lines="none" detail="false" routerLinkActive="">
+                <ion-label>Please Login</ion-label>
+              </ion-item>
+            </ion-note>
+          </span>
 
-          <ion-menu-toggle auto-hide="false" *ngIf="user">
-            <ion-item routerDirection="root" routerLink="/" lines="none" detail="false" routerLinkActive="selected" (click)="logout()"><!--*ngIf="p.role === 'user role'"-->
-              <ion-icon slot="start"></ion-icon>
-              <ion-label>Logout</ion-label>
-            </ion-item>
-          </ion-menu-toggle>
+          <span *ngIf="authService.userLoggedIn">
 
-          <!-- This works, but it would not let me put a NGif on the menu item to determine user role.
-          <ion-menu-toggle auto-hide="false" >
-            <ion-item *ngFor="let p of appPages; let i = index" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
-              <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-              <ion-label>{{ p.title }}</ion-label>
+            <span #noServer *ngIf="!ss.activeServer">
+              <ion-list-header>Welcome Captain</ion-list-header>
+              <ion-note>
+                Server: Please Select a Server
+              </ion-note>
+            </span>
+
+            <span #noCharacter *ngIf="ss.activeServer && !cs.characterFound">
+              <ion-list-header>Welcome Captain</ion-list-header>
+              <ion-note>Server: {{ss.activeServer}}</ion-note>
+              <br />
+              <ion-note>
+                Please Create a Character
+              </ion-note>
+            </span>
+
+            <span *ngIf="ss.activeServer && cs.characterFound">
+              <ion-list-header>Welcome Captain {{cs.aCharacter.name}}</ion-list-header>
+              <ion-note>Server: {{ss.activeServer}}</ion-note>
+              <ion-note>Active Clone Location: {{cs.aLocation.aSolarBody.name}} in {{cs.aLocation.aSolarSystem.name}}</ion-note>
+              <ion-note>
+                <ion-icon name="wallet-outline" style="display:block;"></ion-icon>
+                Pulsar Balance: {{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditIcon-3.svg"></ion-icon>
+                <br />
+                Pulsar Balance: {{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon>
+              </ion-note>
+            </span>
+
+            <span *ngIf="ss.activeServer && cs.characterFound">
+              <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+                <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+                  <ion-icon slot="start" *ngIf="p.icon !== ''" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+                  <ion-label>{{ p.title }}</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            </span>
+
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" routerLink="/" lines="none" detail="false" routerLinkActive="" (click)="logout()">
+                <ion-label>Logout</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </span>
+
+          <!--
+          <ion-menu-toggle auto-hide="false">
+            <ion-item routerDirection="root" routerLink="/tos" lines="none" detail="false" routerLinkActive="">
+              <ion-label>Terms of Service</ion-label>
             </ion-item>
           </ion-menu-toggle>
           -->
         </ion-list>
-
-        <!--
-        <ion-list id="labels-list">
-          <ion-list-header>Labels</ion-list-header>
-
-          <ion-item *ngFor="let label of labels" lines="none">
-            <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
-            <ion-label>{{ label }}</ion-label>
-          </ion-item>
-        </ion-list>
-        -->
       </ion-content>
+
+      <ion-footer>
+        <ion-card style="margin: 0">
+          <ion-card-header>
+            <ion-card-title>
+              Support Us!
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                            <a href="https://www.subscribestar.com/webcrafthouse" target="_blank">
+                              <img src="../assets/images/ss_support_med_01.png" alt="" srcset="">
+                            </a>
+                        </ion-col>
+                        <ion-col>
+                            More options coming soon!
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <a href="" routerLink="/tos">Terms of Service</a>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-footer>
+
     </ion-menu>
-    <ion-router-outlet id="main-content"></ion-router-outlet>
+
+    <ion-router-outlet id="main-content" class="custom-background"></ion-router-outlet>
+
   </ion-split-pane>
 </ion-app>
+
+<!--
+This works, but it would not let me put a NGif on the menu item to determine user role.
+<ion-menu-toggle auto-hide="false">
+  <ion-item *ngFor="let p of appPages; let i = index" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+    <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+    <ion-label>{{ p.title }}</ion-label>
+  </ion-item>
+</ion-menu-toggle>
+-->
+
+<!--
+<ion-list id="labels-list">
+  <ion-list-header>Labels</ion-list-header>
+  <ion-item *ngFor="let label of labels" lines="none">
+    <ion-icon slot="start" ios="bookmark-outline" md="bookmark-sharp"></ion-icon>
+    <ion-label>{{ label }}</ion-label>
+  </ion-item>
+</ion-list>
+-->

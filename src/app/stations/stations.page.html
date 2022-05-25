@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>stations</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-title>
+
+      </ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Name</ion-label>
+          <ion-label>Owner</ion-label>
+          <ion-label>Market</ion-label>
+          <ion-label>Access</ion-label>
+          <ion-item>View</ion-item>
+        </ion-item>
+
+        <ion-item *ngFor="let station of stationS.aStations">
+          <ion-label>{{station.name}} {{station.id}}</ion-label>
+          <ion-label>{{station.ownerID}}</ion-label>
+          <ion-label>{{station.market}}</ion-label>
+          <ion-label>{{station.access}}</ion-label>
+          <ion-item><ion-button *ngIf="station.access === 'public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-item>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

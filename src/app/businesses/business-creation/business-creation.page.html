@@ -1,0 +1,119 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>business-creation</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <form>
+      <ion-item>
+        <ion-label position="floating">Name</ion-label>
+        <ion-input type="text" name="businessName" [(ngModel)]="aNewBusiness.businessName"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Select Business Type</ion-label>
+        <ion-select name="colony" [(ngModel)]="aNewBusiness.name">
+          <ion-select-option *ngFor="let businessType of ss.aStructures" [value]="businessType.id">{{businessType.displayName}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </form>
+
+    <span *ngFor="let aStructure of ss.aStructures">
+      <ion-card *ngIf="aStructure.name === aNewBusiness.name">
+        <ion-card-header>
+          <ion-card-title>{{aStructure.displayName}}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>Production Details</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content>
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          Type: {{aStructure.type}}
+                        </ion-col>
+                        <ion-col>
+                          Upkeep: {{aStructure.upkeep | number}}/cycle
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col>
+                          Produces
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col *ngFor="let produced of aStructure.production">
+                          {{produced.name}}
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+
+              <ion-col>
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>Cost Details</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content>
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          Labor Cost: 100,000
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                    Required Resources
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          Item
+                        </ion-col>
+                        <ion-col>
+                          Required
+                        </ion-col>
+                        <ion-col>
+                          On Hand
+                        </ion-col>
+                        <ion-col>
+                          Missing
+                        </ion-col>
+                      </ion-row>
+                      <ion-row *ngFor="let item of aStructure.construction">
+                        <ion-col>
+                          {{ss.aDefaultItems[item.name].displayName}}
+                        </ion-col>
+                        <ion-col>
+                          {{item.amount}}
+                        </ion-col>
+                        <ion-col>
+                          {{ws.aaInventory[item.name].quantity}}
+                        </ion-col>
+                        <ion-col>
+                          {{item.amount - ws.aaInventory[item.name].quantity}}
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+
+    </span>
+
+  </ion-card>
+</ion-content>

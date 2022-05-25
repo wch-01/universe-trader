@@ -5,7 +5,8 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AngularFireAuthGuard, hasCustomClaim, redirectUnauthorizedTo, redirectLoggedInTo } from '@angular/fire/compat/auth-guard';
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login-register']);
 const redirectLoggedInToDashboard = () => redirectLoggedInTo(['dashboard']);
-const adminOnly = () => hasCustomClaim('superAdmin');
+const redirectLoggedInToServers = () => redirectLoggedInTo(['servers']);
+//const adminOnly = () => hasCustomClaim('superAdmin');
 
 //const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login-register']);
 //const redirectLoggedInToHome = () => redirectLoggedInTo(['dashboard']);
@@ -19,7 +20,7 @@ const routes: Routes = [
   {
     path: 'login-register',
     loadChildren: () => import('./login-register/login-register.module').then( m => m.LoginRegisterPageModule),
-    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectLoggedInToDashboard }
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectLoggedInToServers }
     //...canActivate(redirectLoggedInToHome),
   },
   {
@@ -35,13 +36,83 @@ const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then( m => m.AdminPageModule),
-    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: adminOnly }
+    //canActivate: [AngularFireAuthGuard], data: { authGuardPipe: adminOnly }
   },
-  {//todo this needs to be last all the time
+  {
+    path: 'ship',
+    loadChildren: () => import('./ships/ship/ship.module').then( m => m.ShipPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'ships',
+    loadChildren: () => import('./ships/ships.module').then( m => m.ShipsPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'chat-rooms',
+    loadChildren: () => import('./chat-rooms/chat-rooms.module').then( m => m.ChatRoomsPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'modal',
+    loadChildren: () => import('./modal/modal.module').then( m => m.ModalPageModule)
+  },
+  {
+    path: 'shipyard',
+    loadChildren: () => import('./shipyard/shipyard.module').then( m => m.ShipyardPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  /*{//todo this needs to be last all the time. Freaking dont forget this!!!!
     path: '**',
     redirectTo: 'dashboard',
     pathMatch: 'full',
+  },*/
+  {
+    path: 'trade',
+    loadChildren: () => import('./trade/trade.module').then( m => m.TradePageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
   },
+  {
+    path: 'warehouses',
+    loadChildren: () => import('./warehouses/warehouses.module').then( m => m.WarehousesPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'character',
+    loadChildren: () => import('./character/character.module').then( m => m.CharacterPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'control-room',
+    loadChildren: () => import('./control-room/control-room.module').then( m => m.ControlRoomPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'colonies',
+    loadChildren: () => import('./colonies/colonies.module').then( m => m.ColoniesPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'businesses',
+    loadChildren: () => import('./businesses/businesses.module').then( m => m.BusinessesPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'stations',
+    loadChildren: () => import('./stations/stations.module').then( m => m.StationsPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },
+  {
+    path: 'servers',
+    loadChildren: () => import('./servers/servers.module').then( m => m.ServersPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },  {
+    path: 'tos',
+    loadChildren: () => import('./tos/tos.module').then( m => m.TosPageModule)
+  },
+
+
+
 ];
 
 @NgModule({
@@ -50,4 +121,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class UTAppRoutingModule {}

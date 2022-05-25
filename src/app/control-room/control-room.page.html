@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Control Room at {{us.aSolarBody.name}}</ion-title>
+    <ion-segment [(ngModel)]="nsTab">
+      <ion-segment-button value="warehouse">
+        <ion-label>Warehouse</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="colony">
+        <ion-label>Colony</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="businesses">
+        <ion-label>Businesses</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="stations">
+        <ion-label>Stations</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="travel">
+        <ion-label>Travel</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [ngSwitch]="nsTab">
+  <span *ngSwitchCase="'warehouse'">
+    <app-warehouse *ngIf="warehouseBoot" [warehouseID]="warehouseID"></app-warehouse>
+  </span>
+
+  <span *ngSwitchCase="'colony'">
+    <ion-card>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            Name: {{colonyS.aColony.name}}
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            Population: {{colonyS.aColony.population}}
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            Primary Export: {{us.aSolarSystem.resourceOne}}
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            Secondary Export: {{us.aSolarSystem.resourceTwo}}
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-card>
+
+    <app-trade [market]="'colony'" [trader]="'warehouse'"></app-trade>
+  </span>
+
+  <span *ngSwitchCase="'businesses'">
+    <ul>
+      <li>Lists your local businesses.</li>
+      <li>Create new ones.</li>
+    </ul>
+
+    <app-businesses></app-businesses>
+
+
+  </span>
+
+  <span *ngSwitchCase="'stations'">
+    <ul>
+      <li>Show a list of stations in orbit</li>
+      <li>View station button, go into trade/exchange</li>
+      <li>Trades go into warehouse</li>
+      <li>Tab for personal station</li>
+    </ul>
+    <app-stations trader='warehouse'></app-stations>
+  </span>
+
+
+
+  <span *ngSwitchCase="'travel'">
+    Taxi service.
+    Travel on a personal ship in the same location.
+    Clone transfer to another owned warehouse.
+  </span>
+</ion-content>

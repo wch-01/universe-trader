@@ -1,0 +1,76 @@
+<!--
+<ion-header>
+  <ion-toolbar>
+    <ion-title *ngIf="warehouseBoot">{{ws.aWarehouse.name}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+-->
+
+<ion-card>
+  <ion-grid>
+    <ion-row class="warehouseInventoryBorder">
+      <ion-col>Item</ion-col>
+      <ion-col>Quantity</ion-col>
+      <ion-col>To Ship</ion-col>
+      <ion-col>To Warehouse</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let item of ws.aInventory" class="warehouseInventoryBorder">
+      <ion-col>
+        {{item.name}}
+      </ion-col>
+      <ion-col>
+        {{item.quantity | number}}
+      </ion-col>
+      <ion-col>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-label position="floating">
+                  Amount
+                </ion-label>
+                <ion-input
+                  name="sTransferAmount_{{item.name}}"
+                  type="number"
+                  #sTransferAmount
+                  max="{{shipS.capacityAvailable}}"
+                  min="0"
+                  placeholder="{{shipS.capacityAvailable}}"
+                >
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="center-content">
+              <ion-button (click)="confirmTradeAlert('ship', item, sTransferAmount.value)" color="danger" fill="solid">Transfer</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+      <ion-col>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-label position="floating">
+                  Amount
+                </ion-label>
+                <ion-input
+                  name="wTransferAmount_{{item.name}}"
+                  type="number"
+                  #wTransferAmount
+                  min="0"
+                  max="{{shipS.aInventory[item.name].quantity}}"
+                  placeholder="{{shipS.aInventory[item.name].quantity}}"
+                >
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="center-content">
+             <ion-button (click)="confirmTradeAlert('warehouse', item, wTransferAmount.value)" color="danger" fill="solid">Transfer</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-card>

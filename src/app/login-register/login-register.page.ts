@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../services/authentication/authentication.service';
 import {Router} from '@angular/router';
+import {AngularFirestore} from '@angular/fire/compat/firestore';
+import {AlertController, LoadingController, ToastController} from '@ionic/angular';
+const moment= require('moment');
 
 @Component({
   selector: 'app-login-register',
@@ -18,12 +21,17 @@ export class LoginRegisterPage implements OnInit {
   userDetails: any;
   userLoggedIn: Promise<boolean> | undefined;
   userLoggedInTwo: Promise<boolean> | undefined;
+  nsTab= 'login';
   //endregion
 
   //region Constructor
   constructor(
     private authService: AuthenticationService,
     private router: Router,
+    private afs: AngularFirestore,
+    private loadingController: LoadingController,
+    public toastController: ToastController,
+    private ionAlert: AlertController,
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -41,6 +49,15 @@ export class LoginRegisterPage implements OnInit {
     setTimeout(() => {
       this.responseMessage = '';
     }, 2000);
+  }
+
+  async toastMessage(msg, type?) {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 2000,
+      color: type
+    });
+    toast.present();
   }
 
   // Called on switching Login/ Register tabs
@@ -99,61 +116,151 @@ export class LoginRegisterPage implements OnInit {
 
   // Login user with  provided Email/ Password
   loginUser() {
+    //console.log('Login with Email and Password');
     this.responseMessage = '';
     this.authService.login(this.emailInput, this.passwordInput)
-      .then(res => {
+      .then(
+        res => {
+        //console.log('E&P Result');
+        //console.log(res);
+        this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
         this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-        console.log(res);
         this.showMessage('success', 'Successfully Logged In!');
         this.isUserLoggedIn();
-      }, err => {
-        this.showMessage('danger', err.message);
-      });
+      },
+        err => {
+          //this.showMessage('danger', err.message);
+          this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
+        });
   }
 
   // Register user with  provided Email/ Password
-  registerUser() {
+  async registerUser() {
+    console.log('Register by Email&Password');
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Registering',
+      //duration: 2000
+    });
+    await loading.present();
+
     this.authService.register(this.emailInput, this.passwordInput)
-      .then(res => {
-        // Send Verification link in email
-        this.authService.sendEmailVerification().then(result => {
-          console.log(result);
-          this.isForgotPassword = false;
-          this.showMessage('success', 'Registration Successful! Please Verify Your Email');
-        }, err => {
+      .then(
+        registerUserResult => {
+          console.log('Register Result');
+          console.log(registerUserResult.user.uid);
+          this.afs.collection('users/').doc(registerUserResult.user.uid)
+          .set({
+            lastLogin: moment().unix(),
+            email: registerUserResult.user.email
+            });
+          //Send Verification link in email
+          this.authService.sendEmailVerification()
+            .then
+            (
+              result =>
+              {
+                console.log('Send email Verify');
+                console.log(result);
+                this.isForgotPassword = false;
+                this.toastMessage('Registration Successful! Please Verify Your Email', 'success');
+                this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+                loading.dismiss();
+              },
+              err =>
+              {
+                this.showMessage('danger', err.message);
+              }
+            );
+        },
+        err => {
           this.showMessage('danger', err.message);
         });
-        this.isUserLoggedIn();
-
-
-      }, err => {
-        this.showMessage('danger', err.message);
-      });
   }
 
   // Send link on given email to reset password
-  forgotPassword() {
-    this.authService.sendPasswordResetEmail(this.emailInput)
+  forgotPassword(email) {
+    this.authService.sendPasswordResetEmail(email)
       .then(res => {
         console.log(res);
-        this.isForgotPassword = false;
-        this.showMessage('success', 'Please Check Your Email');
+        this.toastMessage('Please Check Your Email (Check Spam as well)', 'success');
       }, err => {
-        this.showMessage('danger', err.message);
+        this.toastMessage(err.message, 'danger');
       });
+  }
+
+  async forgotPasswordAlert(){
+    const addCreditsAlert = await this.ionAlert.create({
+      cssClass: '',
+      header: 'Enter Email Associated with Account',
+      subHeader: '',
+      message: '',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'ut@ut.com'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            //console.log('Confirm Cancel');
+          }
+        },
+        {
+          text: 'Send Email',
+          handler: (data: any) => {
+            console.log('Send Forgot Password Email');
+            console.log(data);
+            this.forgotPassword(data.email);
+          }
+        }
+      ]
+    });
+
+    await addCreditsAlert.present();
+
+    const { role } = await addCreditsAlert.onDidDismiss();
+    //console.log('onDidDismiss resolved with role', role);
   }
 
   // Open Popup to Log in with Google Account
-  googleLogin() {
+  async googleLogin() {
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Logging in',
+      //duration: 2000
+    });
+    await loading.present();
+
     this.authService.loginWithGoogle()
       .then(res => {
+        console.log('Login with google.');
         this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-        console.log(res);
-        this.showMessage('success', 'Successfully Logged In with Google');
-        this.isUserLoggedIn();
+        const userSub= this.afs.collection('users').doc(this.authService.user.uid).valueChanges()
+          .subscribe((userRecord: any) => {
+            //console.log('Find user Record');
+            //console.log(userRecord);
+            if(!userRecord){
+              //console.log('Record Does not Exist');
+              this.afs.collection('users/').doc(this.authService.user.uid)
+                .set({
+                  lastLogin: moment().unix(),
+                  email: this.authService.user.email
+                });
+            }
+            else{
+              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+            }
+            userSub.unsubscribe();
+          });
+        loading.dismiss();
       }, err => {
         this.showMessage('danger', err.message);
       });
   }
-
 }

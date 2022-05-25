@@ -1,0 +1,125 @@
+<!--This page should always be included in another page.-->
+
+
+
+<ion-card>
+  <!--
+  <ion-card-header>
+    <ion-card-title>Colonies at {{us.aSolarBody.name}}</ion-card-title>
+    <ion-item *ngIf="coloniesLoaded">
+      <ion-label position="floating">Select Colony for Trading</ion-label>
+      <ion-select name="colony" [(ngModel)]="colonyS.aColony.id" (ngModelChange)="getColonyInventory(aColony)">
+        <ion-select-option *ngFor="let colony of us.aColonies" [value]="colony.id">{{colony.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card-header>
+  -->
+  <ion-card-content *ngIf="showTrade">
+      <span *ngIf="trader === 'ship'">
+        Ship Capacity: {{capacityAvailable}}
+      </span>
+    <span *ngIf="trader === 'warehouse'">
+        Warehouse Capacity: {{capacityAvailable}}
+      </span>
+
+    <ion-grid>
+      <ion-row class="item-list-border">
+        <ion-col>Item</ion-col>
+        <ion-col>Quantity</ion-col>
+        <ion-col *ngIf="market === 'colony'">Demand</ion-col>
+        <ion-col>Buy</ion-col>
+        <ion-col>Sell</ion-col>
+      </ion-row>
+      <ion-row *ngFor="let item of aMarketInventory" class="item-list-border">
+        <ion-col>
+          {{item.name}}
+        </ion-col>
+        <ion-col>
+          {{item.quantity | number}}
+        </ion-col>
+        <ion-col *ngIf="market === 'colony'">
+          {{colonyS.aColony[item.name+'Demand'] * 100}}%
+        </ion-col>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col style="text-align: center">
+                Buy
+                {{buyAmount.value}}
+                @
+                <span *ngIf="market === 'colony'">{{(item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2) | number}}</span>
+                <span *ngIf="market === 'station'">{{item.listPrice | number}}</span>
+                =
+                <span *ngIf="market === 'colony'">{{buyAmount.value * ((item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2)) | number}}</span>
+                <span *ngIf="market === 'station'">{{buyAmount.value * item.listPrice | number}}</span>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">
+                    <!--Buy {{buyAmount.value}} @ {{(item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2) | number}}
+                    =
+                    {{buyAmount.value * ((item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2)) | number}}-->
+                    Amount
+                  </ion-label>
+                  <ion-input
+                    name="buyAmount_{{item.name}}"
+                    type="number"
+                    #buyAmount
+                    max="{{capacityAvailable}}"
+                    min="0"
+                    placeholder="{{capacityAvailable}}"
+                  >
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col class="center-content">
+                <ion-button (click)="confirmTradeAlert('buy', item, buyAmount.value, (item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2), buyAmount.value * ((item.cog * colonyS.aColony[item.name+'Demand']) + ((item.cog * colonyS.aColony[item.name+'Demand']) * .2)))" color="danger" fill="solid">Buy</ion-button>
+              </ion-col>
+            </ion-row>
+
+          </ion-grid>
+        </ion-col>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col style="text-align: center">
+                Sell {{sellAmount.value}} @ {{item.cog * colonyS.aColony[item.name+'Demand'] | number}}
+                =
+                {{sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'] | number}}
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">
+                    <!--
+                    Sell {{sellAmount.value}} @ {{item.cog * colonyS.aColony[item.name+'Demand'] | number}}
+                    =
+                    {{sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'] | number}}
+                    -->
+                    Amount
+                  </ion-label>
+                  <ion-input
+                    name="sellAmount_{{item.name}}"
+                    type="number"
+                    #sellAmount
+                    max="{{aaInventoryLevels[item.name].quantity}}"
+                    min="0"
+                    placeholder="{{aaInventoryLevels[item.name].quantity}}"
+                  >
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col class="center-content">
+                <ion-button (click)="confirmTradeAlert('sell', item, sellAmount.value, item.cog * colonyS.aColony[item.name+'Demand'], sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'])" color="danger" fill="solid">Sell</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>

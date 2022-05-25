@@ -1,0 +1,162 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title *ngIf="charS.characterFound">{{charS.aCharacter.name}}</ion-title>
+    <ion-title *ngIf="!charS.characterFound">Character Creation</ion-title>
+    <ion-segment [(ngModel)]="nsTab">
+      <ion-segment-button value="main">
+        <ion-label>Main</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="travel">
+        <ion-label>Travel</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="warehouse">
+        <ion-label>Local Warehouse</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="warehouse">
+        <ion-label>Warehouse</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [ngSwitch]="nsTab">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Create</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Character Name</ion-label>
+        <ion-input type="text" name="character_name" #characterName></ion-input>
+      </ion-item>
+      <ion-button (click)="createCharacter(characterName.value)" color="primary" fill="solid">Create</ion-button>
+    </ion-card-content>
+    <div class="alert alert-{{responseMessageType}}" role="alert" *ngIf="responseMessage.length">
+      {{responseMessage}}
+    </div>
+  </ion-card>
+
+
+
+  <ion-card id="main" *ngSwitchCase="'main'">
+    <ion-card-header>
+      <ion-card-title>Details</ion-card-title>
+      <ion-card-subtitle></ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label>Solar System</ion-label>
+              <ion-label>{{charS.aLocation.aSolarSystem.name}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>Solar Body</ion-label>
+              <ion-label>{{charS.aLocation.aSolarBody.name}}</ion-label>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Travel</ion-card-title>
+      <!--
+      <ion-card-subtitle>{{currentDate}}</ion-card-subtitle>
+      <ion-card-subtitle>{{currentDateAdd}}</ion-card-subtitle>
+      <ion-card-subtitle>{{date}}</ion-card-subtitle>
+      <ion-card-subtitle>{{dateTwo}}</ion-card-subtitle>
+      <ion-card-subtitle>{{timer}}</ion-card-subtitle>
+      <ion-card-subtitle>{{duration}}</ion-card-subtitle>
+      -->
+    </ion-card-header>
+    <!--
+    <ion-card-content>
+      <form (ngSubmit)="travel()">
+        <ion-grid>
+          <ion-row>
+            <ion-header>Solar System</ion-header>
+            <ion-col>
+              <ion-item>
+                <ion-label>From</ion-label>
+                <ion-label>{{aLocation.aSolarSystem.name}}: {{aLocation.aSolarSystem.xCoordinate}}, {{aLocation.aSolarSystem.yCoordinate}}</ion-label>
+              </ion-item>
+            </ion-col>
+
+            <ion-col>
+              <ion-item fill="solid" class="ion-margin-bottom">
+                <ion-label>To</ion-label>
+                <ion-select
+                  name="solar_system"
+                  [(ngModel)]="aTravel.aSolarSystem"
+                  (ngModelChange)="readSolarBodies(aTravel.aSolarSystem);calcSSTT()"
+                  class="solar-system-select"
+                  [interfaceOptions]="{'cssClass':'wider-popover'}"
+                >
+                  <ion-select-option *ngFor="let solarSystem of aUniverse | async" [value]="solarSystem">
+                    {{solarSystem.name}}: {{solarSystem.xCoordinate}}, {{solarSystem.yCoordinate}}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-header>Solar Body System</ion-header>
+            <ion-col>
+              <ion-item>
+                <ion-label>From</ion-label>
+                <ion-label>{{aLocation.aSolarBody.name}}: {{aLocation.aSolarBody.xCoordinate}}, {{aLocation.aSolarBody.yCoordinate}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item fill="solid" class="ion-margin-bottom">
+                <ion-label>Solar Body</ion-label>
+                <ion-select name="solar_body" [(ngModel)]="aTravel.aSolarBody" (ngModelChange)="calcSBTT()" class="solar-system-select" [interfaceOptions]="{'cssClass':'wider-popover'}">
+                  <ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody">
+                    {{solarBody.name}}: {{solarBody.xCoordinate}}, {{solarBody.yCoordinate}}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-header>Travel Time</ion-header>
+            <ion-col>
+              <ion-item>
+                <ion-label>Solar System Travel Time</ion-label>
+                <ion-item>{{aTravel.solarSystemTime}}</ion-item>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item>
+                <ion-label>Solar Body Travel Time</ion-label>
+                <ion-item>{{aTravel.solarBodyTime}}</ion-item>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col>
+              <ion-label>Total Travel Time</ion-label>
+              <ion-item>{{calcTTT()}}</ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-label>ETA</ion-label>
+              <ion-item>{{calcTTT('arrivalTime')}}</ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-button type="submit" color="primary" [disabled]="!aTravel.aSolarSystem.id || !aTravel.aSolarBody.id">
+          Travel
+        </ion-button>
+      </form>
+    </ion-card-content>
+    -->
+  </ion-card>
+</ion-content>

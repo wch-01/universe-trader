@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>businesses</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-grid *ngIf="businessesLoaded">
+      <ion-row>
+        <ion-col *ngFor="let business of busS.aBusinesses">
+          Business One
+        </ion-col>
+
+        <ion-col *ngIf="busS.aBusinesses.length < 10" style="border-style: dashed">
+          <ion-button (click)="businessCreationModal()">
+            Create a Business
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>

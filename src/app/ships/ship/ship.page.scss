@@ -1,0 +1,15 @@
+.solar-system-select{
+  min-width: fit-content;
+}
+
+::ng-deep .wider-popover
+{
+  --width: 95%;
+  --max-width: 400px;
+}
+
+.center-content{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

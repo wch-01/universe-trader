@@ -1,0 +1,249 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <span *ngIf="shipBootDone; then shipTitle; else shipUnknown"></span>
+      <ng-template #shipTitle>{{shipS.aShip.name}}</ng-template>
+      <ng-template #shipUnknown>Unknown Ship</ng-template>
+    </ion-title>
+    <ion-segment [(ngModel)]="nsTab">
+      <ion-segment-button value="main">
+        <ion-label>Main</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="modules">
+        <ion-label>Modules</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="trade">
+        <ion-label>Market</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="warehouse">
+        <ion-label>Warehouse</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    <ion-buttons slot="end">
+      <!--This page was being used as modal. <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>-->
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="shipBootDone" [ngSwitch]="nsTab">
+  <ion-grid id="main" *ngSwitchCase="'main'">
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Details</ion-card-title>
+            <ion-card-subtitle></ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label>Status</ion-label>
+                    <ion-label>{{shipS.aShip.status}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Solar System</ion-label>
+                    <ion-label>{{shipS.aLocation.aSolarSystem.name}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Solar Body</ion-label>
+                    <ion-label>{{shipS.aLocation.aSolarBody.name}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Engine</ion-label>
+                    <ion-label>{{shipS.aShip.engine}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Jump Engine</ion-label>
+                    <ion-label>{{shipS.aShip.jumpEngine}}</ion-label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Travel</ion-card-title>
+            <!--
+            <ion-card-subtitle>{{currentDate}}</ion-card-subtitle>
+            <ion-card-subtitle>{{currentDateAdd}}</ion-card-subtitle>
+            <ion-card-subtitle>{{date}}</ion-card-subtitle>
+            <ion-card-subtitle>{{dateTwo}}</ion-card-subtitle>
+            <ion-card-subtitle>{{timer}}</ion-card-subtitle>
+            <ion-card-subtitle>{{duration}}</ion-card-subtitle>
+            -->
+          </ion-card-header>
+          <ion-card-content>
+            <form (ngSubmit)="travel()">
+              <ion-grid>
+                <ion-row>
+                  <ion-header>Solar System</ion-header>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label>From</ion-label>
+                      <ion-label>{{shipS.aLocation.aSolarSystem.name}}: {{shipS.aLocation.aSolarSystem.xCoordinate}}, {{shipS.aLocation.aSolarSystem.yCoordinate}}</ion-label>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col>
+                    <ion-item fill="solid" class="ion-margin-bottom">
+                      <ion-label>To</ion-label>
+                      <ion-select
+                        name="solar_system"
+                        [(ngModel)]="aTravel.aSolarSystem"
+                        (ngModelChange)="readSolarBodies(aTravel.aSolarSystem);calcSSTT()"
+                        class="solar-system-select"
+                        [interfaceOptions]="{'cssClass':'wider-popover'}"
+                      >
+                        <ion-select-option *ngFor="let solarSystem of aUniverse | async" [value]="solarSystem">
+                          {{solarSystem.name}}: {{solarSystem.xCoordinate}}, {{solarSystem.yCoordinate}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-header>Solar Body System</ion-header>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label>From</ion-label>
+                      <ion-label>{{shipS.aLocation.aSolarBody.name}}: {{shipS.aLocation.aSolarBody.xCoordinate}}, {{shipS.aLocation.aSolarBody.yCoordinate}}</ion-label>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item fill="solid" class="ion-margin-bottom">
+                      <ion-label>Solar Body</ion-label>
+                      <ion-select name="solar_body" [(ngModel)]="aTravel.aSolarBody" (ngModelChange)="calcSBTT()" class="solar-system-select" [interfaceOptions]="{'cssClass':'wider-popover'}">
+                        <ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody">
+                          {{solarBody.name}}: {{solarBody.xCoordinate}}, {{solarBody.yCoordinate}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-header>Travel Time</ion-header>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label>Solar System Travel Time</ion-label>
+                      <ion-item>{{aTravel.solarSystemTime}}</ion-item>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label>Solar Body Travel Time</ion-label>
+                      <ion-item>{{aTravel.solarBodyTime}}</ion-item>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <ion-label>Total Travel Time</ion-label>
+                    <ion-item>{{calcTTT()}}</ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-label>ETA</ion-label>
+                    <ion-item>{{calcTTT('arrivalTime')}}</ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              <ion-button type="submit" color="primary" [disabled]="!aTravel.aSolarSystem.id || !aTravel.aSolarBody.id">
+                Travel
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Inventory</ion-card-title>
+            <!--
+            <ion-card-subtitle>{{currentDate}}</ion-card-subtitle>
+            <ion-card-subtitle>{{currentDateAdd}}</ion-card-subtitle>
+            <ion-card-subtitle>{{date}}</ion-card-subtitle>
+            <ion-card-subtitle>{{dateTwo}}</ion-card-subtitle>
+            <ion-card-subtitle>{{timer}}</ion-card-subtitle>
+            <ion-card-subtitle>{{duration}}</ion-card-subtitle>
+            -->
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row class="item-list-border">
+                <ion-col>
+                  Item
+                </ion-col>
+                <ion-col>
+                  Quantity
+                </ion-col>
+                <ion-col>
+                  COG
+                </ion-col>
+                <ion-col>
+                  Total Cost
+                </ion-col>
+              </ion-row>
+              <ion-row *ngFor="let item of shipS.aRawInventory; let i = index" class="item-list-border" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+                <ion-col>
+                  {{item.displayName}}
+                </ion-col>
+                <ion-col>
+                  {{item.quantity}}
+                </ion-col>
+                <ion-col>
+                  {{item.cost / item.quantity | number}}
+                </ion-col>
+                <ion-col>
+                  {{item.cost | number}}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card id="modules" *ngSwitchCase="'modules'">
+    <ion-card-header>
+      <ion-card-title>Modules</ion-card-title>
+      <ion-card-subtitle>{{shipS.aShip.installedModules.length}} Modules(s)</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Module</ion-label>
+          <ion-label>Level</ion-label>
+          <ion-label>Actions</ion-label>
+        </ion-item>
+        <ion-item *ngFor="let module of shipS.aShip.installedModules">
+          <ion-label>{{module.name}}</ion-label>
+          <ion-label>{{module.level}}</ion-label>
+          <ion-label>Dropdown of Actions (Un-install, Upgrade?)</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <div id="trade" *ngSwitchCase="'trade'">
+    <app-trade *ngIf="shipS.aShip.status === 'Idle'; else notIdle" [trader]="'ship'"></app-trade>
+    <ng-template #notIdle>
+      Ships is not in a port.
+    </ng-template>
+  </div>
+
+  <div id="warehouse" *ngSwitchCase="'warehouse'">
+    <app-ship-warehouse></app-ship-warehouse>
+  </div>
+</ion-content>
