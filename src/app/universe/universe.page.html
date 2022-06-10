@@ -1,0 +1,167 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Universe</ion-title>
+    <ion-segment [(ngModel)]="nsTab">
+      <ion-segment-button value="solarSystems">
+        <ion-label>Solar Systems</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="solarBodies">
+        <ion-label>Solar Bodies</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="colonies">
+        <ion-label>Colonies</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [ngSwitch]="nsTab">
+  <!--Current Universe-->
+  <ion-card id="solarSystems" *ngSwitchCase="'solarSystems'">
+    <ion-card-header>
+      <ion-card-title>
+        <span *ngIf="aFilteredUniverse">{{aFilteredUniverse.length}}</span> Solar Systems
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col *ngFor="let column of aSolarSystemsTable">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">
+                {{column.label}}
+                <span *ngIf="sortField === column.filter">
+                  <ion-icon *ngIf="order === false" name="arrow-up-circle-outline"></ion-icon>
+                  <ion-icon *ngIf="order === true" name="arrow-down-circle-outline"></ion-icon>
+                </span>
+              </ion-label>
+              <ion-input type="text" name="filter{{column.label}}" [(ngModel)]="aSolarSystemFilters[column.filter]" (ngModelChange)="filterSolarSystems()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-button id="nested-button"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+            <ion-popover trigger="nested-button" [dismissOnSelect]="true">
+              <ng-template>
+                <ion-content>
+                  <ion-list>
+                    <ion-item [button]="true" [detail]="false" *ngFor="let column of aSolarSystemsTable">
+                      <ion-label (click)="sortSolarSystems(column.filter, order= !order)">{{column.label}}</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-popover>
+
+            <ion-button *ngIf="order === false" (click)="sortSolarSystems(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+            <ion-button *ngIf="order === true" (click)="sortSolarSystems(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let solarSystem of aFilteredUniverse">
+          <!--<ion-col>{{solarSystem.id}}</ion-col>-->
+          <ion-col>{{solarSystem.name}}</ion-col>
+          <ion-col>{{solarSystem.resourceOne}}</ion-col>
+          <ion-col>{{solarSystem.resourceTwo}}</ion-col>
+          <ion-col>{{solarSystem.solarYield}}</ion-col>
+          <ion-col>{{solarSystem.xCoordinate}}</ion-col>
+          <ion-col>{{solarSystem.yCoordinate}}</ion-col>
+          <ion-col><ion-button (click)="viewSolarSystem(solarSystem)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card id="solarBodies" *ngSwitchCase="'solarBodies'">
+    <ion-card-header>
+      <ion-card-title><span *ngIf="aFilteredSolarBodies">{{aFilteredSolarBodies.length}}</span> Solar Bodies</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col *ngFor="let col of aSolarBodiesTable">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">
+                {{col.label}}
+                <span *ngIf="sortField === col.filter">
+                  <ion-icon *ngIf="order === false" name="arrow-up-circle-outline"></ion-icon>
+                  <ion-icon *ngIf="order === true" name="arrow-down-circle-outline"></ion-icon>
+                </span>
+              </ion-label>
+              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="aSolarBodyFilters[col.filter]" (ngModelChange)="filterSolarBodies()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-button id="nested-button-two"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+            <ion-popover trigger="nested-button-two" [dismissOnSelect]="true">
+              <ng-template>
+                <ion-content>
+                  <ion-list>
+                    <ion-item [button]="true" [detail]="false" *ngFor="let column of aSolarBodiesTable">
+                      <ion-label (click)="sortSolarBodies(column.filter, order= !order)">{{column.label}}</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-popover>
+
+            <ion-button *ngIf="order === false" (click)="sortSolarBodies(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+            <ion-button *ngIf="order === true" (click)="sortSolarBodies(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let solarBody of aFilteredSolarBodies">
+          <ion-col *ngFor="let col of aSolarBodiesTable">
+            {{solarBody[col.filter]}}
+          </ion-col>
+          <ion-col><ion-button (click)="viewSolarBody(solarBody)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card id="colonies" *ngSwitchCase="'colonies'">
+    <ion-card-header>
+      <ion-card-title><span *ngIf="aFilteredColonies">{{aFilteredColonies.length}}</span> Colonies</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">
+                {{col.label}}
+                <span *ngIf="sortField === col.filter">
+                  <ion-icon *ngIf="order === false" name="arrow-up-circle-outline"></ion-icon>
+                  <ion-icon *ngIf="order === true" name="arrow-down-circle-outline"></ion-icon>
+                </span>
+              </ion-label>
+              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="colonyS.aColoniesFilters[col.filter]" (ngModelChange)="filterColonies()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-button id="nested-button-three"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+            <ion-popover trigger="nested-button-three" [dismissOnSelect]="true">
+              <ng-template>
+                <ion-content>
+                  <ion-list>
+                    <ion-item [button]="true" [detail]="false" *ngFor="let column of colonyS.aColoniesTableColumns">
+                      <ion-label (click)="sortColonies(column.filter, order= !order)">{{column.label}}</ion-label>
+                    </ion-item>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-popover>
+
+            <ion-button *ngIf="order === false" (click)="sortColonies(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+            <ion-button *ngIf="order === true" (click)="sortColonies(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let colony of aFilteredColonies">
+          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+            {{colony[col.filter]}}
+          </ion-col>
+          <ion-col><ion-button (click)="viewColony(colony)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

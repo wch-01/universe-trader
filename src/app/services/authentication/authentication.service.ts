@@ -114,12 +114,22 @@ export class AuthenticationService {
     );
   }
 
+  async loginWithGoogle() {
+    return await this.angularFireAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((gAuthRes: any) => {
+      console.log('Google Auth');
+      //console.log(gAuthRes);
+      this.user= gAuthRes.user;
+      this.userLoggedIn= true;
+      this.userLoggedInP= Promise.resolve(true);
+    });
+  }
+
   async login(email: string, password: string) {
     console.log('Login Email & Password');
     return await this.angularFireAuth.signInWithEmailAndPassword(email, password)
       .then((epSignRes: any) => {
         console.log('Email & Password Auth');
-        console.log(epSignRes);
+        //console.log(epSignRes);
         this.user= epSignRes.user;
         this.userLoggedIn= true;
         this.userLoggedInP= Promise.resolve(true);
@@ -166,13 +176,5 @@ export class AuthenticationService {
     */
   }
 
-  async loginWithGoogle() {
-    return await this.angularFireAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((gAuthRes: any) => {
-      console.log('Google Auth');
-      console.log(gAuthRes);
-      this.user= gAuthRes.user;
-      this.userLoggedIn= true;
-      this.userLoggedInP= Promise.resolve(true);
-    });
-  }
+
 }

@@ -9,8 +9,9 @@ import {Components} from '@ionic/core';
 export class ModalPage implements OnInit {
 //region Variables
   @Input() modal: Components.IonModal;
-  modalType;
-  aData;
+  @Input() viewer: any;
+  @Input() modalType: any;
+  @Input() aData: any;
   //endregion
 
   //region Constructor

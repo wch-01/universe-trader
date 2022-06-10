@@ -1,7 +1,5 @@
 <!--This page should always be included in another page.-->
 
-
-
 <ion-card>
   <!--
   <ion-card-header>
@@ -29,9 +27,9 @@
             <ion-label position="floating">
               Item
               <span *ngIf="sortField === 'name'">
-                    <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
-                    <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
-                  </span>
+                <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+              </span>
             </ion-label>
             <ion-input type="text" name="filterName" [(ngModel)]="aMarketInventoryFilters.name" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
           </ion-item>
@@ -75,7 +73,7 @@
       </ion-row>
       <ion-row *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
         <ion-col>
-          {{ss.aDefaultItems[item.name].displayName}}
+          {{ss.aaDefaultItems[item.name].displayName}}
         </ion-col>
         <ion-col>
           {{item.type}}

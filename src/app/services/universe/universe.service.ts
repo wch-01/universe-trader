@@ -3,12 +3,16 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ServerService } from '../server/server.service';
 import {Colony, SolarBody, SolarSystem} from '../../classes/universe';
 import {take} from 'rxjs/operators';
+// @ts-ignore
+const moment= require('moment');
 
 @Injectable({
   providedIn: 'root'
 })
 export class UniverseService {
   //region Variables
+  ssSub;
+  aSolarSystems;
   aSolarBodies: any;
   aColonies: any;
   aSolarSystem= new SolarSystem();
@@ -22,6 +26,9 @@ export class UniverseService {
   ) {}
   //endregion
 
+  /**
+   * Name: Read Universe
+   * */
   readUniverse(){
     //todo convert to promise
     return this.afs.collection('servers/' + this.ss.activeServer + '/universe',
@@ -31,14 +38,116 @@ export class UniverseService {
       .valueChanges({idField:'id'});
   }
 
-  readSolarBodies(systemID){
+  readSSSolarBodies(solarSystemID){
     //todo convert to promise
     return this.afs.collection('servers/' + this.ss.activeServer + '/universe',
         ref =>
-          ref.where('systemID','==',systemID).where('type', '==', 'solarBody')
+          ref.where('solarSystemID','==',solarSystemID).where('type', '==', 'solarBody')
     )
       .valueChanges({idField:'id'});
   }
+
+  //region Read
+  rpSolarSystems(){
+    console.log('Read Solar Systems');
+    return new Promise((resolve, reject) => {
+      if(localStorage.getItem('ut_server_universe_solar_systems')
+        &&
+        localStorage.getItem('ut_server_universe_solar_systems_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_universe_solar_systems_time') > this.ss.lastUpdate.universeUpdated
+      ){
+        this.aSolarSystems= JSON.parse(localStorage.getItem('ut_server_universe_solar_systems'));
+        resolve(true);
+      }
+      else{
+        console.log('Solar Systems Local Storage is out of Date');
+        this.ssSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
+          ref =>
+            ref.where('type', '==', 'solarSystem')
+        ).valueChanges({idField:'id'})
+          .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
+          .subscribe((aSolarSystems: any) => {
+          localStorage.setItem('ut_server_universe_solar_systems', JSON.stringify(aSolarSystems));
+          localStorage.setItem('ut_server_universe_solar_systems_time', moment().unix());
+          this.aSolarSystems= aSolarSystems;
+          console.log(this.aSolarSystems);
+          //ssSub.unsubscribe();//Only works the first time the function is called, any other calls it only pulls one system
+          resolve(true);
+        });
+      }
+    });
+  }
+
+  rpSolarBodies(){
+    return new Promise((resolve, reject) => {
+      if(localStorage.getItem('ut_server_universe_solar_bodies')
+        &&
+        localStorage.getItem('ut_server_universe_solar_bodies_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_universe_solar_bodies_time') > this.ss.lastUpdate.universeUpdated
+      ){
+        this.aSolarBodies= JSON.parse(localStorage.getItem('ut_server_universe_solar_bodies'));
+        resolve(true);
+      }
+      else{
+        console.log('Solar Bodies Local Storage is out of Date');
+        const sbSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
+          ref =>
+            ref.where('type', '==', 'solarBody')
+        ).valueChanges({idField:'id'})
+          .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
+          .subscribe((aSolarBodies: any) => {
+          localStorage.setItem('ut_server_universe_solar_bodies', JSON.stringify(aSolarBodies));
+          localStorage.setItem('ut_server_universe_solar_bodies_time', moment().unix());
+          this.aSolarBodies= aSolarBodies;
+          //sbSub.unsubscribe();
+          resolve(true);
+        });
+      }
+    });
+  }
+
+  /**
+   * Read Promise Colonies
+   **/
+  rpColonies(){
+    return new Promise((resolve, reject) => {
+      if(localStorage.getItem('ut_server_universe_colonies')
+        &&
+        localStorage.getItem('ut_server_universe_colonies_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_universe_colonies_time') > this.ss.lastUpdate.universeUpdated
+      ){
+        this.aColonies= JSON.parse(localStorage.getItem('ut_server_universe_colonies'));
+        resolve(true);
+      }
+      else{
+        console.log('Colony Local Storage is out of Date');
+        const cSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
+          ref =>
+            ref.where('type', '==', 'colony')
+        ).valueChanges({idField:'id'})
+          .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
+          .subscribe((aColonies: any) => {
+          localStorage.setItem('ut_server_universe_colonies', JSON.stringify(aColonies));
+          localStorage.setItem('ut_server_universe_colonies_time', moment().unix());
+          this.aColonies= aColonies;
+          //cSub.unsubscribe();
+          resolve(true);
+        });
+      }
+    });
+  }
+
+  readColonies(){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+      ref =>
+        ref.where('type', '==', 'colony')
+    )
+      .valueChanges({idField:'id'});
+  }
+  //endregion
 
   /**
    * Name: Read Solar Bodies Colonies
@@ -77,10 +186,12 @@ export class UniverseService {
   }
   readSolarSystem(id){
     return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-      .doc(id).valueChanges({idField:'id'})
+      .doc(id).valueChanges({idField:'id'});
+      /*
       .subscribe((solarSystem: SolarSystem)=>{
         this.aSolarSystem= solarSystem;
       });
+    */
   }
 
   //Read Solar Body Promise
@@ -102,6 +213,7 @@ export class UniverseService {
       });
   }
 
+  //Read Colony
   readColony(id){
     return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
       .doc(id).valueChanges({idField:'id'})

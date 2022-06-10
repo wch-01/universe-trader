@@ -20,6 +20,7 @@ export class Ship {
   status: string;
   orderList: any;
   traveling: any;
+  location: any;
 }
 
 /**

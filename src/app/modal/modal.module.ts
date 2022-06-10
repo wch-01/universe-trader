@@ -8,6 +8,8 @@ import { ModalPageRoutingModule } from './modal-routing.module';
 
 import { ModalPage } from './modal.page';
 import {ShipPageModule} from "../ships/ship/ship.module";
+import {ColonyPageModule} from "../colonies/colony/colony.module";
+import {ShipWarehousePageModule} from "../ships/ship-warehouse/ship-warehouse.module";
 
 @NgModule({
     imports: [
@@ -15,7 +17,9 @@ import {ShipPageModule} from "../ships/ship/ship.module";
         FormsModule,
         IonicModule,
         ModalPageRoutingModule,
-        ShipPageModule
+        ShipPageModule,
+        ColonyPageModule,
+        ShipWarehousePageModule
     ],
   declarations: [ModalPage]
 })

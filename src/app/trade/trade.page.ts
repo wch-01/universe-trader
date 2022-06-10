@@ -24,6 +24,7 @@ export class TradePage implements OnInit {
 
   nsTab= 'market';
   aMarketInventory: any;
+  marketInventorySub;
   aLocation= {
     aSolarSystem: new SolarSystem(),
     aSolarBody: new SolarBody()
@@ -70,12 +71,16 @@ export class TradePage implements OnInit {
   //endregion
 
   ngOnInit() {
+    console.log('Load Trading Page');
+    /*
     this.us.rsbCP(this.us.aSolarBody.id).then((rsbCRes: any) => {
       this.coloniesLoaded= true;
     });
+    */
     this.getMarketInventory();
     switch (this.trader) {
       case 'ship':
+        console.log('trade: Trader is a ship');
         this.aaInventoryLevels= this.shipS.aInventory;
         this.capacityAvailable= this.shipS.capacityAvailable;
         break;
@@ -90,13 +95,14 @@ export class TradePage implements OnInit {
   getMarketInventory(){
     switch (this.market){
       case 'colony':
-        this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
+        this.marketInventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories/',
           ref =>
-            ref.where('ownerID', '==', this.colonyS.aColony.id).where('market', '==', true)
-        ).valueChanges({idField: 'id'})
+            ref.where('ownerID', '==', this.colonyS.aColony.id)
+        )
+          .valueChanges({idField: 'id'})
           .subscribe((aMarketInventory: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 1){
-              console.log('colonyService: Inventory');
+              console.log('tradePage: Inventory');
               if(this.ss.aRules.consoleLogging.mode >= 2){
                 console.log(aMarketInventory);
               }
@@ -110,9 +116,9 @@ export class TradePage implements OnInit {
         this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
           ref =>
             ref.where('ownerID', '==', this.stationS.aStation.id)
-              //.where('quantity', '!=', 0)
               .where('activeListing', '==', true)
-        ).valueChanges({idField: 'id'})
+        )
+          .valueChanges({idField: 'id'})
           .subscribe((aInventory: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 1){
               console.log('stationService: rsiP');
@@ -129,68 +135,127 @@ export class TradePage implements OnInit {
   }
 
   async confirmTradeAlert(action, item, amount, price, total){
-    //todo Validate values available, capacity available etc.
-    if(item.quantity >= amount && this.capacityAvailable >= amount){
-      price= Math.ceil(price);
-      total= Math.ceil(total);
-      const confirmTradeAlert = await this.ionAlert.create({
-        cssClass: '',
-        header: 'Confirm Transaction',
-        subHeader: '',
-        message: 'Please Confirm: ' + action + ' ' + amount + ' @ ' + price + ' Totalling ' + total,
-        inputs: [
-          /*
-          {
-            name: 'amount',
-            type: 'number',
-            placeholder: '100'
-          }
-          */
-        ],
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            cssClass: 'secondary',
-            handler: () => {
-              //console.log('Confirm Cancel');
-            }
-          },
-          {
-            text: 'Confirm',
-            handler: (data: any) => {
-              this.performTrade(action, item, amount, price, total);
-            }
-          }
-        ]
-      });
+    switch (action){
+      case 'buy':
+        if(item.quantity >= amount && this.capacityAvailable >= amount && amount > 0){
+          price= Math.ceil(price);
+          total= Math.ceil(total);
+          const confirmTradeAlert = await this.ionAlert.create({
+            cssClass: '',
+            header: 'Confirm Transaction',
+            subHeader: '',
+            message: 'Please Confirm: ' + action + ' ' + amount + ' @ ' + price + ' Totalling ' + total,
+            inputs: [
+              /*
+              {
+                name: 'amount',
+                type: 'number',
+                placeholder: '100'
+              }
+              */
+            ],
+            buttons: [
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+                handler: () => {
+                  //console.log('Confirm Cancel');
+                }
+              },
+              {
+                text: 'Confirm',
+                handler: (data: any) => {
+                  this.performTrade(action, item, amount, price, total);
+                }
+              }
+            ]
+          });
 
-      await confirmTradeAlert.present();
-    }
-    else{
-      const confirmTradeAlert = await this.ionAlert.create({
-        cssClass: '',
-        header: 'Confirm Transaction',
-        subHeader: '',
-        message: 'Please check your numbers, you either do not have room, or the seller is out of product',
-        inputs: [
-          /*
-          {
-            name: 'amount',
-            type: 'number',
-            placeholder: '100'
-          }
-          */
-        ],
-        buttons: [
-          {
-            text: 'Confirm',
-            handler: () => {}
-          }
-        ]
-      });
+          await confirmTradeAlert.present();
+        }
+        else{
+          const confirmTradeAlert = await this.ionAlert.create({
+            cssClass: '',
+            header: 'Confirm Transaction',
+            subHeader: '',
+            message: 'Please check your numbers, you either do not have room, or the seller is out of product',
+            inputs: [
+              /*
+              {
+                name: 'amount',
+                type: 'number',
+                placeholder: '100'
+              }
+              */
+            ],
+            buttons: [
+              {
+                text: 'Confirm',
+                handler: () => {}
+              }
+            ]
+          });
 
-      await confirmTradeAlert.present();
+          await confirmTradeAlert.present();
+        }
+        break;
+      case 'sell':
+        if(this.shipS.aInventory[item.name].quantity >= amount && amount > 0){
+          price= Math.ceil(price);
+          total= Math.ceil(total);
+          const confirmTradeAlert = await this.ionAlert.create({
+            cssClass: '',
+            header: 'Confirm Transaction',
+            subHeader: '',
+            message: 'Please Confirm: ' + action + ' ' + amount + ' @ ' + price + ' Totalling ' + total,
+            inputs: [
+              /*
+              {
+                name: 'amount',
+                type: 'number',
+                placeholder: '100'
+              }
+              */
+            ],
+            buttons: [
+              {
+                text: 'Cancel',
+                role: 'cancel',
+                cssClass: 'secondary',
+                handler: () => {
+                  //console.log('Confirm Cancel');
+                }
+              },
+              {
+                text: 'Confirm',
+                handler: (data: any) => {
+                  this.performTrade(action, item, amount, price, total);
+                }
+              }
+            ]
+          });
+
+          await confirmTradeAlert.present();
+        }
+        else{
+          const confirmTradeAlert = await this.ionAlert.create({
+            cssClass: '',
+            header: 'Confirm Transaction',
+            subHeader: '',
+            message: 'Please check your numbers, you either do not have room, or the seller is out of product',
+            inputs: [],
+            buttons: [
+              {
+                text: 'Confirm',
+                handler: () => {}
+              }
+            ]
+          });
+
+          await confirmTradeAlert.present();
+        }
+        break;
     }
   }
 
@@ -255,7 +320,7 @@ export class TradePage implements OnInit {
       {
         ownerID: this.cs.aCharacter.id,
         type: action,
-        item: this.ss.aDefaultItems[item.name].displayName,
+        item: this.ss.aaDefaultItems[item.name].displayName,
         quantity: amount,
         cost: price,
         totalCost: total,

@@ -30,7 +30,7 @@ export class SolarSystem {
 
 export class SolarBody {
   id: string;
-  systemID: string;
+  solarSystemID: string;
   solarBodyType: string;
   name: string;
   xCoordinate: number;
@@ -43,6 +43,7 @@ export class SolarBody {
 }
 
 export class Colony {
+  id: string;
   ownerUID: string;
   solarBodyID: string;
   name: string;

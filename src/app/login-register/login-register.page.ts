@@ -42,6 +42,123 @@ export class LoginRegisterPage implements OnInit {
   ngOnInit() {
   }
 
+  //Login function to handle Google and EP Login, and dynamically decide where to redirect to
+  async login(method){
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Logging in',
+      //duration: 2000
+    });
+    await loading.present();
+
+    switch (method){
+      case 'google':
+        this.authService.loginWithGoogle()
+          .then(
+            res => {
+            console.log('Login with google.');
+            this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+            const userSub= this.afs.collection('users').doc(this.authService.user.uid).valueChanges()
+              .subscribe((userRecord: any) => {
+                //console.log('Find user Record');
+                //console.log(userRecord);
+                if(!userRecord){
+                  //console.log('Record Does not Exist');
+                  this.afs.collection('users/').doc(this.authService.user.uid)
+                    .set({
+                      lastLogin: moment().unix(),
+                      email: this.authService.user.email
+                    });
+                }
+                else{
+                  this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+                }
+                userSub.unsubscribe();
+              });
+            loading.dismiss();
+          },
+            err => {
+            this.showMessage('danger', err.message);
+          }
+          );
+        break;
+      case 'ep':
+        this.responseMessage = '';
+        this.authService.login(this.emailInput, this.passwordInput)
+          .then(
+            res => {
+              //console.log('E&P Result');
+              //console.log(res);
+              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+              this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+              this.showMessage('success', 'Successfully Logged In!');
+              this.isUserLoggedIn();
+            },
+            err => {
+              //this.showMessage('danger', err.message);
+              this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
+            }
+          );
+        break;
+    }
+  }
+
+  // Open Popup to Log in with Google Account
+  async googleLogin() {
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Logging in',
+      //duration: 2000
+    });
+    await loading.present();
+
+    this.authService.loginWithGoogle()
+      .then(res => {
+        console.log('Login with google.');
+        this.router.navigateByUrl('/after-login', { replaceUrl: true });
+        const userSub= this.afs.collection('users').doc(this.authService.user.uid).valueChanges()
+          .subscribe((userRecord: any) => {
+            //console.log('Find user Record');
+            //console.log(userRecord);
+            if(!userRecord){
+              //console.log('Record Does not Exist');
+              this.afs.collection('users/').doc(this.authService.user.uid)
+                .set({
+                  lastLogin: moment().unix(),
+                  email: this.authService.user.email
+                });
+            }
+            else{
+              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+            }
+            userSub.unsubscribe();
+          });
+        loading.dismiss();
+      }, err => {
+        this.showMessage('danger', err.message);
+      });
+  }
+
+  // Login user with  provided Email/ Password
+  loginUser() {
+    //console.log('Login with Email and Password');
+    this.responseMessage = '';
+    this.authService.login(this.emailInput, this.passwordInput)
+      .then(
+        res => {
+          //console.log('E&P Result');
+          //console.log(res);
+          this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+          this.router.navigateByUrl('/after-login', { replaceUrl: true });
+          this.showMessage('success', 'Successfully Logged In!');
+          this.isUserLoggedIn();
+        },
+        err => {
+          //this.showMessage('danger', err.message);
+          this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
+        });
+  }
+
   // Common Method to Show Message and Hide after 2 seconds
   showMessage(type, msg) {
     this.responseMessageType = type;
@@ -112,26 +229,6 @@ export class LoginRegisterPage implements OnInit {
       }, err => {
         this.showMessage('danger', err.message);
       });
-  }
-
-  // Login user with  provided Email/ Password
-  loginUser() {
-    //console.log('Login with Email and Password');
-    this.responseMessage = '';
-    this.authService.login(this.emailInput, this.passwordInput)
-      .then(
-        res => {
-        //console.log('E&P Result');
-        //console.log(res);
-        this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
-        this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-        this.showMessage('success', 'Successfully Logged In!');
-        this.isUserLoggedIn();
-      },
-        err => {
-          //this.showMessage('danger', err.message);
-          this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
-        });
   }
 
   // Register user with  provided Email/ Password
@@ -226,41 +323,5 @@ export class LoginRegisterPage implements OnInit {
 
     const { role } = await addCreditsAlert.onDidDismiss();
     //console.log('onDidDismiss resolved with role', role);
-  }
-
-  // Open Popup to Log in with Google Account
-  async googleLogin() {
-    const loading = await this.loadingController.create({
-      //cssClass: 'my-custom-class',
-      message: 'Logging in',
-      //duration: 2000
-    });
-    await loading.present();
-
-    this.authService.loginWithGoogle()
-      .then(res => {
-        console.log('Login with google.');
-        this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-        const userSub= this.afs.collection('users').doc(this.authService.user.uid).valueChanges()
-          .subscribe((userRecord: any) => {
-            //console.log('Find user Record');
-            //console.log(userRecord);
-            if(!userRecord){
-              //console.log('Record Does not Exist');
-              this.afs.collection('users/').doc(this.authService.user.uid)
-                .set({
-                  lastLogin: moment().unix(),
-                  email: this.authService.user.email
-                });
-            }
-            else{
-              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
-            }
-            userSub.unsubscribe();
-          });
-        loading.dismiss();
-      }, err => {
-        this.showMessage('danger', err.message);
-      });
   }
 }

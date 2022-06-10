@@ -6,7 +6,7 @@
 </ion-header>
 -->
 
-<ion-card>
+<ion-card *ngIf="warehouseBoot; else noWarehouse">
   <ion-grid>
     <ion-row class="warehouseInventoryBorder">
       <ion-col>Item</ion-col>
@@ -74,3 +74,17 @@
     </ion-row>
   </ion-grid>
 </ion-card>
+
+<ng-template #noWarehouse>
+  <ion-card>
+    <ion-card-content>
+      No Warehouse Found
+      <h1>Planned Features</h1>
+      <ul>
+        <li>
+          Buy New  Warehouse
+        </li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
+</ng-template>

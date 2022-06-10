@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../server/server.service';
-import {SolarBody, SolarSystem} from '../../classes/universe';
+import {Colony, SolarBody, SolarSystem} from '../../classes/universe';
 import {UniverseService} from '../universe/universe.service';
+import {ColonyService} from '../colony/colony.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class ShipService {
   shipSub;
   aLocation= {
     aSolarSystem: new SolarSystem(),
-    aSolarBody: new SolarBody()
+    aSolarBody: new SolarBody(),
+    aColony: new Colony()
   };
   capacityAvailable= 0;
   //endregion
@@ -25,7 +27,8 @@ export class ShipService {
   constructor(
     private afs: AngularFirestore,
     private ss: ServerService,
-    private us: UniverseService
+    private us: UniverseService,
+    public colonyS: ColonyService,
   ) { }
   //endregion
 
@@ -33,6 +36,21 @@ export class ShipService {
     if(!id){id= this.shipID;}
 
     return await new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/ships')
+        .doc(id).valueChanges({idField:'id'})
+        .subscribe(ship=>{
+          this.aShip= ship;
+          this.rslP(this.aShip.solarSystem, this.aShip.solarBody).then((rslP: any) => {
+            resolve(this.aShip);
+          });
+        });
+    });
+  }
+
+  rpShip(id?){
+    if(!id){id= this.shipID;}
+
+    return new Promise((resolve, reject) => {
       this.afs.collection('servers/' + this.ss.activeServer + '/ships')
         .doc(id).valueChanges({idField:'id'})
         .subscribe(ship=>{
@@ -52,6 +70,20 @@ export class ShipService {
     return new Promise((resolve, reject) => {
       this.us.rssP(solarSystemID).then((rssRes: any) => {
         this.us.rsbP(solarBodyID).then((rsbP: any) => {
+          this.colonyS.rCsbID(solarBodyID).then(
+            rCsbIDRes => {
+              this.aLocation.aColony= this.colonyS.aColony;
+            },
+            rCsbIDErr => {
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('shipService: rslP');
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(rCsbIDErr.message());
+                }
+              }
+              this.aLocation.aColony= undefined;
+            }
+          );
           this.aLocation.aSolarSystem= this.us.aSolarSystem;
           this.aLocation.aSolarBody= this.us.aSolarBody;
           resolve(true);
@@ -103,7 +135,7 @@ export class ShipService {
       this.capacityAvailable= 0;
       this.aShip.installedModules.some(module =>{
         if(module.name === 'cargo'){
-          capacityTotal= +capacityTotal + (module.level * this.ss.aDefaultItems.cargo.capacity);
+          capacityTotal= +capacityTotal + (module.level * this.ss.aaDefaultItems.cargo.capacity);
         }
       });
       this.aRawInventory.some(inventoryItem =>{

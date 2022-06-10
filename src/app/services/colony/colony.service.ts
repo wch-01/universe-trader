@@ -10,11 +10,98 @@ export class ColonyService {
   //region Variables
   colonyID;
   colonySub;
+  rCSBSub;
+  rCSSSub;
   aColony;
   inventorySub;
   aInventory= [];
   marketInventorySub;
   aMarketInventory= [];
+  aSolarSystem;
+  aSolarBody;
+
+  //region Table Variables
+  aColoniesTableColumns= [
+    /*
+    {
+      label: 'ID',
+      filter: 'id'
+    },
+    */
+    {
+      label: 'Name',
+      filter: 'name'
+    },
+    {
+      label: 'Population',
+      filter: 'population'
+    },
+    {
+      label: 'Primary Export',
+      filter: 'resourceOne'
+    },
+    {
+      label: 'Secondary Export',
+      filter: 'resourceTwo'
+    }
+  ];
+  aColoniesFilters= {
+    /*
+    id: '',
+    */
+    name: '',
+    population: '',
+    resourceOne: '',
+    resourceTwo: ''
+  };
+  //endregion
+  aInventoryColumns= [
+    /*
+    {
+      label: 'ID',
+      filter: 'id'
+    },
+    */
+    {
+      label: 'Name',
+      filter: 'name',
+    },
+    /*
+    {
+      label: 'Owner ID',
+      filter: 'ownerID',
+    },
+    */
+    {
+      label: 'Quantity',
+      filter: 'quantity',
+    },
+    {
+      label: 'COG',
+      filter: 'cog',
+    },
+    {
+      label: 'Demand %',
+      filter: 'demand',
+    },
+    {
+      label: 'Sells For',
+      filter: 'listPrice',
+    },
+    {
+      label: 'Buys For',
+      filter: 'buyPrice',
+    }
+  ];
+  aInventoryFilters= {
+    /*
+    id: '',
+    */
+    name: '',
+    quantity: '',
+    cog: '',
+    //demand: ''
+  };
   //endregion
 
   //region Constructor
@@ -22,6 +109,37 @@ export class ColonyService {
     private ss: ServerService,
     private afs: AngularFirestore,
   ) { }
+  //endregion
+
+  //region Read
+  /**
+   * Name: Read Colony by SolarBodyID
+   *
+   * @return: Promise
+   * */
+  rCsbID(solarBodyID){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+        ref =>
+          ref.where('solarBodyID', '==', solarBodyID).where('type', '==', 'colony')
+      ).valueChanges({idField:'id'})
+        .subscribe((aColonies: any) => {
+          if(aColonies.length > 0){
+            if(this.ss.aRules.consoleLogging.mode >= 1){
+              console.log('ColonyService: Colony');
+              if(this.ss.aRules.consoleLogging.mode >= 2){
+                console.log(aColonies);
+              }
+            }
+            this.aColony= aColonies[0];
+            resolve(true);
+          }
+          else{
+            reject('No colony found');
+          }
+        });
+    });
+  }
   //endregion
 
   /**
@@ -36,14 +154,20 @@ export class ColonyService {
           ref.where('solarBodyID', '==', solarBodyID).where('type', '==', 'colony')
       ).valueChanges({idField:'id'})
         .subscribe((aColonies: any) => {
-          if(this.ss.aRules.consoleLogging.mode >= 1){
-            console.log('Colony');
-            if(this.ss.aRules.consoleLogging.mode >= 2){
-              console.log(aColonies);
+          if(aColonies.length > 0){
+            if(this.ss.aRules.consoleLogging.mode >= 1){
+              console.log('ColonyService: Colony');
+              if(this.ss.aRules.consoleLogging.mode >= 2){
+                console.log(aColonies);
+              }
             }
+            this.colonyID= aColonies[0].id;
+            this.aColony= aColonies[0];
+            resolve(true);
           }
-          this.colonyID= aColonies[0].id;
-          resolve(true);
+          else{
+            reject('No colony found');
+          }
         });
     });
   }
@@ -54,11 +178,37 @@ export class ColonyService {
         .subscribe((aColony: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('colonyService: readColony');
-          }
-          if(this.ss.aRules.consoleLogging.mode >= 2){
-            console.log(aColony);
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(aColony);
+            }
           }
           this.aColony= aColony;
+          resolve(true);
+        });
+    });
+  }
+
+  /**
+   * Name: Read Colony Solar Body
+   **/
+  rCSB(){
+    return new Promise((resolve, reject) => {
+      this.rCSBSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(this.aColony.solarBodyID).valueChanges()
+        .subscribe((aSolarBody: any) => {
+          this.aSolarBody= aSolarBody;
+          resolve(true);
+        });
+    });
+  }
+
+  /**
+   * Name: Read Colony Solar System
+   **/
+  rCSS(){
+    return new Promise((resolve, reject) => {
+      this.rCSSSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(this.aColony.solarSystemID).valueChanges()
+        .subscribe((aSolarSystem: any) => {
+          this.aSolarSystem= aSolarSystem;
           resolve(true);
         });
     });
@@ -70,10 +220,8 @@ export class ColonyService {
       console.log('colonyService: Get Inv');
     }
     return new Promise((resolve, reject) => {
-      this.inventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
-        ref =>
-          ref.where('ownerID', '==', this.aColony.id)//.where('market', '==', true)
-      ).valueChanges({idField: 'id'})
+      this.inventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/' + this.aColony.id)
+        .valueChanges({idField: 'id'})
         .subscribe((aInventory: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('colonyService: rciP');
@@ -94,10 +242,11 @@ export class ColonyService {
 
   readColonyMarketInventory(){
     return new Promise((resolve, reject) => {
-      this.marketInventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
+      this.marketInventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories/',
         ref =>
-          ref.where('ownerID', '==', this.aColony.id).where('market', '==', true)
-        ).valueChanges({idField: 'id'})
+          ref.where('ownerID', '==', this.aColony.id)
+      )
+        .valueChanges({idField: 'id'})
         .subscribe((aMarketInventory: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('colonyService: Inventory');
@@ -123,17 +272,15 @@ export class ColonyService {
     if(this.ss.aRules.consoleLogging.mode >= 1){
       console.log('colonyService: Get Inv');
     }
-    return this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
-      ref =>
-        ref.where('ownerID', '==', this.aColony.id)//.where('market', '==', true)
-    ).valueChanges({idField: 'id'})
+    return this.afs.collection('servers/' + this.ss.activeServer + '/universe/' + this.aColony.id)
+      .valueChanges({idField: 'id'})
       .pipe(
         tap((aInventory: any) =>{
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('colonyService: Inventory');
-          }
-          if(this.ss.aRules.consoleLogging.mode >= 2){
-            console.log(aInventory);
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(aInventory);
+            }
           }
           aInventory.some((item: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 2){

@@ -16,6 +16,26 @@ export class StationService {
   inventorySub;
   aInventory: any;
   aaInventory= [];
+
+  aStationsTableColumns= [
+    /*
+    {
+      label: 'ID',
+      filter: 'id'
+    },
+    */
+    {
+      label: 'Name',
+      filter: 'name'
+    }
+  ];
+  aStationsFilters= {
+    /*
+    id: '',
+    */
+    name: '',
+    population: ''
+  };
   //endregion
 
   //region Constructor

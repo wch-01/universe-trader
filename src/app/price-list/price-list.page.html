@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Price List</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="ss.serverBoot">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Colony Prices</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid *ngIf="pricesLoaded" style="text-align: center">
+        <ion-row class="item-list-border">
+          <ion-col size="1.5" style="border-right: solid">
+            Colonies
+          </ion-col>
+          <ion-col style="text-align: center;">
+            Items
+          </ion-col>
+        </ion-row>
+        <ion-row class="item-list-border">
+          <ion-col size="1.5" style="border-right: solid">
+            &nbsp;
+            <ion-grid (click)="sort('name', sortOrder= !sortOrder)" style="cursor: pointer; color: lightblue">
+              <ion-row>
+                <ion-col>
+                  Colony
+                  <span *ngIf="sortField === 'name'">
+                    <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                    <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                  </span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+          <ion-col *ngFor="let aItem of ss.aDCMI">
+            {{aItem.displayName}}
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <span (click)="sort(aItem.name+'_lp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                    Buy
+                    <span *ngIf="sortField === aItem.name+'_lp'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>
+                  </span>
+                </ion-col>
+                <ion-col>
+                  <span (click)="sort(aItem.name+'_bp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                    (Sell)
+                    <span *ngIf="sortField === aItem.name+'_bp'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>
+                  </span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+        </ion-row>
+
+        <ion-row *ngFor="let aColony of aColonies; let i = index" class="item-list-border" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col size="1.5" style="border-right: solid">
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <span (click)="viewColony(aColony)" style="color: lightblue;cursor: pointer">{{aColony.name}}</span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+          <ion-col *ngFor="let aItem of ss.aDCMI">
+            <ion-grid>
+              <ion-row>
+                <ion-col>{{aColony[aItem.name + '_lp']}}</ion-col>
+                <ion-col>({{aColony[aItem.name + '_bp']}})</ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

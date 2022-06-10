@@ -33,13 +33,12 @@ export class CharacterService {
   constructor(
     private authService: AuthenticationService,
     private afs: AngularFirestore,
-    private ss: ServerService,
-    private us: UniverseService
+    private ss: ServerService
   ) {}
   //endregion
 
   //region Create
-  async createCharacter(characterName){
+  createCharacter(characterName){
     return new Promise((resolve, reject) => {
       const newCharacter= {
         name: characterName,
@@ -48,139 +47,162 @@ export class CharacterService {
       this.afs.collection('servers/' + this.ss.activeServer + '/characters')
         .add(Object.assign({}, newCharacter))
         .then((createCharacterResult: any) => {
-          this.addStartingGearBoot(createCharacterResult.id);
+          this.id= createCharacterResult.id;
+          this.addStartingGearBoot(createCharacterResult.id).then((result: any) => {
+            resolve(true);
+          });
         });
     });
   }
 
-  async addStartingGearBoot(characterID){
+  addStartingGearBoot(characterID){
     console.log('Start: addStartingGearBoot');
-    //region SolarBody->SolarSystem->Ship->Colony->Warehouse
-    this.afs.collection('servers/' + this.ss.activeServer + '/universe',
-      ref =>
-        ref.where('type', '==', 'solarSystem')
-          .where('xCoordinate', '==', 0)
-          .where('yCoordinate', '==', 0)
-    )
-      .valueChanges({idField:'id'})
-      .pipe(take(1))
-      .subscribe((aSolarSystem: any) => {
-        this.afs.collection('servers/' + this.ss.activeServer + '/universe',
-          ref =>
-            ref.where('type', '==', 'solarBody')
-              .where('systemID', '==', aSolarSystem[0].id)
-              .where('xCoordinate', '==', 0)
-              .where('yCoordinate', '==', 0)
-        )
-          .valueChanges({idField: 'id'})
-          .pipe(take(1))
-          .subscribe((aSolarBody: any) => {
-            //region Set Character Clone Location
-            this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(characterID).update({
-              solarSystemID: aSolarSystem[0].id,
-              solarBodyID: aSolarBody[0].id
-            });
-            //endregion
-
-            //region Get Default Ship
-            this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-              ref =>
-                ref.where('type', '==', 'ship')
-            )
-              .valueChanges()
-              .pipe(take(1),)
-              .subscribe((aDefaultShip: any)=>{
-                console.log('Default Ship');
-                console.log(aDefaultShip);
-                const aShip= aDefaultShip[0];
-                aShip.ownerID= characterID;
-                aShip.solarBody= aSolarBody[0].id;
-                aShip.solarSystem= aSolarBody[0].systemID;
-                console.log(aShip);
-                this.createShip(aShip);
-              });
-            //endregion
-
-            //region Get Colony for Warehouse
-            this.afs.collection('servers/' + this.ss.activeServer + '/universe',
-              ref =>
-                ref.where('solarBodyID', '==', aSolarBody[0].id)
-            )
-              .valueChanges({idField: 'id'})
-              .pipe(take(1))
-              .subscribe((aColony: any) => {
-                //region Get Default Warehouse
-                this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-                  ref =>
-                    ref.where('type', '==', 'warehouse')
-                )
-                  .valueChanges()
-                  .pipe(take(1),)
-                  .subscribe((aDefaultWarehouse: any)=>{
-                    console.log('Default Warehouse');
-                    const aWarehouse= aDefaultWarehouse[0];
-                    aWarehouse.ownerID= characterID;
-                    aWarehouse.solarBody= aSolarBody[0].id;
-                    aWarehouse.solarSystem= aSolarBody[0].systemID;
-                    aWarehouse.colonyID= aColony[0].id;
-                    this.createWarehouse(aWarehouse);
+    return new Promise((resolve, reject) => {
+      //region SolarSystem->SolarBody->Ship->Colony->Warehouse
+      //Solar system
+      this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+        ref =>
+          ref.where('type', '==', 'solarSystem')
+            .where('xCoordinate', '==', 0)
+            .where('yCoordinate', '==', 0)
+      )
+        .valueChanges({idField:'id'})
+        .pipe(take(1))
+        .subscribe((aSolarSystem: any) => {
+          //Solar Body
+          this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+            ref =>
+              ref.where('type', '==', 'solarBody')
+                .where('solarSystemID', '==', aSolarSystem[0].id)
+                .where('xCoordinate', '==', 0)
+                .where('yCoordinate', '==', 0)
+          )
+            .valueChanges({idField: 'id'})
+            .pipe(take(1))
+            .subscribe((aSolarBody: any) => {
+              //Colony
+              this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+                ref =>
+                  ref.where('solarBodyID', '==', aSolarBody[0].id)
+              )
+                .valueChanges({idField: 'id'})
+                .pipe(take(1))
+                .subscribe((aColony: any) => {
+                  //region Set Character Clone Location
+                  this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(characterID).update({
+                    solarSystemID: aSolarSystem[0].id,
+                    solarBodyID: aSolarBody[0].id
                   });
-                //endregion
+                  //endregion
+
+                  //Fire Ship, Warehouse, and Pulsars Promise
+                  Promise.all([
+                    this.createStarterShip(aSolarSystem[0].id, aSolarBody[0].id),
+                    this.createStarterWarehouse(aSolarSystem[0].id, aSolarBody[0].id, aColony[0].id),
+                    this.startingCharacterFunds()
+                  ])
+                    .then((promiseAllResult: any) => {
+                      resolve(true);
+                    });
+                });
+            });
+        });
+      //endregion
+    });
+  }
+
+  createStarterShip(solarSystemID, solarBodyID){
+    return new Promise((resolve, reject) => {
+      //region Get Default Ship
+      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
+        ref =>
+          ref.where('type', '==', 'ship')
+      )
+        .valueChanges()
+        .pipe(take(1),)
+        .subscribe((aDefaultShip: any)=>{
+          if(this.ss.aRules.consoleLogging.mode >= 1){
+            console.log('Default Ship');
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(aDefaultShip);
+            }
+          }
+          const aShip= aDefaultShip[0];
+          aShip.ownerID= this.id;
+          aShip.solarBody= solarBodyID;
+          aShip.solarSystem= solarSystemID;
+          this.afs.collection('servers/' + this.ss.activeServer + '/ships').add(Object.assign({}, aShip)).then((createShipResult: any) => {
+            this.afs.collection('servers/' + this.ss.activeServer + '/z_items').valueChanges()
+              .pipe(take(1))
+              .subscribe((aAllItems) =>{
+                console.log('createShip: Add Items');
+                this.aAllItems= aAllItems;
+                this.aAllItems.some((item: any) =>{
+                  item.quantity= 0;
+                  item.cost= 0;
+                  item.ownerID= createShipResult.id;
+                  this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, item));
+                });
+                resolve(true);
               });
-            //endregion
           });
-      });
-    //endregion
-
-    //region Starting Credits
-    this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-      ref =>
-        ref.where('type', '==', 'pulsars')
-    )
-      .valueChanges()
-      .pipe(take(1))
-      .subscribe((aStartingCredits: any) => {
-        this.afs.collection('servers/' + this.ss.activeServer + '/characters')
-          .doc(characterID)
-          .update({pulsars: aStartingCredits[0].amount});
-      });
-    //endregion
+        });
+      //endregion
+    });
   }
 
-  async createShip(aShip){
-    console.log('4. createShip');
-    //create starting ships inventory
-    const aStartingShip= await this.afs.collection('servers/' + this.ss.activeServer + '/ships').add(Object.assign({}, aShip));
-    this.afs.collection('servers/' + this.ss.activeServer + '/z_items').valueChanges()
-      .pipe(take(1))
-      .subscribe((aAllItems) =>{
-        console.log('createShip: Add Items');
-        this.aAllItems= aAllItems;
-        this.aAllItems.some((item: any) =>{
-          item.quantity= 0;
-          item.cost= 0;
-          item.ownerID= aStartingShip.id;
-          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, item));
+  createStarterWarehouse(solarSystemID, solarBodyID, colonyID){
+    return new Promise((resolve, reject) => {
+      //region Get Default Warehouse
+      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
+        ref =>
+          ref.where('type', '==', 'warehouse')
+      )
+        .valueChanges()
+        .pipe(take(1),)
+        .subscribe((aDefaultWarehouse: any)=>{
+          if(this.ss.aRules.consoleLogging.mode >= 1){
+            console.log('Default Warehouse');
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              //console.log(aDefaultShip);
+            }
+          }
+          const aWarehouse= aDefaultWarehouse[0];
+          aWarehouse.ownerID= this.id;
+          aWarehouse.solarSystem= solarSystemID;
+          aWarehouse.solarBody= solarBodyID;
+          aWarehouse.colonyID= colonyID;
+          this.afs.collection('servers/' + this.ss.activeServer + '/warehouses')
+            .add(Object.assign({}, aWarehouse)).then((createWarehouseResult: any) => {
+            this.ss.aDefaultItems.some((item: any) =>{
+              item.quantity= 0;
+              item.cost= 0;
+              item.ownerID= createWarehouseResult.id;
+              this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, item));
+            });
+              resolve(true);
+          });
         });
-      });
+      //endregion
+    });
   }
 
-  async createWarehouse(aWarehouse){
-    console.log('4. createWarehouse');
-    //create starting ships inventory
-    const aStartingWarehouse= await this.afs.collection('servers/' + this.ss.activeServer + '/warehouses')
-      .add(Object.assign({}, aWarehouse));
-    this.afs.collection('servers/' + this.ss.activeServer + '/z_items').valueChanges()
-      .pipe(take(1))
-      .subscribe((aAllItems) =>{
-        this.aAllItems= aAllItems;
-        this.aAllItems.some((item: any) =>{
-          item.quantity= 0;
-          item.cost= 0;
-          item.ownerID= aStartingWarehouse.id;
-          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, item));
+  startingCharacterFunds(){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
+        ref =>
+          ref.where('type', '==', 'pulsars')
+      )
+        .valueChanges()
+        .pipe(take(1))
+        .subscribe((aStartingCredits: any) => {
+          this.afs.collection('servers/' + this.ss.activeServer + '/characters')
+            .doc(this.id)
+            .update({pulsars: aStartingCredits[0].amount}).then((result: any) => {
+              resolve(true);
+          });
         });
-      });
+    });
   }
   //endregion
 
@@ -210,6 +232,12 @@ export class CharacterService {
       ) as Observable<any>;
   }
 
+  /**
+   * Name: Read Character Promise
+   * Desc: Reads character from active server that matches current user
+   *
+   * @return Promise
+   * */
   rcP(){
     return new Promise((resolve, reject) => {
       this.characterSub= this.afs.collection('servers/' + this.ss.activeServer + '/characters',

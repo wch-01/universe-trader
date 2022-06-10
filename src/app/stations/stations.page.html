@@ -1,10 +1,25 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>stations</ion-title>
+    <ion-title>Stations in Orbit</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Stations</ion-card-title>
+      <ion-card-subtitle>Planned Features</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ul>
+        <li>Show a list of stations in orbit <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>View station button, go into trade/exchange <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>Trades go into warehouse <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>Tab for personal station</li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
+
   <ion-card>
     <ion-card-header>
       <ion-title>
@@ -22,7 +37,7 @@
         </ion-item>
 
         <ion-item *ngFor="let station of stationS.aStations">
-          <ion-label>{{station.name}} {{station.id}}</ion-label>
+          <ion-label>{{station.name}}</ion-label>
           <ion-label>{{station.ownerID}}</ion-label>
           <ion-label>{{station.market}}</ion-label>
           <ion-label>{{station.access}}</ion-label>

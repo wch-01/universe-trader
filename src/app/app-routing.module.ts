@@ -106,9 +106,35 @@ const routes: Routes = [
     path: 'servers',
     loadChildren: () => import('./servers/servers.module').then( m => m.ServersPageModule),
     canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
-  },  {
+  },
+  {
     path: 'tos',
     loadChildren: () => import('./tos/tos.module').then( m => m.TosPageModule)
+  },
+  {
+    path: 'universe',
+    loadChildren: () => import('./universe/universe.module').then( m => m.UniversePageModule)
+  },
+  {
+    path: 'solar-system-modal',
+    loadChildren: () => import('./modals/solar-system-modal/solar-system-modal.module').then( m => m.SolarSystemModalPageModule)
+  },
+  {
+    path: 'solar-body-modal',
+    loadChildren: () => import('./modals/solar-body-modal/solar-body-modal.module').then( m => m.SolarBodyModalPageModule)
+  },
+  {
+    path: 'colony-modal',
+    loadChildren: () => import('./modals/colony-modal/colony-modal.module').then( m => m.ColonyModalPageModule)
+  },
+  {
+    path: 'after-login',
+    loadChildren: () => import('./after-login/after-login.module').then( m => m.AfterLoginPageModule)
+  },
+  {
+    path: 'price-list',
+    loadChildren: () => import('./price-list/price-list.module').then( m => m.PriceListPageModule),
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
   },
 
 

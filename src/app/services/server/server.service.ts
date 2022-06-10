@@ -4,18 +4,33 @@ import {take} from 'rxjs/operators';
 import {DefaultItems, Rules, Structures} from '../../classes/server';
 import {Router} from '@angular/router';
 import {hasCustomClaim} from '@angular/fire/compat/auth-guard';
+import {Observable, of} from 'rxjs';
+// @ts-ignore
+const moment= require('moment');
 
+//todo With the new storage method, we need to add a check for server change
 @Injectable({
   providedIn: 'root'
 })
 export class ServerService {
   //region Variables
-  activeServer: string | undefined;
-  aDefaultItems= new DefaultItems();
-  aRules= new Rules();
-  aStructures: any;
-  aaStructures= new Structures();
+  lastUpdate= {
+    rulesUpdated: '0',
+    universeUpdated: '0',
+    itemsUpdated: '0',
+    structuresUpdated: '0'
+  };
   serverBoot: Promise<boolean> | undefined;
+  serverBooted= false;
+  //obsServerBooted= false as unknown as Observable<any>;
+  //obsServerBooted: new Observable<boolean>;
+  activeServer: string | undefined;
+  aDefaultItems;
+  aaDefaultItems= new DefaultItems();
+  aDCMI;
+  aRules= new Rules();
+  aDStructures: any;
+  aaDStructures= new Structures();
   aActiveServers;
   //endregion
 
@@ -33,29 +48,22 @@ export class ServerService {
       }
       else{
         console.log('No server in storage');
-        //this.router.navigate(['/servers']);
       }
     }
-    else{
-      this.bootServer();
-    }
-    /*
-    if(!this.activeServer){
-      this.activeServer= 'server_1';
-    }
-    this.readRules().then((res: any) => {
-      this.readItems();
-      this.readStructures();
-      this.serverBoot= Promise.resolve(true);
-    });
-    */
   }
   //endregion
 
-  async bootServer(){
+  isServerBooted(): Observable<boolean>{
+    while(this.serverBooted === false || this.serverBooted === undefined){
+      //return of(false);
+    }
+    return of(true);
+  }
+
+  bootServer(){
     console.log('Server Service Boot Function.');
 
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if(!this.activeServer){
         if(localStorage.getItem('utServer')){
           console.log('Get Server from Local Storage');
@@ -63,77 +71,150 @@ export class ServerService {
         }
         else{
           console.log('No server in storage');
-          this.router.navigate(['/servers']);
+          reject('No Server selected');
+          //this.router.navigate(['/servers']);
         }
       }
-
       console.log('Server Booting: ' + this.activeServer);
-
-      this.readRules().then((res: any) => {
-        this.readItems().then(() => {
-          this.readStructures().then(() => {
-            this.serverBoot= Promise.resolve(true);
-            resolve(true);
-          });
+      this.afs.collection('servers/').doc(this.activeServer).valueChanges().pipe(take(1))
+        .subscribe((aActiveServer: any) => {
+          //this.lastUpdate= aActiveServer.lastUpdate.seconds;
+          this.lastUpdate.rulesUpdated= aActiveServer.rules_updated;
+          this.lastUpdate.universeUpdated= aActiveServer.universe_updated;
+          this.lastUpdate.itemsUpdated= aActiveServer.items_updated;
+          this.lastUpdate.structuresUpdated= aActiveServer.structures_updated;
+          Promise
+            .all([
+            this.readRules(),
+            this.readItems(),
+            this.readStructures(),
+            this.rDCMI()
+          ])
+            .then((result: any) => {
+              this.serverBoot= Promise.resolve(true);
+              this.serverBooted= true;
+              //this.obsServerBooted= true as unknown as Observable<boolean>;
+              resolve(true);
+            });
         });
-      });
     });
   }
 
   async readRules(){
     return await new Promise((resolve, reject) => {
-      this.afs.collection('servers/' + this.activeServer +'/z_rules')
-        .valueChanges({idField: 'id'})
-        .pipe(take(1))
-        .subscribe((aRules: any) =>{
-          aRules.some((aRule: any) => {
-            this.aRules[aRule.name]= aRule;
-          });
-          if(this.aRules.consoleLogging >= 1){
-            console.log('Default Rule');
-            if(this.aRules.consoleLogging >= 2){
-              console.log(this.aRules);
-            }
-          }
-          resolve(true);
+      //if(localStorage.getItem('ut_server_rules') && localStorage.getItem('ut_server_rules_time') < moment().add(7, 'days').unix()){
+      if(
+        localStorage.getItem('ut_server_rules')
+        &&
+        localStorage.getItem('ut_server_rules_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_rules_time') > this.lastUpdate.rulesUpdated
+      ){
+        //Stored Rules are good
+        const aRules= JSON.parse(localStorage.getItem('ut_server_rules'));
+        aRules.some((aRule: any) => {
+          this.aRules[aRule.name]= aRule;
         });
+        resolve(true);
+      }
+      else{
+        this.afs.collection('servers/' + this.activeServer +'/z_rules')
+          .valueChanges({idField: 'id'})
+          .pipe(take(1))
+          .subscribe((aRules: any) =>{
+            localStorage.setItem('ut_server_rules', JSON.stringify(aRules));
+            localStorage.setItem('ut_server_rules_time', moment().unix());
+            aRules.some((aRule: any) => {
+              this.aRules[aRule.name]= aRule;
+            });
+            if(this.aRules.consoleLogging >= 1){
+              console.log('Default Rule');
+              if(this.aRules.consoleLogging >= 2){
+                console.log(this.aRules);
+              }
+            }
+            resolve(true);
+          });
+      }
     });
   }
 
   async readItems(){
-    await this.afs.collection('servers/' + this.activeServer + '/z_items')
-      .valueChanges()
-      .pipe(take(1))
-      .subscribe((aDefaultItems: any) => {
-        if(this.aRules.consoleLogging >= 1){
-          console.log('Default Items');
-          if(this.aRules.consoleLogging >= 2){
-            console.log(aDefaultItems);
-          }
-        }
-        aDefaultItems.some((aDefaultItem: any) => {
-          if(this.aRules.consoleLogging >= 1){
-            console.log('Default Item');
-            if(this.aRules.consoleLogging >= 2){
-              console.log(aDefaultItem);
-            }
-          }
-          this.aDefaultItems[aDefaultItem.name]= aDefaultItem;
+    return await new Promise((resolve, reject) => {
+      if(
+        localStorage.getItem('ut_server_items')
+        &&
+        localStorage.getItem('ut_server_items_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_items_time') > this.lastUpdate.itemsUpdated
+      ){
+        //Stored Rules are good
+        this.aDefaultItems= JSON.parse(localStorage.getItem('ut_server_items'));
+        this.aDefaultItems.some((aRule: any) => {
+          this.aaDefaultItems[aRule.name]= aRule;
         });
-      });
+        resolve(true);
+      }
+      else{
+        this.afs.collection('servers/' + this.activeServer + '/z_items')
+          .valueChanges()
+          .pipe(take(1))
+          .subscribe((aDefaultItems: any) => {
+            if(this.aRules.consoleLogging >= 1){
+              console.log('Default Items');
+              if(this.aRules.consoleLogging >= 2){
+                console.log(aDefaultItems);
+              }
+            }
+            this.aDefaultItems= aDefaultItems;
+            localStorage.setItem('ut_server_items', JSON.stringify(this.aDefaultItems));
+            localStorage.setItem('ut_server_items_time', moment().unix());
+            aDefaultItems.some((aDefaultItem: any) => {
+              if(this.aRules.consoleLogging >= 1){
+                console.log('Default Item');
+                if(this.aRules.consoleLogging >= 2){
+                  console.log(aDefaultItem);
+                }
+              }
+              this.aaDefaultItems[aDefaultItem.name]= aDefaultItem;
+            });
+            resolve(true);
+          });
+      }
+    });
   }
 
   async readStructures(){
-    const structuresSub= await this.afs.collection('servers/' + this.activeServer +'/z_structures')
-      .valueChanges({idField: 'id'})
-      .pipe(take(1))
-      .subscribe((aStructures: any) =>{
-        this.aStructures= aStructures;
-        aStructures.some((aStructure: any) => {
-          this.aaStructures[aStructure.name]= aStructure;
+    return await new Promise((resolve, reject) => {
+      // eslint-disable-next-line max-len
+      if(localStorage.getItem('ut_server_structures')
+        &&
+        localStorage.getItem('ut_server_structures_time') < moment().add(7, 'days').unix()
+        &&
+        localStorage.getItem('ut_server_structures_time') > this.lastUpdate.structuresUpdated
+      ){
+        //Stored Rules are good
+        this.aDStructures= JSON.parse(localStorage.getItem('ut_server_structures'));
+        this.aDStructures.some((aRule: any) => {
+          this.aaDStructures[aRule.name]= aRule;
         });
-      });
-    //structuresSub.unsubscribe();
+        resolve(true);
+      }
+      else{
+        this.afs.collection('servers/' + this.activeServer +'/z_structures')
+          .valueChanges({idField: 'id'})
+          .pipe(take(1))
+          .subscribe((aDStructures: any) =>{
+            this.aDStructures= aDStructures;
+            localStorage.setItem('ut_server_structures', JSON.stringify(this.aDStructures));
+            localStorage.setItem('ut_server_structures_time', moment().unix());
+            aDStructures.some((aDStructure: any) => {
+              this.aaDStructures[aDStructure.name]= aDStructure;
+            });
+            resolve(true);
+          });
+      }
+    });
   }
 
   getActiveServerList(){
@@ -179,12 +260,38 @@ export class ServerService {
     }
   }
 
+  /**
+   * Name: Read Default Colony Market Items
+   * */
+  rDCMI(){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.activeServer + '/z_items',
+        ref =>
+          ref.where('market', '==', true)
+      )
+        .valueChanges()
+        .pipe(take(1))
+        .subscribe((aDCMI: any) => {
+          if(this.aRules.consoleLogging >= 1){
+            console.log('Default Items');
+            if(this.aRules.consoleLogging >= 2){
+              console.log(aDCMI);
+            }
+          }
+          this.aDCMI= aDCMI;
+          console.log('dmci');
+          console.log(this.aDCMI);
+          resolve(true);
+        });
+    });
+  }
+
   logoutServer(){
     this.activeServer= undefined;
     this.aDefaultItems= new DefaultItems();
     //this.aRules= new Rules();
-    this.aStructures= undefined;
-    this.aaStructures= new Structures();
+    this.aDStructures= undefined;
+    this.aaDStructures= new Structures();
     this.serverBoot= undefined;
     this.aActiveServers= undefined;
   }

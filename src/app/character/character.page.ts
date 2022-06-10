@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, NgZone, OnInit} from '@angular/core';
 import {ServerService} from '../services/server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {CharacterService} from '../services/character/character.service';
 import {UniverseService} from '../services/universe/universe.service';
-import {take} from "rxjs/operators";
-import {ToastController} from "@ionic/angular";
+import {take} from 'rxjs/operators';
+import {LoadingController, ToastController} from '@ionic/angular';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-character',
@@ -24,11 +25,15 @@ export class CharacterPage implements OnInit {
     private ss: ServerService,
     public charS: CharacterService,
     public us: UniverseService,
-    public toastController: ToastController
+    public toastController: ToastController,
+    private router: Router,
+    public loadingController: LoadingController,
+    private zone: NgZone
   ) { }
   //endregion
 
   ngOnInit() {
+    console.log('Character Init');
     //this.us.readSolarSystem(this.charS.aCharacter.solarSystemID);
     //this.us.readSolarBody(this.charS.aCharacter.solarBodyID);
   }
@@ -51,7 +56,14 @@ export class CharacterPage implements OnInit {
     toast.present();
   }
 
-  createCharacter(characterName){
+  async createCharacter(characterName){
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Creating Character',
+      //duration: 2000
+    });
+    loading.present();
+
     this.afs.collection('servers/' + this.ss.activeServer + '/characters',
       ref =>
         ref.where('name', '==', characterName)
@@ -59,12 +71,16 @@ export class CharacterPage implements OnInit {
       .pipe(take(1))
       .subscribe((aCharacter: any) => {
         if(aCharacter.length > 0){
-          //Character name exists already
-          //this.showMessage('danger', 'Character name exists already');
+          loading.dismiss();
           this.presentToast('Character name exists already', 'danger');
         }
         else{
-          this.charS.createCharacter(characterName);
+          this.charS.createCharacter(characterName).then(r => {
+            loading.dismiss();
+            this.router.navigate(['/dashboard']);
+            //this.router.navigateByUrl('/dashboard');
+            //this.zone.run(() => this.router.navigate(['/dashboard']));
+          });
         }
       });
   }

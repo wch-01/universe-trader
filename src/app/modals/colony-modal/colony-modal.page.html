@@ -1,0 +1,128 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Colony</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Colony Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+                  <ion-label>{{col.label}}</ion-label>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+                  {{aColony[col.filter]}}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card *ngIf="ssLoaded">
+          <ion-card-header>
+            <ion-card-title>Solar System Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-label>
+                    Name
+                  </ion-label>
+                </ion-col>
+                <ion-col>
+                  <ion-label>
+                    Coordinates
+                  </ion-label>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  {{colonyS.aSolarSystem.name}}
+                </ion-col>
+                <ion-col>
+                  {{colonyS.aSolarSystem.xCoordinate}}, {{colonyS.aSolarSystem.yCoordinate}}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card *ngIf="sbLoaded">
+          <ion-card-header>
+            <ion-card-title>Solar Body Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-label>
+                    Name
+                  </ion-label>
+                </ion-col>
+                <ion-col>
+                  <ion-label>
+                    Coordinates
+                  </ion-label>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  {{colonyS.aSolarBody.name}}
+                </ion-col>
+                <ion-col>
+                  {{colonyS.aSolarBody.xCoordinate}}, {{colonyS.aSolarBody.yCoordinate}}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <app-trade *ngIf="trading; else standard" [trader]="trader" [market]="'colony'"></app-trade>
+
+  <ng-template #standard>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Inventory</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col *ngFor="let col of colonyS.aInventoryColumns">
+              {{col.label}}
+            </ion-col>
+          </ion-row>
+          <ion-row *ngFor="let item of aInventory">
+            <ion-col *ngFor="let col of colonyS.aInventoryColumns">
+              <div *ngIf="col.filter === 'quantity'; else standardCol">
+                {{item[col.filter] | number}}
+              </div>
+              <ng-template #standardCol>
+                {{item[col.filter]}}
+              </ng-template>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+
+</ion-content>

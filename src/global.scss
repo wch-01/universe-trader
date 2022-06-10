@@ -32,7 +32,10 @@
   /*background-image: url("/assets/images/spaceLarge.png") !important;*/
   /*background: "/assets/images/spaceLarge.png";*/
 }
-
+.custom-modal{
+  --width: 90%;
+  --height: 90%;
+}
 .ship_modal{
   --width: 90%;
   --height: 90%;

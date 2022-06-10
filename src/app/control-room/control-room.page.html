@@ -26,63 +26,39 @@
     <app-warehouse *ngIf="warehouseBoot" [warehouseID]="warehouseID"></app-warehouse>
   </span>
 
-  <span *ngSwitchCase="'colony'">
-    <ion-card>
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            Name: {{colonyS.aColony.name}}
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <ion-item>
-            Population: {{colonyS.aColony.population}}
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            Primary Export: {{us.aSolarSystem.resourceOne}}
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <ion-item>
-            Secondary Export: {{us.aSolarSystem.resourceTwo}}
-          </ion-item>
-        </ion-col>
-      </ion-row>
-    </ion-card>
+  <app-trade *ngSwitchCase="'colony'" [market]="'colony'" [trader]="'warehouse'"></app-trade>
 
-    <app-trade [market]="'colony'" [trader]="'warehouse'"></app-trade>
-  </span>
-
-  <span *ngSwitchCase="'businesses'">
+  <ion-card id="businesses" *ngSwitchCase="'businesses'">
+    <ion-card-header>
+      <ion-card-title>Businesses</ion-card-title>
+      <ion-card-subtitle>Planned Features</ion-card-subtitle>
+    </ion-card-header>
     <ul>
       <li>Lists your local businesses.</li>
       <li>Create new ones.</li>
     </ul>
+    <!--<app-businesses></app-businesses>-->
+  </ion-card>
 
-    <app-businesses></app-businesses>
+  <app-stations trader='warehouse' *ngSwitchCase="'stations'"></app-stations>
 
-
-  </span>
-
-  <span *ngSwitchCase="'stations'">
-    <ul>
-      <li>Show a list of stations in orbit</li>
-      <li>View station button, go into trade/exchange</li>
-      <li>Trades go into warehouse</li>
-      <li>Tab for personal station</li>
-    </ul>
-    <app-stations trader='warehouse'></app-stations>
-  </span>
-
-
-
-  <span *ngSwitchCase="'travel'">
-    Taxi service.
-    Travel on a personal ship in the same location.
-    Clone transfer to another owned warehouse.
-  </span>
+  <ion-card id="travel" *ngSwitchCase="'travel'">
+    <ion-card-header>
+      <ion-card-title>Travel</ion-card-title>
+      <ion-card-subtitle>Planned Features</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ul>
+        <li>
+          Taxi Service
+        </li>
+        <li>
+          Travel on a person ship to a location
+        </li>
+        <li>
+          Transfer Clone to another Warehouse
+        </li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

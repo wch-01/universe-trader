@@ -1,17 +1,103 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>colony</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!--This page should always be included in another page.-->
 
-<ion-content>
+<ion-grid *ngIf="foundColony; else noColony">
+  <ion-row>
+    <ion-col>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Colony Details</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+                <ion-label>{{col.label}}</ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+                {{colonyS.aColony[col.filter]}}
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col>
+      <ion-card *ngIf="ssLoaded">
+        <ion-card-header>
+          <ion-card-title>Solar System Details</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-label>
+                  Name
+                </ion-label>
+              </ion-col>
+              <ion-col>
+                <ion-label>
+                  Coordinates
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                {{colonyS.aSolarSystem.name}}
+              </ion-col>
+              <ion-col>
+                {{colonyS.aSolarSystem.xCoordinate}}, {{colonyS.aSolarSystem.yCoordinate}}
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col>
+      <ion-card *ngIf="sbLoaded">
+        <ion-card-header>
+          <ion-card-title>Solar Body Details</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-label>
+                  Name
+                </ion-label>
+              </ion-col>
+              <ion-col>
+                <ion-label>
+                  Coordinates
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                {{colonyS.aSolarBody.name}}
+              </ion-col>
+              <ion-col>
+                {{colonyS.aSolarBody.xCoordinate}}, {{colonyS.aSolarBody.yCoordinate}}
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <app-trade [trader]="viewer" [market]="'colony'"></app-trade>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+
+<ng-template #noColony>
   <ion-card>
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          Population: {{colonyS.aColony.population}}
-        </ion-item>
-      </ion-col>
-    </ion-row>
+    <ion-card-content>
+      No colony Found at Location
+    </ion-card-content>
   </ion-card>
-</ion-content>
+</ng-template>

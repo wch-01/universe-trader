@@ -2,13 +2,18 @@
   <ion-toolbar>
     <ion-title>{{modalType | uppercase}}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismissModal()">Close</ion-button>
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 
 <ion-content>
+  <app-ship-warehouse *ngIf="modalType === 'warehouse'"></app-ship-warehouse>
+
+  <!--
   <app-ship *ngIf="modalType === 'ship'"></app-ship>
+  <app-colony *ngIf="modalType === 'ship'" [viewer]="viewer"></app-colony>
+  -->
 </ion-content>
 

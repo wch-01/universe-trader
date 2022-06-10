@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>solarSystemModal</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label>ID</ion-label>
+        <ion-label>Name</ion-label>
+        <ion-label>Resource One</ion-label>
+        <ion-label>Resource Two</ion-label>
+        <ion-label>Solar Yield</ion-label>
+        <ion-label>X Coordinate</ion-label>
+        <ion-label>Y Coordinate</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>{{aSolarSystem.id}}</ion-label>
+        <ion-label>{{aSolarSystem.name}}</ion-label>
+        <ion-label>{{aSolarSystem.resourceOne}}</ion-label>
+        <ion-label>{{aSolarSystem.resourceTwo}}</ion-label>
+        <ion-label>{{aSolarSystem.solarYield}}</ion-label>
+        <ion-label>{{aSolarSystem.xCoordinate}}</ion-label>
+        <ion-label>{{aSolarSystem.yCoordinate}}</ion-label>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title><span *ngIf="aFilteredSolarBodies">{{aFilteredSolarBodies.length}}</span> Solar Bodies</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col *ngFor="let col of aSolarBodiesTable">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">{{col.label}}</ion-label>
+              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="aSolarBodyFilters[col.filter]" (ngModelChange)="filterSolarBodies()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row *ngFor="let solarBody of aFilteredSolarBodies">
+          <ion-col *ngFor="let col of aSolarBodiesTable">
+            {{solarBody[col.filter]}}
+          </ion-col>
+          <ion-col><ion-button (click)="viewSolarBody(solarBody)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

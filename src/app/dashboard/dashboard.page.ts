@@ -1,14 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from '../services/authentication/authentication.service';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../services/server/server.service';
-import { Ship } from '../classes/ship';
+import {Ship} from '../classes/ship';
 import {ModalController} from '@ionic/angular';
-import { ShipPage } from '../ships/ship/ship.page';
-import {ModalPage} from '../modal/modal.page';
+import {ShipPage} from '../ships/ship/ship.page';
 import {ShipService} from '../services/ship/ship.service';
-import {ShipModalPage} from '../ships/ship-modal/ship-modal.page';
 import {CharacterService} from '../services/character/character.service';
 import {Router} from '@angular/router';
 
@@ -37,12 +34,17 @@ export class DashboardPage implements OnInit {
     private shipS: ShipService,
     public router: Router
   ) {
-    console.log('Loading Dashboard');
-    if(!this.ss.activeServer){
-      console.log('No server Selected.');
-      this.router.navigate(['/servers']);
+    /*
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('Dashboard Constructor');
     }
-    else {
+    */
+  }
+  //endregion
+
+  ngOnInit() {
+    console.log('Dashboard Init');
+    if(!this.ss.serverBoot){
       console.log('Dashboard: Boot Server');
       this.ss.bootServer().then(
         bsRes => {
@@ -62,40 +64,22 @@ export class DashboardPage implements OnInit {
         }
       );
     }
-    /*
-    else if(!this.cs.characterFound){
-      console.log('No character found.');
-      this.router.navigate(['/character']);
-    }
-    */
-
-    //this.cs.readCharacter();
-    /*
-    this.characterShips= this.cs.readCharacterShips();
-    console.log('Character Ships');
-    console.log(this.characterShips);
-    */
-    /*
-    this.characterShips.then((aShip: any) =>{
-      console.log(aShip);
-    });
-    */
-    //this.cs.readCharacterShips();
-
-
-    /*
-    this.user= this.authService.user;
-    if(this.ss.aRules.consoleLogging.mode >= 1){
-      console.log('Dashboard User Log');
-      if(this.ss.aRules.consoleLogging.mode >= 2){
-        console.log(this.user);
+    else{
+      if(!this.cs.characterFound){
+        this.cs.rcP().then(
+          rcpRes => {
+            this.cs.readCharacterShips();
+          },
+          rcpError =>{
+            console.log('No character found.');
+            this.router.navigate(['/character']);
+          }
+        );
+      }
+      else{
+        this.cs.readCharacterShips();
       }
     }
-    */
-  }
-  //endregion
-
-  async ngOnInit() {
   }
 
   readCharacterShips(){
@@ -110,9 +94,7 @@ export class DashboardPage implements OnInit {
             .doc(aShip.solarSystem).valueChanges({idField:'id'});
 
           aSolarSystem.subscribe((solarSystem: any)=>{
-            const location= solarSystem.name;
-            // @ts-ignore
-            aShip.location= location;
+            aShip.location= solarSystem.name;
             //console.log(solarSystem.get('id'));
             //console.log(solarSystem.data());
             //console.log(location);

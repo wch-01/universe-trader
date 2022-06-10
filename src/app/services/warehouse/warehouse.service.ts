@@ -77,8 +77,11 @@ export class WarehouseService {
           ref.where('ownerID', '==', this.aWarehouse.id)//.where('market', '==', true)
       ).valueChanges({idField: 'id'})
         .subscribe((aInventory: any) => {
-          if(this.ss.aRules.consoleLogging.mode >= 2){
-            console.log(aInventory);
+          if(this.ss.aRules.consoleLogging.mode >= 1){
+            console.log('warehouseService: rwiP');
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(aInventory);
+            }
           }
           this.aInventory= aInventory;
 

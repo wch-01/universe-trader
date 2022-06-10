@@ -17,6 +17,7 @@ import {take} from 'rxjs/operators';
 })
 export class ShipWarehousePage implements OnInit {
   //region Variables
+  foundWarehouse= false;
   warehouseBoot= false;
   //endregion
 
@@ -46,14 +47,19 @@ export class ShipWarehousePage implements OnInit {
     ).valueChanges({idField:'id'})
       .pipe(take(1))
       .subscribe((aWarehouse: any) => {
-        if(this.ss.aRules.consoleLogging.mode >= 2){
-          console.log(aWarehouse);
-        }
-        this.ws.readWarehouse(aWarehouse[0].id).then((rwRes: any) => {
-          this.ws.rwiP().then((rwiPRes: any) => {
-            this.warehouseBoot= true;
+        if(aWarehouse.length > 0){
+          if(this.ss.aRules.consoleLogging.mode >= 2){
+            console.log(aWarehouse);
+          }
+          this.ws.readWarehouse(aWarehouse[0].id).then((rwRes: any) => {
+            this.ws.rwiP().then((rwiPRes: any) => {
+              this.warehouseBoot= true;
+            });
           });
-        });
+        }
+        else{
+          this.warehouseBoot= false;
+        }
       });
   }
 

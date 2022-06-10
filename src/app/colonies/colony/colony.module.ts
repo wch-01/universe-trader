@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { ColonyPageRoutingModule } from './colony-routing.module';
 
 import { ColonyPage } from './colony.page';
+import {TradePageModule} from "../../trade/trade.module";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        ColonyPageRoutingModule
+        ColonyPageRoutingModule,
+        TradePageModule
     ],
     exports: [
         ColonyPage

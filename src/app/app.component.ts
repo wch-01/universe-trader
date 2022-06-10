@@ -30,9 +30,11 @@ export class AppComponent {
     { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true },
     { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true },
     /*{ title: 'Character', url: '/character', icon: '', role: 'any', auth: true },*/
-    { title: 'Shipyard', url: '/shipyard', icon: '', auth: true },
+    /*{ title: 'Shipyard', url: '/shipyard', icon: '', auth: true },*/
     /*{ title: 'Ships', url: '/ships', icon: '', role: 'any', auth: true },*/
     { title: 'Chatroom', url: '/chat-rooms', icon: '', auth: true },
+    { title: 'Universe', url: '/universe', icon: '', auth: true },
+    { title: 'Price List', url: '/price-list', icon: '', auth: true },
     /*{ title: 'Favorites', url: '/folder/Favorites', icon: 'heart' },
     { title: 'Archived', url: '/folder/Archived', icon: 'archive' },
     { title: 'Trash', url: '/folder/Trash', icon: 'trash' },
@@ -55,84 +57,81 @@ export class AppComponent {
   ) {
     //this.logout();
     console.log('App Boot');
-    this.bootDone= Promise.resolve(true);
-    //console.log(this.authService.userLoggedIn);
-
-    /*
-    this.authService.userOBS.subscribe((user) => {
-      console.log('User Check');
-      console.log(user);
-      if(user === null){
-      }
-      else{
-      }
-    });
-    */
-    //console.log((pLocation as any).location);
-    //if(this.router.url === '/login-register'){
     if((pLocation as any).location.hash === '#/login-register'){
-      //this.bootDone= Promise.resolve(true);
+      this.bootDone= Promise.resolve(true);
+    }
+    else if(!this.ss.serverBoot){
+      console.log('App: Boot Server');
+      this.ss.bootServer().then(
+        bsRes => {
+          //Get Character
+          this.cs.rcP().then(
+            rcpRes => {
+              this.bootDone= Promise.resolve(true);
+              //this.cs.readCharacterShips();
+            },
+            rcpError =>{
+              console.log('No character found.');
+              this.bootDone= Promise.resolve(true);
+              this.router.navigate(['/character']);
+            }
+          );
+        },
+        bsError =>{
+          console.log('Server Boot Failed');
+          this.bootDone= Promise.resolve(true);
+          this.router.navigate(['/servers']);
+        }
+      );
     }
     else{
-      /*
-      this.authService.userOBS.subscribe((user) => {
-        //this.bootDone= Promise.resolve(true);
-      });
-      */
-      if(!this.ss.activeServer){
-        console.log('No server Selected.');
-        this.router.navigate(['/servers']);
-      }
-      else{
-        console.log('AppC Boot Server');
-        this.ss.bootServer().then(
-          bsRes => {
-            this.cs.rcP().then(
-              rcpRes => {
-                this.router.navigate(['/dashboard']);
-              },
-              rcpError =>{
-                console.log('No character found.');
-                this.router.navigate(['/character']);
-              }
-            );
+      if(!this.cs.characterFound){
+        this.cs.rcP().then(
+          rcpRes => {
+            this.cs.readCharacterShips();
+            this.bootDone= Promise.resolve(true);
           },
-          bsError =>{
-            console.log('Server Boot Failed');
-            this.router.navigate(['/servers']);
+          rcpError =>{
+            console.log('No character found.');
+            this.bootDone= Promise.resolve(true);
+            this.router.navigate(['/character']);
           }
         );
       }
-
-      /*
-      if(this.ss.activeServer){
-        this.ss.bootServer().then((res: any) => {
-          this.authService.userOBS.subscribe((user) => {
-            if(this.ss.aRules.consoleLogging.mode >= 1){
-              console.log('App Component User Subscribe');
-              if(this.ss.aRules.consoleLogging.mode >= 2){
-                console.log(user);
-              }
-            }
-
-            if(user.uid){
-              this.cs.readCharacter();
-              this.cs.obsCharacter.subscribe((aCharacter: any) => {
-                if(this.ss.aRules.consoleLogging.mode >= 1){
-                  console.log('Character');
-                  if(this.ss.aRules.consoleLogging.mode >= 2){
-                    console.log(aCharacter);
-                  }
-                }
-
-                this.bootDone= Promise.resolve(true);
-              });
-            }
-          });
-        });
+      else{
+        this.cs.readCharacterShips();
+        this.bootDone= Promise.resolve(true);
       }
-      */
     }
+
+
+    /*
+    this.bootDone= Promise.resolve(true);
+    if(!this.ss.activeServer){
+      console.log('No server Selected.');
+      this.router.navigate(['/servers']);
+    }
+    else{
+      console.log('AppC Boot Server');
+      this.ss.bootServer().then(
+        bsRes => {
+          this.cs.rcP().then(
+            rcpRes => {
+              console.log('AppC: Found Character loading requested page');
+            },
+            rcpError =>{
+              console.log('No character found.');
+              this.router.navigate(['/character']);
+            }
+          );
+        },
+        bsError =>{
+          console.log('Server Boot Failed');
+          this.router.navigate(['/servers']);
+        }
+      );
+    }
+    */
   }
   //endregion
 

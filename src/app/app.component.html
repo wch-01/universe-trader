@@ -73,7 +73,46 @@
         <ion-card style="margin: 0">
           <ion-card-header>
             <ion-card-title>
-              Support Us!
+              Beta 1
+            </ion-card-title>
+            <ion-card-subtitle>Colony Trade and Travel</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <p>Welcome to the Universe Trader Beta 1, -Trade and Travel-</p>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>In this beta the active features are:</p>
+                  <ul>
+                    <li>
+                      Ship travel
+                    </li>
+                    <li>
+                      Ship and Warehouse Trading with Colony and Station
+                    </li>
+                    <li>
+                      Colonies will consume and produce products based on their population
+                    </li>
+                  </ul>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <p>If you run into any issues while playing, please use the link below to submit a bug report.</p>
+                  <p>If you have any suggestioins, please add them to our discord!</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+        <ion-card style="margin: 0">
+          <ion-card-header>
+            <ion-card-title style="text-align: center">
+              Support Future Development and Server Costs
             </ion-card-title>
           </ion-card-header>
           <ion-card-content>
@@ -97,7 +136,19 @@
                 </ion-col>
               </ion-row>
               <ion-row>
-                <a href="" routerLink="/tos">Terms of Service</a>
+                <ion-col>
+                  <a href="" routerLink="/tos">Terms of Service</a>
+                </ion-col>
+                <ion-col>
+                  <a href="https://universetrader.online/bug-report/" target="_blank">Bug Report</a>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <a href="https://discord.gg/XBBYQ8txqS" target="_blank">
+                    <ion-icon name="logo-discord"></ion-icon>
+                  </a>
+                </ion-col>
               </ion-row>
             </ion-grid>
           </ion-card-content>
@@ -106,7 +157,7 @@
 
     </ion-menu>
 
-    <ion-router-outlet id="main-content" class="custom-background"></ion-router-outlet>
+    <ion-router-outlet id="main-content" class="custom-background" *ngIf="bootDone | async"></ion-router-outlet>
 
   </ion-split-pane>
 </ion-app>

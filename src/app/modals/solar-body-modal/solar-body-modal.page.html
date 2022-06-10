@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Solar Body</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <!--<ion-label>ID</ion-label>-->
+        <ion-label>Name</ion-label>
+        <ion-label>Primary Export</ion-label>
+        <ion-label>Secondary Export</ion-label>
+        <ion-label>X Coordinate</ion-label>
+        <ion-label>Y Coordinate</ion-label>
+      </ion-item>
+      <ion-item>
+        <!--<ion-label>{{aSolarBody.id}}</ion-label>-->
+        <ion-label>{{aSolarBody.name}}</ion-label>
+        <ion-label>{{aSolarBody.resourceOne}}</ion-label>
+        <ion-label>{{aSolarBody.resourceTwo}}</ion-label>
+        <ion-label>{{aSolarBody.xCoordinate}}</ion-label>
+        <ion-label>{{aSolarBody.yCoordinate}}</ion-label>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card id="colonies">
+    <ion-card-header>
+      <ion-card-title><span *ngIf="aFilteredColonies">{{aFilteredColonies.length}}</span> Colonies
+
+        <ion-segment [(ngModel)]="nsTab">
+          <ion-segment-button value="colonies">
+            <ion-label>Colonies</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="stations">
+            <ion-label>Stations</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content [ngSwitch]="nsTab">
+      <ion-grid *ngSwitchCase="'colonies'">
+        <ion-row>
+          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">{{col.label}}</ion-label>
+              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="colonyS.aColoniesFilters[col.filter]" (ngModelChange)="filterColonies()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row *ngFor="let colony of aFilteredColonies">
+          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
+            {{colony[col.filter]}}
+          </ion-col>
+          <ion-col><ion-button (click)="viewColony(colony)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-grid *ngSwitchCase="'stations'">
+        <ion-row>
+          <ion-col *ngFor="let col of stationS.aStationsTableColumns">
+            <ion-item fill="solid" class="ion-margin-bottom">
+              <ion-label position="floating">{{col.label}}</ion-label>
+              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="stationS.aStationsFilters[col.filter]" (ngModelChange)="filterStations()" clearInput=""></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col></ion-col>
+        </ion-row>
+        <ion-row *ngFor="let station of aFilteredStations">
+          <ion-col *ngFor="let col of stationS.aStationsTableColumns">
+            {{station[col.filter]}}
+          </ion-col>
+          <ion-col><ion-button (click)="viewStation(station)">View</ion-button></ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
