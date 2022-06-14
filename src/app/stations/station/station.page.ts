@@ -36,6 +36,7 @@ export class StationPage implements OnInit {
   ngOnInit() {
     console.log('Modal Load: ' + this.trader);
     if(!this.isModal){
+      console.log('Is Not Modal');
       this.stationS.rsP(this.id).then((rsPRes: any) => {});
     }
   }

@@ -32,6 +32,7 @@ export interface Message {
 })
 export class ChatService {
   //region Variables
+  message;
   //endregion
 
   constructor(
@@ -54,12 +55,18 @@ export class ChatService {
   // Chat functionality
 
   addChatMessage(msg) {
-    return this.afs.collection('servers/' + this.ss.activeServer + '/chat/rooms/global').add({
-      msg,
-      from: this.cs.aCharacter.name,
-      // @ts-ignore
-      //createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      createdAt: moment().unix()
+    this.message= msg;
+    return new Promise((resolve, reject) => {
+      this.censorChat().then((sr) => {
+        this.afs.collection('servers/' + this.ss.activeServer + '/chat/rooms/global').add({
+          msg: this.message,
+          from: 'Admin',
+          // @ts-ignore
+          //createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: moment().unix()
+        });
+        resolve(true);
+      });
     });
   }
 
@@ -87,6 +94,17 @@ export class ChatService {
   }
 
   logoutChat(){}
+
+  async censorChat(){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('badWords').valueChanges().subscribe((aWords:any) => {
+        for (const item of aWords) {
+          this.message= this.message.replace(item.word, '**');
+        }
+        resolve(true);
+      });
+    });
+  }
 
   private getUsers() {
     return this.afs.collection('users').valueChanges({ idField: 'uid' }) as Observable<User[]>;

@@ -41,9 +41,9 @@ export class ServerService {
   ) {
     console.log('Server Service Started.');
     if(!this.activeServer){
-      if(localStorage.getItem('utServer')){
+      if(localStorage.getItem('ut_server')){
         console.log('Get Server from Local Storage');
-        this.activeServer= localStorage.getItem('utServer');
+        this.activeServer= localStorage.getItem('ut_server');
         //this.bootServer();
       }
       else{
@@ -65,9 +65,9 @@ export class ServerService {
 
     return new Promise((resolve, reject) => {
       if(!this.activeServer){
-        if(localStorage.getItem('utServer')){
+        if(localStorage.getItem('ut_server')){
           console.log('Get Server from Local Storage');
-          this.activeServer= localStorage.getItem('utServer');
+          this.activeServer= localStorage.getItem('ut_server');
         }
         else{
           console.log('No server in storage');

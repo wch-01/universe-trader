@@ -46,7 +46,6 @@
             <ion-input type="text" name="filterType" [(ngModel)]="aMarketInventoryFilters.type" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
           </ion-item>
         </ion-col>
-
         <ion-col>
           <ion-item>
             <ion-label (click)="sortMarketItems('quantity', sortOrder= !sortOrder)">
@@ -66,9 +65,9 @@
         <ion-col>
           Price
           <br />
-          Buy (Sell)
+          Buy <span *ngIf="market === 'colony'">(Sell)</span>
         </ion-col>
-        <ion-col>Buy(Sell)</ion-col>
+        <ion-col>Buy<span *ngIf="market === 'colony'">(Sell)</span></ion-col>
         <!--<ion-col *ngIf="market === 'colony'">Sell</ion-col>-->
       </ion-row>
       <ion-row *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
@@ -96,7 +95,9 @@
               <ion-col style="text-align: center">
                 Buy {{buySellAmount.value}} @ {{item.listPrice | number}} = {{buySellAmount.value * item.listPrice | number}}
                 <br />
-                (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
+                <span *ngIf="market === 'colony'">
+                  (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
+                </span>
               </ion-col>
             </ion-row>
             <ion-row>

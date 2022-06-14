@@ -119,6 +119,11 @@ export class AuthenticationService {
       console.log('Google Auth');
       //console.log(gAuthRes);
       this.user= gAuthRes.user;
+      /* this is where the claims are.
+      this.user.getIdTokenResult().then((tokenResult) => {
+        console.log(tokenResult.claims);
+      });
+      */
       this.userLoggedIn= true;
       this.userLoggedInP= Promise.resolve(true);
     });

@@ -29,8 +29,8 @@ export class ServersPage implements OnInit {
 
   async setServer(server){
     this.ss.activeServer= server;
-    localStorage.setItem('utServer', server);
-    console.log(localStorage.getItem('utServer'));
+    localStorage.setItem('ut_server', server);
+    console.log(localStorage.getItem('ut_server'));
     await this.ss.bootServer().then((bsRes: any) => {
       this.cs.rcP().then(
         rcpRes => {
