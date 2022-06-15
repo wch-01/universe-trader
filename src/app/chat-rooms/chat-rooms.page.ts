@@ -5,6 +5,7 @@ import {ServerService} from '../services/server/server.service';
 import {CharacterService} from '../services/character/character.service';
 import {ChatService} from '../services/chat/chat.service';
 import {Router} from '@angular/router';
+import {AngularFirestore} from '@angular/fire/compat/firestore';
 
 const moment= require('moment');
 
@@ -14,22 +15,32 @@ const moment= require('moment');
   styleUrls: ['./chat-rooms.page.scss'],
 })
 export class ChatRoomsPage implements OnInit {
+  //region Variables
   @ViewChild(IonContent, {read: IonContent, static: false}) chatView: IonContent;
 
   //@ViewChild('chatContent') private content: any;
   messages: Observable<any[]>;
   newMsg = '';
-  unixTimeStamp= moment().unix();
+  unixTimeStamp= moment().valueOf();
   currentTime= moment.unix(this.unixTimeStamp);
 
+  aChatrooms;
+  chatTab= 'universe';
+  //endregion
+
+  //region Constructor
   constructor(
+    private afs: AngularFirestore,
     private ss: ServerService,
-    private cs: CharacterService,
+    public cs: CharacterService,
     private chatService: ChatService,
     private router: Router
   ) { }
+  //endregion
 
   async ngOnInit() {
+    this.getRooms();
+    this.chatService.activeRoom= 'universe';
     this.messages = this.chatService.getChatMessages();
     console.log('Chat Messages');
     this.messages.subscribe((msg: any) => {
@@ -37,6 +48,24 @@ export class ChatRoomsPage implements OnInit {
       this.scrollToBottom();
     });
     this.scrollToBottom();
+  }
+
+  //Get Chat Rooms
+  getRooms(){
+    this.afs.collection('servers/' + this.ss.activeServer + '/chat').valueChanges({idField: 'id'}).subscribe((aChatrooms: any) => {
+      console.log(aChatrooms);
+      this.aChatrooms= aChatrooms;
+    });
+  }
+  //change Chat Room
+  changeRoom(room){
+    console.log('Changing Rooms');
+    console.log(room);
+    this.chatService.activeRoom= room;
+    this.messages = this.chatService.getChatMessages();
+    this.messages.subscribe((msg: any) => {
+      this.scrollToBottom();
+    });
   }
 
   async scrollToBottomInit(){

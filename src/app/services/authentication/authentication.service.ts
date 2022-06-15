@@ -117,7 +117,7 @@ export class AuthenticationService {
   async loginWithGoogle() {
     return await this.angularFireAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((gAuthRes: any) => {
       console.log('Google Auth');
-      //console.log(gAuthRes);
+      console.log(gAuthRes);
       this.user= gAuthRes.user;
       /* this is where the claims are.
       this.user.getIdTokenResult().then((tokenResult) => {

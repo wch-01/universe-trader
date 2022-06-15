@@ -1,9 +1,14 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-title>Global Chat</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="scrollToBottomInit()">Scroll</ion-button>
     </ion-buttons>
+    <ion-segment [(ngModel)]="chatTab">
+      <ion-segment-button *ngFor="let aRoom of aChatrooms" [value]="aRoom.id" (click)="changeRoom(aRoom.id)">
+        <ion-label>{{aRoom.id}}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
@@ -11,13 +16,13 @@
 
   <ion-grid>
     <ion-row *ngFor="let message of messages | async">
-      <ion-col size="9" class="message"
-               [offset]="message.myMsg ? 3 : 0"
-               [ngClass]="{ 'my-message': message.myMsg, 'other-message': !message.myMsg }">
-        <b>{{ message.from }}</b><br>
-        <span>{{ message.msg }}
+      <ion-col size="9" class="message" [offset]="message.from === cs.aCharacter.name ? 3 : 0" [ngClass]="{ 'my-message': message.from === cs.aCharacter.name, 'other-message': message.from !== cs.aCharacter.name }">
+        <b>{{ message.from }}</b>
+        <br><br>
+        <span>
+          {{ message.msg }}
         </span>
-        <div class="time ion-text-right"><br>{{ message.dateTime | date:'short' }}</div>
+        <div class="time ion-text-right"><br>{{ message.createdAt | date:'short' }}</div>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -28,8 +33,8 @@
   <ion-toolbar color="light">
     <ion-row class="ion-align-items-center">
       <ion-col size="10">
-        <ion-textarea auto-grow="true" class="message-input" rows="1" maxLength="500" [(ngModel)]="newMsg" (keyup.enter)="sendMessage()">
-        </ion-textarea>
+        <ion-input type="text" class="message-input" maxLength="500" [(ngModel)]="newMsg" (keyup.enter)="sendMessage()">
+        </ion-input>
       </ion-col>
       <ion-col size="2">
         <ion-button

@@ -5,6 +5,7 @@ import { switchMap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import {CharacterService} from '../character/character.service';
 import {ServerService} from '../server/server.service';
+import {AuthenticationService} from '../authentication/authentication.service';
 // @ts-ignore
 const moment= require('moment');
 
@@ -33,13 +34,22 @@ export interface Message {
 export class ChatService {
   //region Variables
   message;
+  activeRoom;
   //endregion
 
   constructor(
     private ss: ServerService,
     private afs: AngularFirestore,
-    private cs: CharacterService
+    private cs: CharacterService,
+    private authS: AuthenticationService
   ) { }
+
+  getChatMessages() {
+    return this.afs.collection('servers/' + this.ss.activeServer + '/chatrooms/' + this.activeRoom + '/messages',
+      ref =>
+        ref.orderBy('createdAt')
+    ).valueChanges({ idField: 'id' }) as Observable<Message[]>;
+  }
 
   getTimeStamp() {
     const now = new Date();
@@ -58,64 +68,28 @@ export class ChatService {
     this.message= msg;
     return new Promise((resolve, reject) => {
       this.censorChat().then((sr) => {
-        this.afs.collection('servers/' + this.ss.activeServer + '/chat/rooms/global').add({
+        this.afs.collection('servers/' + this.ss.activeServer + '/chatrooms/' + this.activeRoom + '/messages').add({
+          characterID: this.cs.aCharacter.id,
+          userID: this.authS.user.uid,
           msg: this.message,
-          from: 'Admin',
-          // @ts-ignore
-          //createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          createdAt: moment().unix()
+          from: this.cs.aCharacter.name,
+          createdAt: moment().valueOf()
         });
         resolve(true);
       });
     });
   }
 
-  getChatMessages() {
-    let users = [];
-    return this.getUsers().pipe(
-      switchMap(res => {
-        users = res;
-        return this.afs.collection('servers/' + this.ss.activeServer + '/chat/rooms/global',
-            ref =>
-              ref.orderBy('createdAt')
-        )
-          .valueChanges({ idField: 'id' }) as Observable<Message[]>;
-      }),
-      map(messages => {
-        // Get the real name for each user
-        for (const m of messages) {
-          m.fromName = this.getUserForMsg(m.from, users);
-          m.myMsg = this.cs.aCharacter.name === m.from;
-          m.dateTime= moment.unix(m.createdAt);
-        }
-        return messages;
-      })
-    );
-  }
-
   logoutChat(){}
 
   async censorChat(){
     return new Promise((resolve, reject) => {
-      this.afs.collection('badWords').valueChanges().subscribe((aWords:any) => {
+      this.afs.collection('badWords').valueChanges().subscribe((aWords: any) => {
         for (const item of aWords) {
           this.message= this.message.replace(item.word, '**');
         }
         resolve(true);
       });
     });
-  }
-
-  private getUsers() {
-    return this.afs.collection('users').valueChanges({ idField: 'uid' }) as Observable<User[]>;
-  }
-
-  private getUserForMsg(msgFromId, users: User[]): string {
-    for (const usr of users) {
-      if (usr.uid === msgFromId) {
-        return usr.email;
-      }
-    }
-    return 'Deleted';
   }
 }
