@@ -50,6 +50,7 @@
                 <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
                   <ion-icon slot="start" *ngIf="p.icon !== ''" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
                   <ion-label>{{ p.title }}</ion-label>
+                  <ion-note *ngIf="p.subTitle">{{p.subTitle}}</ion-note>
                 </ion-item>
               </ion-menu-toggle>
             </span>
@@ -72,6 +73,7 @@
       </ion-content>
 
       <ion-footer>
+        <!--
         <ion-content>
           <ion-grid>
             <ion-row style="text-align: center;">
@@ -86,11 +88,6 @@
                   <img src="../assets/images/ss_support_med_01.png" alt="" srcset="" style="max-width: 50%;">
                 </a>
               </ion-col>
-              <!--
-              <ion-col>
-
-              </ion-col>
-              -->
             </ion-row>
             <ion-row style="text-align: center">
               <ion-col>
@@ -110,34 +107,37 @@
             <ion-row style="font-size: small; text-align: center">
               <ion-col>
                 <p>
-                  Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version 1.0.0
+                  Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version 0.0.1
                 </p>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ion-content>
-        <ion-card style="margin: 0">
+        -->
+        <ion-card style="margin: 0; text-align: center">
           <ion-card-header>
             <ion-card-title>
               Beta One
             </ion-card-title>
-            <ion-card-subtitle>Colony Trade and Travel</ion-card-subtitle>
+            <ion-card-subtitle>Trade and Travel</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content>
             <ion-grid>
               <ion-row>
                 <ion-col>
                   <p>Welcome to the Universe Trader Beta One, -Trade and Travel-</p>
-                  <p>Read all the details about the beta here: <a href="https://discord.gg/XBBYQ8txqS">Trade and Travel</a> </p>
+                  <p>Read all the details about the beta here: <a href="https://universetrader.online/beta-one-trade-and-travel/">Trade and Travel</a> </p>
                 </ion-col>
               </ion-row>
               <ion-row>
                 <ion-col>
                   <a href="https://www.subscribestar.com/webcrafthouse" target="_blank">
-                    <img src="../assets/images/ss_support_med_01.png" alt="" srcset="">
+                    <img src="../assets/images/ss_support_med_01.png" alt="" srcset="" style="max-width: 50%;">
                   </a>
                 </ion-col>
+                <!--
                 <ion-col></ion-col>
+                -->
               </ion-row>
               <ion-row>
                 <ion-col>
@@ -153,10 +153,15 @@
                     <ion-icon name="logo-discord"></ion-icon>
                   </a>
                 </ion-col>
+                <ion-col>
+                  <a href="https://www.facebook.com/Web-Craft-House-115873557795985" target="_blank">
+                    <ion-icon name="logo-facebook"></ion-icon>
+                  </a>
+                </ion-col>
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version 1.0.0</p>
+                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version 0.0.1</p>
                 </ion-col>
               </ion-row>
             </ion-grid>

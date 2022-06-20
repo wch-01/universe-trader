@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Components} from '@ionic/core';
 import {Colony} from '../../classes/universe';
 import {ColonyService} from '../../services/colony/colony.service';
@@ -11,7 +11,7 @@ import {LoadingController} from '@ionic/angular';
   templateUrl: './colony-modal.page.html',
   styleUrls: ['./colony-modal.page.scss'],
 })
-export class ColonyModalPage implements OnInit {
+export class ColonyModalPage implements OnInit, OnDestroy {
   //region Variables
   @Input() modal: Components.IonModal;
   @Input() id: any;
@@ -52,6 +52,12 @@ export class ColonyModalPage implements OnInit {
 
   dismissModal() {
     this.modal.dismiss('cancel');
+  }
+
+  ngOnDestroy(){
+    this.colonyS.colonySub.unsubscribe();
+    console.log('Ondestroy');
+    console.log(this.colonyS.colonySub);
   }
 
   /*

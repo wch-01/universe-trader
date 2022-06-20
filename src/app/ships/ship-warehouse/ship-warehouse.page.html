@@ -7,10 +7,16 @@
 -->
 
 <ion-card *ngIf="warehouseBoot; else noWarehouse">
+  <h1>Planned Features</h1>
+  <ul>
+    <li>
+      QOL Updates to give more details about the ship and warehouse inventories
+    </li>
+  </ul>
   <ion-grid>
     <ion-row class="warehouseInventoryBorder">
       <ion-col>Item</ion-col>
-      <ion-col>Quantity</ion-col>
+      <ion-col>Warehouse Quantity</ion-col>
       <ion-col>To Ship</ion-col>
       <ion-col>To Warehouse</ion-col>
     </ion-row>

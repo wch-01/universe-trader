@@ -63,7 +63,7 @@ export class TradePage implements OnInit {
     public warehouseS: WarehouseService,
     private afs: AngularFirestore,
     private ionAlert: AlertController,
-    private cs: CharacterService,
+    public cs: CharacterService,
     public us: UniverseService,
     public colonyS: ColonyService,
     public stationS: StationService

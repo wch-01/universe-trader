@@ -27,8 +27,8 @@ export class AppComponent {
   bootDone: Promise<boolean> | undefined;
   public appPages = [
     /*{ title: 'Login', url: '/login', icon: '', role: 'admin' },*/
-    { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true },
-    { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true },
+    { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true, subTitle: 'Ships: Travel & Trade' },
+    { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true, subTitle: 'Warehouse: Trade' },
     /*{ title: 'Character', url: '/character', icon: '', role: 'any', auth: true },*/
     /*{ title: 'Shipyard', url: '/shipyard', icon: '', auth: true },*/
     /*{ title: 'Ships', url: '/ships', icon: '', role: 'any', auth: true },*/

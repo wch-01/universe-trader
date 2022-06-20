@@ -11,7 +11,7 @@ import {CharacterService} from '../../services/character/character.service';
 import {ColonyService} from '../../services/colony/colony.service';
 import {ColonyModalPage} from '../../modals/colony-modal/colony-modal.page';
 import {ShipWarehousePage} from '../ship-warehouse/ship-warehouse.page';
-import {ModalPage} from "../../modal/modal.page";
+import {ModalPage} from '../../modal/modal.page';
 
 const moment= require('moment');
 

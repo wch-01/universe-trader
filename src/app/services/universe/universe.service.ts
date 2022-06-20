@@ -12,6 +12,8 @@ const moment= require('moment');
 export class UniverseService {
   //region Variables
   ssSub;
+  sbSub;
+  cSub;
   aSolarSystems;
   aSolarBodies: any;
   aColonies: any;
@@ -92,7 +94,7 @@ export class UniverseService {
       }
       else{
         console.log('Solar Bodies Local Storage is out of Date');
-        const sbSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
+        this.sbSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
           ref =>
             ref.where('type', '==', 'solarBody')
         ).valueChanges({idField:'id'})
@@ -124,7 +126,7 @@ export class UniverseService {
       }
       else{
         console.log('Colony Local Storage is out of Date');
-        const cSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
+        this.cSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/',
           ref =>
             ref.where('type', '==', 'colony')
         ).valueChanges({idField:'id'})

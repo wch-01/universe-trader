@@ -27,7 +27,7 @@
       <ion-row class="">
         <ion-col>Item</ion-col>
         <ion-col>Quantity</ion-col>
-        <ion-col>COG</ion-col>
+        <ion-col title="Cost of Goods">COG</ion-col>
         <ion-col>Total Value</ion-col>
       </ion-row>
       <ion-row *ngFor="let item of ws.aInventory; let i = index" class="" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">

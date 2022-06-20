@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {UniverseService} from '../services/universe/universe.service';
 import {AlertController, LoadingController, ModalController, PopoverController} from '@ionic/angular';
@@ -15,7 +15,7 @@ const moment= require('moment');
   templateUrl: './universe.page.html',
   styleUrls: ['./universe.page.scss'],
 })
-export class UniversePage implements OnInit {
+export class UniversePage implements OnInit, OnDestroy {
   //region Variables
   resources= ['power','food','ore','silicone','metal','electronics'];
   nsTab= 'solarSystems';
@@ -356,5 +356,11 @@ export class UniversePage implements OnInit {
     });
 
     return await colonyModal.present();
+  }
+
+  ngOnDestroy() {
+    this.uniS.ssSub.unsubscribe();
+    this.uniS.sbSub.unsubscribe();
+    this.uniS.cSub.unsubscribe();
   }
 }

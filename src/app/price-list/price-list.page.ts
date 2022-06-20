@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from '../services/authentication/authentication.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../services/server/server.service';
@@ -14,7 +14,7 @@ const moment= require('moment');
   templateUrl: './price-list.page.html',
   styleUrls: ['./price-list.page.scss'],
 })
-export class PriceListPage implements OnInit {
+export class PriceListPage implements OnInit, OnDestroy {
   //region Variables
   pricesLoaded= false;
   aColonies;
@@ -24,6 +24,7 @@ export class PriceListPage implements OnInit {
   };
   sortField= 'name';
   sortOrder= true;
+  coloniesSub;
   //endregion
 
   //region Constructor
@@ -38,8 +39,10 @@ export class PriceListPage implements OnInit {
   //endregion
 
   ngOnInit() {
-    console.log('Price List init');
-    console.log(this.ss.serverBoot);
+    if(this.ss.aRules.consoleLogging.mode >= 1) {
+      console.log('Price List init');
+    }
+    //console.log(this.ss.serverBoot);
     //console.log(this.ss.obsServerBooted);
 
     /*
@@ -65,11 +68,16 @@ export class PriceListPage implements OnInit {
       //resolve(true);
     }
     else{
-      console.log('Local Storage is out of date');
-      console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' < ' + moment().add(7, 'days').unix());
-      console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' > ' + this.ss.lastUpdate);
-      const coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
+      if(this.ss.aRules.consoleLogging.mode >= 1){
+        console.log('Local Storage is out of date');
+        if(this.ss.aRules.consoleLogging.mode >= 2){
+          console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' < ' + moment().add(7, 'days').unix());
+          console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' > ' + this.ss.lastUpdate.universeUpdated);
+        }
+      }
+      this.coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
         this.aColonies= aColonies;
+        console.log(aColonies);
         this.aColonies.some((aColony: any) => {
           //aColony.aInventory;
           aColony.aaInventory= [];
@@ -88,7 +96,7 @@ export class PriceListPage implements OnInit {
             localStorage.setItem('ut_server_price_list_colonies_time', moment().unix());
             this.pricesLoaded= true;
             invSub.unsubscribe();
-            coloniesSub.unsubscribe();
+            //coloniesSub.unsubscribe();
             this.sort('name', true);
           });
         });
@@ -129,11 +137,13 @@ export class PriceListPage implements OnInit {
     });
   }
 
+  /*
   filter(){
     this.aColonies= this.aColonies.filter((aColony) =>
       aColony.name.toLowerCase().indexOf(this.aFilters.name.toLowerCase()) > -1
     );
   }
+  */
 
   sort(field, order){
     if(this.sortField !== field){
@@ -174,4 +184,9 @@ export class PriceListPage implements OnInit {
     return await colonyModal.present();
   }
 
+  ngOnDestroy() {
+    if(this.coloniesSub){
+      this.coloniesSub.unsubscribe();
+    }
+  }
 }

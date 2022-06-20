@@ -62,7 +62,7 @@ export class ServerService {
 
   bootServer(){
     console.log('Server Service Boot Function.');
-
+    // todo need to refine this logic, the find for server still fires even if no server set
     return new Promise((resolve, reject) => {
       if(!this.activeServer){
         if(localStorage.getItem('ut_server')){
@@ -218,26 +218,30 @@ export class ServerService {
   }
 
   getActiveServerList(){
-    if(hasCustomClaim('superAdmin')){
+    //todo add other custom claims like beta, dev, admin etc.
+    console.log('Getting Servers');
+    console.log(hasCustomClaim('admin'));
+    //hasCustomClaim('admin')
+    /*
+    if(hasCustomClaim('developer')){
       return new Promise((resolve, reject) => {
         this.afs.collection('servers')
           .valueChanges({idField:'id'})
           .pipe(take(1))
           .subscribe((aActiveServers: any) => {
-            /*
             if(this.aRules.consoleLogging.mode >= 1){
               console.log('Server List');
               if(this.aRules.consoleLogging.mode >= 2){
                 console.log(aActiveServers);
               }
             }
-            */
             this.aActiveServers= aActiveServers;
             resolve(true);
           });
       });
     }
-    else{
+    */
+    // else{
       return new Promise((resolve, reject) => {
         this.afs.collection('servers',
           ref =>
@@ -257,7 +261,7 @@ export class ServerService {
             resolve(true);
           });
       });
-    }
+    // }
   }
 
   /**
@@ -279,8 +283,8 @@ export class ServerService {
             }
           }
           this.aDCMI= aDCMI;
-          console.log('dmci');
-          console.log(this.aDCMI);
+          //console.log('dmci');
+          //console.log(this.aDCMI);
           resolve(true);
         });
     });
