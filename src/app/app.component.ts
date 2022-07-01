@@ -47,6 +47,7 @@ export class AppComponent {
     { title: 'Trash', url: '/folder/Trash', icon: 'trash' },
     { title: 'Spam', url: '/folder/Spam', icon: 'warning' },*/
   ];
+  aAM;
   //endregion
 
   //region Constructor
@@ -67,6 +68,7 @@ export class AppComponent {
   ) {
     //this.logout();
     console.log('App Boot');
+    this.appMessage();
     if((pLocation as any).location.hash === '#/login-register'){
       this.bootDone= Promise.resolve(true);
     }
@@ -145,6 +147,13 @@ export class AppComponent {
     */
   }
   //endregion
+
+  appMessage(){
+    this.afs.collection('app').doc('message').valueChanges()
+      .subscribe((aAppMessage: any) => {
+        this.aAM= aAppMessage;
+      });
+  }
 
   globalMessages(){
     const rightNow= moment().unix();
