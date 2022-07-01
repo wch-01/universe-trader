@@ -149,7 +149,9 @@ export class AppComponent {
   //endregion
 
   appMessage(){
-    this.afs.collection('app').doc('message').valueChanges()
+    //Always update this version number
+    const version= '0.0.2';
+    this.afs.collection('app').doc(version).valueChanges()
       .subscribe((aAppMessage: any) => {
         this.aAM= aAppMessage;
       });
