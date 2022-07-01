@@ -7,7 +7,7 @@ import {Components} from '@ionic/core';
   styleUrls: ['./modal.page.scss'],
 })
 export class ModalPage implements OnInit {
-//region Variables
+  //region Variables
   @Input() modal: Components.IonModal;
   @Input() viewer: any;
   @Input() modalType: any;

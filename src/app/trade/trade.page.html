@@ -18,18 +18,18 @@
       <ion-card>
         <ion-card-content>
           <span *ngIf="trader === 'ship'">
-      Ship Capacity: {{capacityAvailable}}
-    </span>
+            Ship Capacity: {{capacityAvailable}}
+          </span>
           <span *ngIf="trader === 'warehouse'">
-        Warehouse Capacity: {{capacityAvailable}}
-      </span>
+            Warehouse Capacity: {{capacityAvailable}}
+          </span>
         </ion-card-content>
       </ion-card>
     </ion-col>
   </ion-row>
   <ion-row>
     <ion-col>
-      <ion-card>
+      <ion-card *ngIf="showTrade">
         <!--
         <ion-card-header>
           <ion-card-title>Colonies at {{us.aSolarBody.name}}</ion-card-title>
@@ -41,7 +41,7 @@
           </ion-item>
         </ion-card-header>
         -->
-        <ion-card-content *ngIf="showTrade">
+        <ion-card-content *ngIf="platform.sizeTemplate === 'standard'">
           <ion-grid>
             <ion-row class="item-list-border">
               <ion-col>
@@ -71,7 +71,7 @@
               <ion-col>
                 <ion-item>
                   <ion-label (click)="sortMarketItems('quantity', sortOrder= !sortOrder)">
-                    Quantity
+                    <span *ngIf="trader === 'station'">Station</span><span *ngIf="trader === 'colony'">Colony</span> Quantity
                     <span *ngIf="sortField === 'quantity'; else qReady">
                 <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                 <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
@@ -82,7 +82,21 @@
                     </ng-template>
                   </ion-label>
                 </ion-item>
-
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label (click)="sortMarketItems('quantity', sortOrder= !sortOrder)">
+                    <span *ngIf="trader === 'warehouse'">Warehouse</span><span *ngIf="trader === 'ship'">Ship</span> Quantity
+                    <span *ngIf="sortField === 'quantity'; else qReady">
+                <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+              </span>
+                    <ng-template #qReady>
+                      <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                    </ng-template>
+                  </ion-label>
+                </ion-item>
               </ion-col>
               <ion-col>
                 Price
@@ -90,11 +104,11 @@
                 Buy <span *ngIf="market === 'colony'">(Sell)</span>
               </ion-col>
               <ion-col>Buy<span *ngIf="market === 'colony'">(Sell)</span></ion-col>
-              <!--<ion-col *ngIf="market === 'colony'">Sell</ion-col>-->
             </ion-row>
             <ion-row *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
               <ion-col>
                 {{ss.aaDefaultItems[item.name].displayName}}
+                <!--{{item.displayName}}-->
               </ion-col>
               <ion-col>
                 {{item.type}}
@@ -103,14 +117,13 @@
                 {{item.quantity | number}}
               </ion-col>
               <ion-col>
+                <span *ngIf="aaInventoryLevels[item.name]">{{aaInventoryLevels[item.name].quantity | number}}</span>
+
+              </ion-col>
+              <ion-col>
                 {{item.listPrice | number}}
                 <span *ngIf="market === 'colony'">({{item.buyPrice}})</span>
               </ion-col>
-              <!--
-              <ion-col *ngIf="market === 'colony'">
-                {{colonyS.aColony[item.name+'Demand'] * 100}}%
-              </ion-col>
-              -->
               <ion-col>
                 <ion-grid>
                   <ion-row>
@@ -144,46 +157,188 @@
 
                 </ion-grid>
               </ion-col>
-              <!--
-              <ion-col *ngIf="market === 'colony'">
-                <ion-grid>
-                  <ion-row>
-                    <ion-col style="text-align: center">
-                      Sell
-                      {{sellAmount.value}}
-                      @
-                      <span *ngIf="market === 'colony'">{{item.cog * colonyS.aColony[item.name+'Demand'] | number}}</span>
-                      <span *ngIf="market === 'station'">{{item.listPrice | number}}</span>
-                      =
-                      <span *ngIf="market === 'colony'">{{sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'] | number}}</span>
-                      <span *ngIf="market === 'station'">{{buyAmount.value * item.listPrice | number}}</span>
-                    </ion-col>
-                  </ion-row>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+        <ion-card-content *ngIf="platform.sizeTemplate === 'small'">
+          <!--Styled like AMZ-->
+          <ion-button id="amz-filter-nested-button"><ion-icon name="filter-outline"></ion-icon></ion-button>
+          <ion-popover trigger="amz-filter-nested-button" [dismissOnSelect]="false">
+            <ng-template>
+              <ion-content>
+                <ion-list>
+                  <ion-item-group>
+                    <!--
+                    <ion-item-divider>
+                      Type
+                    </ion-item-divider>
+                    <ion-item (click)="aMarketInventoryFilters.type= 'Raw Resource'; filterMarketInventory()">
+                      Raw Resource
+                    </ion-item>
+                    -->
 
-                  <ion-row>
-                    <ion-col>
-                      <ion-item>
-                        <ion-label position="floating">
-                          Amount
-                        </ion-label>
-                        <ion-input
-                          name="sellAmount_{{item.name}}"
-                          type="number"
-                          #sellAmount
-                          max="{{aaInventoryLevels[item.name].quantity}}"
-                          min="0"
-                          placeholder="{{aaInventoryLevels[item.name].quantity}}"
-                        >
-                        </ion-input>
-                      </ion-item>
-                    </ion-col>
-                    <ion-col class="center-content">
-                      <ion-button (click)="confirmTradeAlert('sell', item, sellAmount.value, item.cog * colonyS.aColony[item.name+'Demand'], sellAmount.value * item.cog * colonyS.aColony[item.name+'Demand'])" color="danger" fill="solid">Sell</ion-button>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
+                    <ion-item-divider>
+                      Filter
+                    </ion-item-divider>
+
+                    <ion-item fill="solid" class="ion-margin-bottom">
+                      <ion-label position="floating">
+                        Item Name
+                      </ion-label>
+                      <ion-input type="text" name="filterName" [(ngModel)]="aMarketInventoryFilters.name" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
+                    </ion-item>
+
+                    <ion-item fill="solid" class="ion-margin-bottom">
+                      <ion-label position="floating">
+                        Type
+                      </ion-label>
+                      <ion-input type="text" name="filterType" [(ngModel)]="aMarketInventoryFilters.type" (ngModelChange)="filterMarketInventory()" clearInput=""></ion-input>
+                    </ion-item>
+                  </ion-item-group>
+
+                  <ion-item-group>
+                    <ion-item-divider>
+                      Sort
+                    </ion-item-divider>
+
+                    <ion-item (click)="sortMarketItems('name', sortOrder= !sortOrder)" style="cursor: pointer">
+                      <ion-label>
+                        Item Name
+                        <span *ngIf="sortField === 'name'; else qReady">
+                          <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                        </span>
+                        <ng-template #qReady>
+                          <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                        </ng-template>
+                      </ion-label>
+                    </ion-item>
+                    <ion-item (click)="sortMarketItems('type', sortOrder= !sortOrder)" style="cursor: pointer">
+                      <ion-label>
+                        Type
+                        <span *ngIf="sortField === 'type'; else qReady">
+                          <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                        </span>
+                        <ng-template #qReady>
+                          <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                        </ng-template>
+                      </ion-label>
+                    </ion-item>
+                    <ion-item (click)="sortMarketItems('quantity', sortOrder= !sortOrder)" style="cursor: pointer">
+                      <ion-label>
+                        Quantity
+                        <span *ngIf="sortField === 'quantity'; else qReady">
+                          <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                        </span>
+                        <ng-template #qReady>
+                          <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                        </ng-template>
+                      </ion-label>
+                    </ion-item>
+                    <ion-item (click)="sortMarketItems('listPrice', sortOrder= !sortOrder)" style="cursor: pointer">
+                      <ion-label>
+                        Buy
+                        <span *ngIf="sortField === 'quantity'; else qReady">
+                          <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                        </span>
+                        <ng-template #qReady>
+                          <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                        </ng-template>
+                      </ion-label>
+                    </ion-item>
+                    <ion-item *ngIf="market === 'colony'" (click)="sortMarketItems('buyPrice', sortOrder= !sortOrder)" style="cursor: pointer">
+                      <ion-label>
+                        Sell
+                        <span *ngIf="sortField === 'buyPrice'; else qReady">
+                          <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                        </span>
+                        <ng-template #qReady>
+                          <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                          <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                        </ng-template>
+                      </ion-label>
+                    </ion-item>
+                  </ion-item-group>
+                </ion-list>
+              </ion-content>
+            </ng-template>
+          </ion-popover>
+
+          <ion-grid>
+            <ion-row>
+              <ion-col *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
+                <ion-item>
+                  <ion-note>name</ion-note>
+                  <ion-label>
+                    {{ss.aaDefaultItems[item.name].displayName}}
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-note>type</ion-note>
+                  <ion-label>
+                    {{item.type}}
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-note>available</ion-note>
+                  <ion-label>
+                    {{item.quantity | number}}
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-note>Buy For</ion-note>
+                  <ion-label>
+                    {{item.listPrice | number}}
+                  </ion-label>
+                </ion-item>
+                <ion-item *ngIf="market === 'colony'">
+                  <ion-note>Sell For</ion-note>
+                  <ion-label>
+                    ({{item.buyPrice}})
+                  </ion-label>
+                </ion-item>
+
+                <ion-item>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col style="text-align: center">
+                        Buy {{buySellAmount.value}} @ {{item.listPrice | number}} = {{buySellAmount.value * item.listPrice | number}}
+                        <br />
+                        <span *ngIf="market === 'colony'">
+                  (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
+                </span>
+                      </ion-col>
+                    </ion-row>
+                    <ion-row>
+                      <ion-col>
+                        <ion-item>
+                          <ion-label position="floating">Amount</ion-label>
+                          <ion-input
+                            name="buySellAmount_{{item.name}}"
+                            type="number"
+                            #buySellAmount
+                            min="0"
+                          >
+                          </ion-input>
+                        </ion-item>
+                      </ion-col>
+                      <ion-col class="center-content">
+                        <ion-button (click)="confirmTradeAlert('buy', item, buySellAmount.value, item.listPrice, buySellAmount.value * item.listPrice)" color="danger" fill="solid">Buy</ion-button>
+
+                        <ion-button *ngIf="market === 'colony'" (click)="confirmTradeAlert('sell', item, buySellAmount.value, item.buyPrice, buySellAmount.value * item.buyPrice)" color="danger" fill="solid">Sell</ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-item>
               </ion-col>
-              -->
             </ion-row>
           </ion-grid>
         </ion-card-content>

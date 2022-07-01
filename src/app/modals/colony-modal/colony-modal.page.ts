@@ -17,12 +17,14 @@ export class ColonyModalPage implements OnInit, OnDestroy {
   @Input() id: any;
   @Input() trading= false;
   @Input() trader: any;
+  @Input() traderID: any;
 
   aColony= new Colony();
   aInventory;
   aDefaultItems: any;
   ssLoaded: Promise<boolean> | undefined;
   sbLoaded: Promise<boolean> | undefined;
+  colonyLoaded: Promise<boolean> | undefined;
   //endregion
 
   //region Constructor
@@ -35,7 +37,28 @@ export class ColonyModalPage implements OnInit, OnDestroy {
   //endregion
 
   ngOnInit() {
-    this.colonyS.colonyID= this.id;
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('Colony Modal Page Loading');
+      if(this.ss.aRules.consoleLogging.mode >= 2){
+        console.log(this.id);
+      }
+    }
+
+    this.colonyS.id= this.id;
+    this.colonyS.rpColony().then(
+      (aColony) => {
+        //this.aColony= aColony;
+        this.colonyLoaded= Promise.resolve(true);
+        this.colonyS.rCSS().then(() => {
+          this.ssLoaded= Promise.resolve(true);
+        });
+        this.colonyS.rCSB().then(() => {
+          this.sbLoaded= Promise.resolve(true);
+        });
+      },
+      (rpcError) => {}
+    );
+    /*
     this.colonyS.readColony(this.id).then((rcRes) => {
       this.aColony= this.colonyS.aColony;
       this.colonyS.readColonyMarketInventory().then((rcmiRes) => {
@@ -48,6 +71,7 @@ export class ColonyModalPage implements OnInit, OnDestroy {
         this.sbLoaded= Promise.resolve(true);
       });
     });
+    */
   }
 
   dismissModal() {

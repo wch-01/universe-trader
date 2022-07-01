@@ -51,56 +51,27 @@ export class LoginRegisterPage implements OnInit {
     });
     await loading.present();
 
-    switch (method){
-      case 'google':
-        this.authService.loginWithGoogle()
-          .then(
-            res => {
-            console.log('Login with google.');
-            this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-            const userSub= this.afs.collection('users').doc(this.authService.user.uid).valueChanges()
-              .subscribe((userRecord: any) => {
-                //console.log('Find user Record');
-                //console.log(userRecord);
-                if(!userRecord){
-                  //console.log('Record Does not Exist');
-                  this.afs.collection('users/').doc(this.authService.user.uid)
-                    .set({
-                      lastLogin: moment().unix(),
-                      email: this.authService.user.email
-                    });
-                }
-                else{
-                  this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
-                }
-                userSub.unsubscribe();
-              });
-            loading.dismiss();
-          },
-            err => {
-            this.showMessage('danger', err.message);
-          }
-          );
-        break;
-      case 'ep':
-        this.responseMessage = '';
-        this.authService.login(this.emailInput, this.passwordInput)
-          .then(
-            res => {
-              //console.log('E&P Result');
-              //console.log(res);
-              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
-              this.router.navigateByUrl('/dashboard', { replaceUrl: true });
-              this.showMessage('success', 'Successfully Logged In!');
-              this.isUserLoggedIn();
-            },
-            err => {
-              //this.showMessage('danger', err.message);
-              this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
-            }
-          );
-        break;
+    if(method === 'ep'){
+      this.authService.emailInput= this.emailInput;
+      this.authService.passwordInput= this.passwordInput;
     }
+
+    this.authService.login(method)
+      .then(
+        res => {
+          this.router.navigateByUrl('/servers', { replaceUrl: true });
+          loading.dismiss();
+        },
+      )
+      .catch((errorMessage) => {
+        if(errorMessage === 'Not Admin'){
+          this.toastMessage('You are not an admin', 'danger');
+        }
+        else{
+          this.toastMessage(errorMessage, 'danger');
+        }
+        loading.dismiss();
+      });
   }
 
   // Open Popup to Log in with Google Account
@@ -140,6 +111,7 @@ export class LoginRegisterPage implements OnInit {
   }
 
   // Login user with  provided Email/ Password
+  /*
   loginUser() {
     //console.log('Login with Email and Password');
     this.responseMessage = '';
@@ -158,6 +130,7 @@ export class LoginRegisterPage implements OnInit {
           this.showMessage('danger', 'Oops, something went wrong. Please Try again.');
         });
   }
+  */
 
   // Common Method to Show Message and Hide after 2 seconds
   showMessage(type, msg) {

@@ -8,6 +8,7 @@ import {tap} from 'rxjs/operators';
 })
 export class ColonyService {
   //region Variables
+  id;
   colonyID;
   colonySub;
   rCSBSub;
@@ -112,6 +113,35 @@ export class ColonyService {
   //endregion
 
   //region Read
+  /**
+   * Name: Colony
+   *
+   * @return: Promise
+   * */
+  rpColony(){
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('colonyService: rpColony');
+    }
+    return new Promise((resolve, reject) => {
+      this.colonySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(this.id).valueChanges({idField:'id'})
+        .subscribe((aColony: any) => {
+          if(this.ss.aRules.consoleLogging.mode >= 2){
+            console.log(aColony);
+          }
+          if(aColony.name){
+            this.aColony= aColony;
+            resolve(aColony);
+          }
+          else{
+            if(this.ss.aRules.consoleLogging.mode >= 1){
+              console.log('colonyService->rpColony: Rejecting');
+            }
+            reject('No Colony Found');
+          }
+        });
+    });
+  }
+
   /**
    * Name: Read Colony by SolarBodyID
    *

@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="colonyLoaded">
   <ion-grid>
     <ion-row>
       <ion-col>
@@ -24,7 +24,12 @@
               </ion-row>
               <ion-row>
                 <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
-                  {{aColony[col.filter]}}
+                  <span *ngIf="col.filter === 'population'; else standard">
+                    {{colonyS.aColony[col.filter] | number}}
+                  </span>
+                  <ng-template #standard>
+                    {{colonyS.aColony[col.filter]}}
+                  </ng-template>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -96,7 +101,7 @@
     </ion-row>
   </ion-grid>
 
-  <app-trade *ngIf="trading; else standard" [trader]="trader" [market]="'colony'"></app-trade>
+  <app-trade *ngIf="trading; else standard" [trader]="trader" [traderID]="traderID" [market]="'colony'"></app-trade>
 
   <ng-template #standard>
     <ion-card>

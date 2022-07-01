@@ -9,6 +9,7 @@ import {UniverseService} from '../services/universe/universe.service';
 import {ColonyService} from '../services/colony/colony.service';
 import {WarehouseService} from '../services/warehouse/warehouse.service';
 import {StationService} from '../services/station/station.service';
+import {PlatformService} from '../services/platform/platform.service';
 
 @Component({
   selector: 'app-trade',
@@ -18,6 +19,7 @@ import {StationService} from '../services/station/station.service';
 export class TradePage implements OnInit {
   //region Variables
   @Input() trader: any;
+  @Input() traderID: any;
   @Input() market: any;
   sortField= 'name';
   sortOrder= true;
@@ -66,12 +68,14 @@ export class TradePage implements OnInit {
     public cs: CharacterService,
     public us: UniverseService,
     public colonyS: ColonyService,
-    public stationS: StationService
+    public stationS: StationService,
+    public platform: PlatformService
   ) { }
   //endregion
 
   ngOnInit() {
     console.log('Load Trading Page');
+    console.log(this.ss.aaDefaultItems);
     /*
     this.us.rsbCP(this.us.aSolarBody.id).then((rsbCRes: any) => {
       this.coloniesLoaded= true;
@@ -80,9 +84,15 @@ export class TradePage implements OnInit {
     this.getMarketInventory();
     switch (this.trader) {
       case 'ship':
-        console.log('trade: Trader is a ship');
-        this.aaInventoryLevels= this.shipS.aInventory;
+        this.aaInventoryLevels= this.shipS.aaInventory;
         this.capacityAvailable= this.shipS.capacityAvailable;
+        if(this.ss.aRules.consoleLogging.mode >= 1){
+          console.log('trade: Trader is a ship');
+          if(this.ss.aRules.consoleLogging.mode >= 2){
+            console.log(this.aaInventoryLevels);
+            console.log(this.capacityAvailable);
+          }
+        }
         break;
       case 'warehouse':
         this.aInventoryLevels= this.warehouseS.aInventory;
@@ -134,6 +144,7 @@ export class TradePage implements OnInit {
     }
   }
 
+  //todo change this to accept and calculate in the alert. Fingers crossed.
   async confirmTradeAlert(action, item, amount, price, total){
     switch (action){
       case 'buy':
@@ -201,42 +212,61 @@ export class TradePage implements OnInit {
         }
         break;
       case 'sell':
-        if(this.shipS.aInventory[item.name].quantity >= amount && amount > 0){
-          price= Math.ceil(price);
-          total= Math.ceil(total);
-          const confirmTradeAlert = await this.ionAlert.create({
-            cssClass: '',
-            header: 'Confirm Transaction',
-            subHeader: '',
-            message: 'Please Confirm: ' + action + ' ' + amount + ' @ ' + price + ' Totalling ' + total,
-            inputs: [
-              /*
-              {
-                name: 'amount',
-                type: 'number',
-                placeholder: '100'
-              }
-              */
-            ],
-            buttons: [
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                cssClass: 'secondary',
-                handler: () => {
-                  //console.log('Confirm Cancel');
+        if(this.aaInventoryLevels[item.name]){
+          if(this.aaInventoryLevels[item.name].quantity >= amount && amount > 0){
+            price= Math.ceil(price);
+            total= Math.ceil(total);
+            const confirmTradeAlert = await this.ionAlert.create({
+              cssClass: '',
+              header: 'Confirm Transaction',
+              subHeader: '',
+              message: 'Please Confirm: ' + action + ' ' + amount + ' @ ' + price + ' Totalling ' + total,
+              inputs: [
+                /*
+                {
+                  name: 'amount',
+                  type: 'number',
+                  placeholder: '100'
                 }
-              },
-              {
-                text: 'Confirm',
-                handler: (data: any) => {
-                  this.performTrade(action, item, amount, price, total);
+                */
+              ],
+              buttons: [
+                {
+                  text: 'Cancel',
+                  role: 'cancel',
+                  cssClass: 'secondary',
+                  handler: () => {
+                    //console.log('Confirm Cancel');
+                  }
+                },
+                {
+                  text: 'Confirm',
+                  handler: (data: any) => {
+                    this.performTrade(action, item, amount, price, total);
+                  }
                 }
-              }
-            ]
-          });
+              ]
+            });
 
-          await confirmTradeAlert.present();
+            await confirmTradeAlert.present();
+          }
+          else{
+            const confirmTradeAlert = await this.ionAlert.create({
+              cssClass: '',
+              header: 'Confirm Transaction',
+              subHeader: '',
+              message: 'Please check your numbers, you either do not have room, or the seller is out of product',
+              inputs: [],
+              buttons: [
+                {
+                  text: 'Confirm',
+                  handler: () => {}
+                }
+              ]
+            });
+
+            await confirmTradeAlert.present();
+          }
         }
         else{
           const confirmTradeAlert = await this.ionAlert.create({
@@ -261,61 +291,154 @@ export class TradePage implements OnInit {
 
   performTrade(action, item, amount, price, total){
     let inventoriedItem: any;
+
+    if(this.aaInventoryLevels[item.name] && this.aaInventoryLevels[item.name].type !== 'Prepared Module'){
+      inventoriedItem= this.aaInventoryLevels[item.name];
+    }
+    else{
+      inventoriedItem= Object.assign([], this.ss.aaDefaultItems[item.name]);
+      // inventoriedItem.id= undefined;
+      inventoriedItem.quantity= 0;
+      inventoriedItem.ownerID= this.traderID;
+      inventoriedItem.cost= 0;
+    }
+
+    /*
     switch (this.trader) {
       case 'ship':
-        inventoriedItem= this.shipS.aInventory[item.name];
+        if(this.shipS.aInventory[item.name]){
+          inventoriedItem= this.shipS.aInventory[item.name];
+        }
+        else{
+          inventoriedItem= Object.assign([], this.ss.aaDefaultItems[item.name]);
+          // inventoriedItem.id= undefined;
+          inventoriedItem.quantity= 0;
+          inventoriedItem.ownerID= this.shipS.aShip.id;
+          inventoriedItem.cost= 0;
+        }
         break;
       case 'warehouse':
-        inventoriedItem= this.warehouseS.aaInventory[item.name];
-        break;
-    }
-    switch (action){
-      case 'buy':
-        //Update Colony/Station Inventory
-        item.quantity= +item.quantity - +amount;
-        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
-        //update Ship/Warehouse Inventory
-        inventoriedItem.quantity= +inventoriedItem.quantity + +amount;
-        inventoriedItem.cost= +inventoriedItem.cost + +total;
-        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(inventoriedItem.id)
-          .update(Object.assign({}, inventoriedItem));
-        //update character money
-        this.cs.aCharacter.pulsars= +this.cs.aCharacter.pulsars - +total;
-        this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(this.cs.aCharacter.id)
-          .update({pulsars:this.cs.aCharacter.pulsars});
-        break;
-      case 'sell':
-        //Update Colony/Station Inventory
-        item.quantity= +item.quantity + +amount;
-        if(item.quantity === 0){
-          item.activeListing= false;
+        if(this.warehouseS.aaInventory[item.name]){
+          inventoriedItem= this.warehouseS.aaInventory[item.name];
         }
-        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
-        //update Ship Inventory
-        inventoriedItem.quantity= +inventoriedItem.quantity - +amount;
-        inventoriedItem.cost= +inventoriedItem.cost - +total;
-        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(inventoriedItem.id)
-          .update(Object.assign({}, inventoriedItem));
-        //update character money
-        this.cs.aCharacter.pulsars= +this.cs.aCharacter.pulsars + +total;
-        this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(this.cs.aCharacter.id)
-          .update({pulsars:this.cs.aCharacter.pulsars});
+        else{
+          inventoriedItem= Object.assign({}, this.ss.aaDefaultItems[item.name]);
+          // inventoriedItem= this.ss.aaDefaultItems[item.name];
+          // inventoriedItem.id= undefined;
+          inventoriedItem.quantity= 0;
+          inventoriedItem.ownerID= this.warehouseS.aWarehouse.id;
+          inventoriedItem.cost= 0;
+        }
+        console.log('Item built');
+        console.log(inventoriedItem);
         break;
     }
+    */
+    const upTransaction= new Promise((tResolve, tReject) => {
+      switch (action){
+        case 'buy':
+          //Update Colony/Station Inventory
+          item.quantity= +item.quantity - +amount;
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
+
+          //update Ship/Warehouse Inventory
+          const upSWInv= new Promise((resolve, reject) => {
+            inventoriedItem.quantity= +inventoriedItem.quantity + +amount;
+            inventoriedItem.cost= +inventoriedItem.cost + +total;
+            if(inventoriedItem.id){
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('TradePage: Buy Exiting Item');
+              }
+              this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(inventoriedItem.id)
+                .update(Object.assign({}, inventoriedItem)).then(
+                () => {
+                  resolve(true);
+                }
+              );
+            }
+            else{
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('TradePage: Buy New Item');
+              }
+              this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, inventoriedItem)).then(
+                () => {
+                  resolve(true);
+                }
+              );
+            }
+          });
+
+          //update character money
+          upSWInv.then(
+            () => {
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('TradePage: Update Character Money');
+              }
+              this.cs.aCharacter.pulsars= +this.cs.aCharacter.pulsars - +total;
+              this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(this.cs.aCharacter.id)
+                .update({pulsars:this.cs.aCharacter.pulsars}).then(
+                () => {
+                  tResolve(true);
+                }
+              );
+            }
+          );
+          break;
+        case 'sell':
+          //Update Colony/Station Inventory
+          item.quantity= +item.quantity + +amount;
+          /* todo this is good, but needs to look at if item is a user listing on a station, and only happen then
+          if(item.quantity === 0){
+            item.activeListing= false;
+          }
+          */
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
+
+          //update Ship Inventory
+          inventoriedItem.quantity= +inventoriedItem.quantity - +amount;
+          inventoriedItem.cost= +inventoriedItem.cost - +total;
+          if(inventoriedItem.quantity === 0){
+            this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(inventoriedItem.id).delete();
+          }
+          else{
+            this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(inventoriedItem.id)
+              .update(Object.assign({}, inventoriedItem));
+          }
+
+          //update character money
+          this.cs.aCharacter.pulsars= +this.cs.aCharacter.pulsars + +total;
+          this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(this.cs.aCharacter.id)
+            .update({pulsars:this.cs.aCharacter.pulsars});
+          break;
+      }
+    });
 
     //Set Capacity
-    switch (this.trader) {
-      case 'ship':
-        this.shipS.setCargoCapacity();
-        this.capacityAvailable= this.shipS.capacityAvailable;
-        break;
-      case 'warehouse':
-        this.warehouseS.setCargoCapacity();
-        this.capacityAvailable= this.warehouseS.capacityAvailable;
-        break;
-    }
+    upTransaction.then(
+      () => {
+        if(this.ss.aRules.consoleLogging.mode >= 1){
+          console.log('TradePage: Update Capacity');
+        }
+        switch (this.trader) {
+          case 'ship':
+            this.shipS.setCargoCapacity().then(
+              () => {
+                this.capacityAvailable= this.shipS.capacityAvailable;
+              }
+            );
+            break;
+          case 'warehouse':
+            this.warehouseS.setCargoCapacity();
+            this.capacityAvailable= this.warehouseS.capacityAvailable;
+            break;
+        }
+      }
+    );
 
     //Log transaction
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('TradePage: Log Transaction');
+    }
     this.afs.collection('servers/' + this.ss.activeServer + '/transactionLogs').add(
       {
         ownerID: this.cs.aCharacter.id,

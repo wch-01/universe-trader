@@ -8,6 +8,8 @@ import {ShipPage} from '../ships/ship/ship.page';
 import {ShipService} from '../services/ship/ship.service';
 import {CharacterService} from '../services/character/character.service';
 import {Router} from '@angular/router';
+import {HousekeepingService} from '../services/housekeeping/housekeeping.service';
+import {take} from 'rxjs/operators';
 
 
 @Component({
@@ -32,7 +34,8 @@ export class DashboardPage implements OnInit {
     public cs: CharacterService,
     public modalController: ModalController,
     private shipS: ShipService,
-    public router: Router
+    public router: Router,
+    private hks: HousekeepingService
   ) {
     /*
     if(this.ss.aRules.consoleLogging.mode >= 1){
@@ -84,24 +87,24 @@ export class DashboardPage implements OnInit {
 
   readCharacterShips(){
     //return this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.user.uid).valueChanges({idField:'id'});
-    this.afs.collection('servers/' + this.ss.activeServer + '/ships/ships',
+    const shipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/ships/ships',
         ref => ref.where('ownerUID','==', this.authService.user.uid))
       .valueChanges({idField:'id'})
       .subscribe(aShips=>{
         this.characterShips= [];//Reset the Character ship list each time the DB has changes.
         aShips.some((aShip: Ship)=> {
           const aSolarSystem= this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-            .doc(aShip.solarSystem).valueChanges({idField:'id'});
-
-          aSolarSystem.subscribe((solarSystem: any)=>{
+            .doc(aShip.solarSystem).valueChanges({idField:'id'})
+            .pipe(take(1))
+            .subscribe((solarSystem: any)=>{
             aShip.location= solarSystem.name;
             //console.log(solarSystem.get('id'));
             //console.log(solarSystem.data());
             //console.log(location);
           });
-
           this.characterShips.push(aShip);
       });
+        this.hks.subscriptions.push(shipsSub);
     });
   }
 
@@ -117,13 +120,6 @@ export class DashboardPage implements OnInit {
 
     return this.afs.collection('servers/' + this.ss.activeServer + '/solar_systems/solar_systems')
       .doc(solarSystemID).valueChanges();
-/*
-    aSolarSystem.pipe(first()).subscribe((solarSystem: any) => {
-      console.log(solarSystem);
-      return solarSystem.name;
-    });
-    */
-    //return aSolarSystem;
   }
 
   async viewShipModal(aShip){
@@ -140,7 +136,8 @@ export class DashboardPage implements OnInit {
   }
 
   async viewShip(aShip){
-    //await this.shipS.readShip(aShip.id);
-    await this.router.navigate(['/ship', aShip]);
+    this.shipS.id= aShip.id;
+    //await this.router.navigate(['/ship', aShip]);// Used this for a while, but want to get away from url params
+    await this.router.navigate(['/ship']);
   }
 }

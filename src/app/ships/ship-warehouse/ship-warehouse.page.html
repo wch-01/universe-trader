@@ -1,87 +1,64 @@
 <!--
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title *ngIf="warehouseBoot">{{ws.aWarehouse.name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 -->
 
-<ion-card *ngIf="warehouseBoot; else noWarehouse">
-  <h1>Planned Features</h1>
-  <ul>
-    <li>
-      QOL Updates to give more details about the ship and warehouse inventories
-    </li>
-  </ul>
-  <ion-grid>
-    <ion-row class="warehouseInventoryBorder">
-      <ion-col>Item</ion-col>
-      <ion-col>Warehouse Quantity</ion-col>
-      <ion-col>To Ship</ion-col>
-      <ion-col>To Warehouse</ion-col>
-    </ion-row>
-    <ion-row *ngFor="let item of ws.aInventory" class="warehouseInventoryBorder">
-      <ion-col>
-        {{item.name}}
-      </ion-col>
-      <ion-col>
-        {{item.quantity | number}}
-      </ion-col>
-      <ion-col>
-        <ion-grid>
-          <ion-row>
-            <ion-col>
-              <ion-item>
-                <ion-label position="floating">
-                  Amount
-                </ion-label>
-                <ion-input
-                  name="sTransferAmount_{{item.name}}"
-                  type="number"
-                  #sTransferAmount
-                  max="{{shipS.capacityAvailable}}"
-                  min="0"
-                  placeholder="{{shipS.capacityAvailable}}"
-                >
-                </ion-input>
-              </ion-item>
-            </ion-col>
-            <ion-col class="center-content">
-              <ion-button (click)="confirmTradeAlert('ship', item, sTransferAmount.value)" color="danger" fill="solid">Transfer</ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-col>
-      <ion-col>
-        <ion-grid>
-          <ion-row>
-            <ion-col>
-              <ion-item>
-                <ion-label position="floating">
-                  Amount
-                </ion-label>
-                <ion-input
-                  name="wTransferAmount_{{item.name}}"
-                  type="number"
-                  #wTransferAmount
-                  min="0"
-                  max="{{shipS.aInventory[item.name].quantity}}"
-                  placeholder="{{shipS.aInventory[item.name].quantity}}"
-                >
-                </ion-input>
-              </ion-item>
-            </ion-col>
-            <ion-col class="center-content">
-             <ion-button (click)="confirmTradeAlert('warehouse', item, wTransferAmount.value)" color="danger" fill="solid">Transfer</ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-card>
 
-<ng-template #noWarehouse>
+
+
+<span>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card *ngIf="shipS.aWInventory; else noWarehouse">
+          <ion-card-header>
+            <ion-card-title>Local Warehouse</ion-card-title>
+            <ion-card-subtitle>Available Capacity: {{shipS.wCapacityAvailable}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>Planned Features</h1>
+            <ul>
+              <li>
+                QOL Updates to give more details about the ship and warehouse inventories
+              </li>
+            </ul>
+            <ion-grid>
+              <ion-row class="warehouseInventoryBorder">
+                <ion-col>Item</ion-col>
+                <ion-col>Quantity</ion-col>
+                <ion-col>Transfer</ion-col>
+              </ion-row>
+              <ion-row *ngFor="let aItem of shipS.aWInventory" class="warehouseInventoryBorder">
+                <ion-col>
+                  {{aItem.name}}
+                </ion-col>
+                <ion-col>
+                  {{aItem.quantity | number}}
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="floating">Amount</ion-label>
+                    <ion-input type="number" [max]="aItem.quantity" #toShipAmount></ion-input>
+                  </ion-item>
+
+                  <ion-button
+                    (click)="transferAlert('ship', aItem, toShipAmount.value)"
+                  >
+                    Transfer to Ship
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+
+        <ng-template #noWarehouse>
   <ion-card>
     <ion-card-content>
       No Warehouse Found
@@ -94,3 +71,53 @@
     </ion-card-content>
   </ion-card>
 </ng-template>
+      </ion-col>
+
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Ship</ion-card-title>
+            <ion-card-subtitle>Available Capacity: {{shipS.capacityAvailable}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <h1>Planned Features</h1>
+            <ul>
+              <li>
+                QOL Updates to give more details about the ship and warehouse inventories
+              </li>
+            </ul>
+            <ion-grid>
+              <ion-row class="warehouseInventoryBorder">
+                <ion-col>Item</ion-col>
+                <ion-col>Quantity</ion-col>
+              </ion-row>
+              <ion-row *ngFor="let aItem of shipS.aInventory" class="warehouseInventoryBorder">
+                <ion-col>
+                  {{aItem.name}}
+                </ion-col>
+                <ion-col>
+                  {{aItem.quantity | number}}
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="floating">Amount</ion-label>
+                    <ion-input type="number" [max]="aItem.quantity" #toWarehouseAmount></ion-input>
+                  </ion-item>
+
+                  <ion-button
+                    (click)="transferAlert('warehouse', aItem, toWarehouseAmount.value)"
+                  >
+                    Transfer to Warehouse
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</span>
+
+
+

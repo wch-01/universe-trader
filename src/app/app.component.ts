@@ -9,6 +9,12 @@ import {WarehouseService} from './services/warehouse/warehouse.service';
 import {StationService} from './services/station/station.service';
 import {ColonyService} from './services/colony/colony.service';
 import {ChatService} from './services/chat/chat.service';
+import {HousekeepingService} from './services/housekeeping/housekeeping.service';
+import {GlobalService} from './services/global/global.service';
+import {AngularFirestore} from '@angular/fire/compat/firestore';
+
+// @ts-ignore
+const moment= require('moment');
 
 //todo rebuild this to present a server selection firs, store last used server in local storage/user record.
 // Need to bypass server not loaded before other modules
@@ -35,6 +41,7 @@ export class AppComponent {
     { title: 'Chatroom', url: '/chat-rooms', icon: '', auth: true },
     { title: 'Universe', url: '/universe', icon: '', auth: true },
     { title: 'Price List', url: '/price-list', icon: '', auth: true },
+    { title: 'Servers', url: '/servers', icon: '', auth: true },
     /*{ title: 'Favorites', url: '/folder/Favorites', icon: 'heart' },
     { title: 'Archived', url: '/folder/Archived', icon: 'archive' },
     { title: 'Trash', url: '/folder/Trash', icon: 'trash' },
@@ -44,11 +51,14 @@ export class AppComponent {
 
   //region Constructor
   constructor(
+    private afs: AngularFirestore,
+    private hks: HousekeepingService,
     public authService: AuthenticationService,
     public ss: ServerService,
     public cs: CharacterService,
     private router: Router,
     private pLocation: PlatformLocation,
+    private gs: GlobalService,
     private ws: WarehouseService,
     private stationS: StationService,
     private colonyService: ColonyService,
@@ -104,6 +114,7 @@ export class AppComponent {
       }
     }
 
+    this.globalMessages();
 
     /*
     this.bootDone= Promise.resolve(true);
@@ -135,6 +146,26 @@ export class AppComponent {
   }
   //endregion
 
+  globalMessages(){
+    const rightNow= moment().unix();
+    this.afs.collection('globalAlerts',
+      ref =>
+        ref.where('time', '>', rightNow)
+      )
+      .valueChanges({idField: 'id'})
+      .subscribe((aMessages: any) => {
+        aMessages.some((aMessage: any) => {
+          if(!aMessage[this.authService.user.uid]){
+            this.gs.toastMessage(aMessage.msg, aMessage.type).then(() => {
+              aMessage[this.authService.user.uid]= true;
+              this.afs.collection('globalAlerts').doc(aMessage.id)
+                .update(aMessage);
+            });
+          }
+        });
+      });
+  }
+
   async authBoot(){
     await this.authService.checkUser().subscribe((userResponse: any) => {
       if (userResponse) {
@@ -150,12 +181,17 @@ export class AppComponent {
   }
 
   async logout() {
+    this.hks.subscriptions.some((subscription) => {
+      subscription.unsubscribe();
+    });
+    /*
     this.stationS.logoutStation();
     this.colonyService.logoutColony();
     this.chatService.logoutChat();
     this.ws.logoutWarehouse();
     this.cs.logoutCharacter();
     this.ss.logoutServer();
+    */
     await this.authService.logout();
     /*
     switch (this.authService.loginType){

@@ -5,6 +5,8 @@ import {DefaultItems, Rules, Structures} from '../../classes/server';
 import {Router} from '@angular/router';
 import {hasCustomClaim} from '@angular/fire/compat/auth-guard';
 import {Observable, of} from 'rxjs';
+import {AuthenticationService} from '../authentication/authentication.service';
+import {HousekeepingService} from '../housekeeping/housekeeping.service';
 // @ts-ignore
 const moment= require('moment');
 
@@ -37,7 +39,9 @@ export class ServerService {
   //region Constructor
   constructor(
     private afs: AngularFirestore,
-    public router: Router
+    private auth: AuthenticationService,
+    public router: Router,
+    private hks: HousekeepingService
   ) {
     console.log('Server Service Started.');
     if(!this.activeServer){
@@ -118,7 +122,7 @@ export class ServerService {
         resolve(true);
       }
       else{
-        this.afs.collection('servers/' + this.activeServer +'/z_rules')
+        this.afs.collection('servers/' + this.activeServer +'/zRules')
           .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aRules: any) =>{
@@ -156,7 +160,7 @@ export class ServerService {
         resolve(true);
       }
       else{
-        this.afs.collection('servers/' + this.activeServer + '/z_items')
+        this.afs.collection('servers/' + this.activeServer + '/zItems')
           .valueChanges()
           .pipe(take(1))
           .subscribe((aDefaultItems: any) => {
@@ -222,26 +226,28 @@ export class ServerService {
     console.log('Getting Servers');
     console.log(hasCustomClaim('admin'));
     //hasCustomClaim('admin')
-    /*
-    if(hasCustomClaim('developer')){
+    if(this.auth.user.claims.admin){
       return new Promise((resolve, reject) => {
-        this.afs.collection('servers')
+        const serverListSub= this.afs.collection('servers')
           .valueChanges({idField:'id'})
           .pipe(take(1))
           .subscribe((aActiveServers: any) => {
+            /*
             if(this.aRules.consoleLogging.mode >= 1){
               console.log('Server List');
               if(this.aRules.consoleLogging.mode >= 2){
                 console.log(aActiveServers);
               }
             }
+            */
             this.aActiveServers= aActiveServers;
+            serverListSub.unsubscribe();
             resolve(true);
           });
       });
     }
-    */
-    // else{
+
+    else{
       return new Promise((resolve, reject) => {
         this.afs.collection('servers',
           ref =>
@@ -261,7 +267,7 @@ export class ServerService {
             resolve(true);
           });
       });
-    // }
+    }
   }
 
   /**
@@ -269,7 +275,7 @@ export class ServerService {
    * */
   rDCMI(){
     return new Promise((resolve, reject) => {
-      this.afs.collection('servers/' + this.activeServer + '/z_items',
+      this.afs.collection('servers/' + this.activeServer + '/zItems',
         ref =>
           ref.where('market', '==', true)
       )

@@ -1,17 +1,24 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Components} from '@ionic/core';
 import {ShipService} from '../../services/ship/ship.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../../services/server/server.service';
 import {UniverseService} from '../../services/universe/universe.service';
 import {SolarBody, SolarSystem} from '../../classes/universe';
-import {AlertController, ModalController} from '@ionic/angular';
+import {AlertController, LoadingController, ModalController} from '@ionic/angular';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CharacterService} from '../../services/character/character.service';
 import {ColonyService} from '../../services/colony/colony.service';
 import {ColonyModalPage} from '../../modals/colony-modal/colony-modal.page';
 import {ShipWarehousePage} from '../ship-warehouse/ship-warehouse.page';
 import {ModalPage} from '../../modal/modal.page';
+import {Subscription} from 'rxjs';
+import {Ship} from '../../classes/ship';
+import {take} from 'rxjs/operators';
+import {HousekeepingService} from '../../services/housekeeping/housekeeping.service';
+import {PlatformService} from '../../services/platform/platform.service';
+import {WarehouseService} from '../../services/warehouse/warehouse.service';
+import {GlobalService} from '../../services/global/global.service';
 
 const moment= require('moment');
 
@@ -20,15 +27,23 @@ const moment= require('moment');
   templateUrl: './ship.page.html',
   styleUrls: ['./ship.page.scss'],
 })
-export class ShipPage implements OnInit {
+export class ShipPage implements OnInit, OnDestroy {
   //region Variables
   @Input() modal: Components.IonModal;
   @Output() traveling: EventEmitter<any> = new EventEmitter();
   id;
 
+  //region Ship
   aShip;
   shipBootDone: Promise<boolean> | undefined;
+  //endregion
 
+  //region Inventory
+  invLoaded= false;
+  aInventory;
+  //endregion
+
+  //region Location
   aLocation= {
     aSolarSystem: new SolarSystem(),
     aSolarBody: new SolarBody()
@@ -55,9 +70,17 @@ export class ShipPage implements OnInit {
   };
   aUniverse: any;
   aSolarBodies;
+  //endregion
   nsTab= 'main';
 
-  //region Colonies
+  sizeTemplate= 'standard';
+
+  //region Warehouse
+  foundWarehouse= false;
+  aWarehouse;
+  //endregion
+
+  //region Colony
   foundColony= false;
   aColony;
   aColonies;
@@ -68,236 +91,477 @@ export class ShipPage implements OnInit {
   totalCapacity= 0;
   //endregion
 
+  aModules;
+
   timeOne= moment.utc().format('HH:mm:ss');
   timeTwo= moment().format('HH:mm:ss');
+
+  subscriptions: Subscription[] = [];
   //endregion
 
   //region Constructor
   constructor(
     public shipS: ShipService,
     public colonyS: ColonyService,
-    private ss: ServerService,
+    public ss: ServerService,
     private afs: AngularFirestore,
-    private uniS: UniverseService,
+    public uniS: UniverseService,
     private ionAlert: AlertController,
     private route: ActivatedRoute,
     public router: Router,
     private cs: CharacterService,
     private modalController: ModalController,
+    private loadingController: LoadingController,
+    private hks: HousekeepingService,
+    public platform: PlatformService,
+    public ws: WarehouseService,
+    private gs: GlobalService
   ) { }
   //endregion
 
-  ngOnInit() {
+  async ngOnInit() {
     console.log('Load Ship Page');
-    /*
-    if(!this.ss.serverBoot){
-      console.log('Ship: Boot Server');
-      this.ss.bootServer().then(
-        bsRes => {
-          this.cs.rcP().then(
-            rcpRes => {
-              this.route.params.subscribe(params => {
-                if(this.ss.aRules.consoleLogging.mode >= 1){
-                  console.log('shipPage');
-                  if(this.ss.aRules.consoleLogging.mode >= 2){
-                    console.log(params);
-                  }
-                }
-                if(Object.keys(params).length === 0){
-                  this.router.navigate(['/dashboard']);
-                }
-                else{
-                  this.id= params.id;
-                  if(this.ss.aRules.consoleLogging.mode >= 1){
-                    console.log('shipID Set');
-                  }
-                  this.shipS.readShip(this.id).then(res =>{
-                    if(this.ss.aRules.consoleLogging.mode >= 2){
-                      console.log(res);
-                    }
-                    this.shipS.rsiP().then(rsiPRes => {
-                      this.shipS.setCargoCapacity();
-                      if(this.shipS.aShip.status === 'Idle'){
-                        this.colonyS.fcIDP(this.shipS.aShip.solarBody).then(
-                          (fcIDRes: any) => {
-                            this.foundColony= true;
-                            this.colonyS.readColony(this.colonyS.colonyID);
-                          },
-                          (fcIDErr: any) =>{
-                            this.foundColony= false;
-                          }
-                        );
-                      }
-                    });
-                    this.shipBootDone= Promise.resolve(true);
-                  });
-                  this.aUniverse= this.uniS.readUniverse();
-                }
-              });
-            },
-            rcpError =>{
-              console.log('No character found.');
-              this.router.navigate(['/character']);
-            }
-          );
-        },
-        bsError =>{
-          console.log('Server Boot Failed');
-          this.router.navigate(['/servers']);
-        }
-      );
-    }
-    else{
-      if(!this.cs.characterFound){
-        console.log('Ship: Find Character');
-        this.cs.rcP().then(
-          rcpRes => {
-            this.route.params.subscribe(params => {
-              if(this.ss.aRules.consoleLogging.mode >= 1){
-                console.log('shipPage');
-                if(this.ss.aRules.consoleLogging.mode >= 2){
-                  console.log(params);
-                }
-              }
-              if(Object.keys(params).length === 0){
-                this.router.navigate(['/dashboard']);
-              }
-              else{
-                this.id= params.id;
-                if(this.ss.aRules.consoleLogging.mode >= 1){
-                  console.log('shipID Set');
-                }
-                this.shipS.readShip(this.id).then(res =>{
-                  if(this.ss.aRules.consoleLogging.mode >= 2){
-                    console.log(res);
-                  }
-                  this.shipS.rsiP().then(rsiPRes => {
-                    this.shipS.setCargoCapacity();
-                    if(this.shipS.aShip.status === 'Idle'){
-                      this.colonyS.fcIDP(this.shipS.aShip.solarBody).then(
-                        (fcIDRes: any) => {
-                          this.foundColony= true;
-                          this.colonyS.readColony(this.colonyS.colonyID);
-                        },
-                        (fcIDErr: any) =>{
-                          this.foundColony= false;
-                        }
-                      );
-                    }
-                  });
-                  this.shipBootDone= Promise.resolve(true);
-                });
-                this.aUniverse= this.uniS.readUniverse();
-              }
-            });
-          },
-          rcpError =>{
-            console.log('No character found.');
-          }
-        );
-      }
-      else{
-        this.route.params.subscribe(params => {
-          if(this.ss.aRules.consoleLogging.mode >= 1){
-            console.log('shipPage');
-            if(this.ss.aRules.consoleLogging.mode >= 2){
-              console.log(params);
-            }
-          }
-          if(Object.keys(params).length === 0){
-            this.router.navigate(['/dashboard']);
-          }
-          else{
-            this.id= params.id;
-            if(this.ss.aRules.consoleLogging.mode >= 1){
-              console.log('shipID Set');
-            }
-            this.shipS.readShip(this.id).then(res =>{
-              if(this.ss.aRules.consoleLogging.mode >= 2){
-                console.log(res);
-              }
-              this.shipS.rsiP().then(rsiPRes => {
-                this.shipS.setCargoCapacity();
-              });
-              if(this.shipS.aShip.status === 'Idle'){
-                this.colonyS.fcIDP(this.shipS.aShip.solarBody).then(
-                  (fcIDRes: any) => {
-                    this.foundColony= true;
-                    this.colonyS.readColony(this.colonyS.colonyID);
-                  },
-                  (fcIDErr: any) =>{
-                    this.foundColony= false;
-                  }
-                );
-              }
-              this.shipBootDone= Promise.resolve(true);
-            });
-            this.aUniverse= this.uniS.readUniverse();
-          }
-        });
-      }
-    }
-    */
-
-
+    /* Used this for a while, but want to get away from url params
     this.route.params.subscribe(params => {
-      if(this.ss.aRules.consoleLogging.mode >= 1){
+      if (this.ss.aRules.consoleLogging.mode >= 1) {
         console.log('shipPage');
-        if(this.ss.aRules.consoleLogging.mode >= 2){
+        if (this.ss.aRules.consoleLogging.mode >= 2) {
           console.log(params);
         }
       }
-      if(Object.keys(params).length === 0){
+      if (Object.keys(params).length === 0) {
         this.router.navigate(['/dashboard']);
-      }
-      else{
-        this.id= params.id;
-        if(this.ss.aRules.consoleLogging.mode >= 1){
+      } else {
+        this.id = params.id;
+        if (this.ss.aRules.consoleLogging.mode >= 1) {
           console.log('shipID Set');
         }
-        this.shipS.readShip(this.id).then(res =>{
-          if(this.ss.aRules.consoleLogging.mode >= 2){
+        this.shipS.readShip(this.id).then(res => {
+          if (this.ss.aRules.consoleLogging.mode >= 2) {
             console.log(res);
           }
           this.shipS.rsiP().then(rsiPRes => {
             this.shipS.setCargoCapacity();
-            if(this.shipS.aShip.status === 'Idle'){
+            if (this.shipS.aShip.status === 'Idle') {
               this.colonyS.fcIDP(this.shipS.aShip.solarBody).then(
                 (fcIDRes: any) => {
-                  this.foundColony= true;
+                  this.foundColony = true;
                   this.colonyS.readColony(this.colonyS.colonyID);
                 },
-                (fcIDErr: any) =>{
-                  this.foundColony= false;
+                (fcIDErr: any) => {
+                  this.foundColony = false;
                 }
               );
             }
           });
-          this.shipBootDone= Promise.resolve(true);
+          this.shipBootDone = Promise.resolve(true);
         });
-        this.aUniverse= this.uniS.readUniverse();
+        this.aUniverse = this.uniS.readUniverse();
       }
+    });
+    */
+    this.id= this.shipS.id;
+    if(!this.id){
+      await this.router.navigate(['/dashboard']);
+    }
+    else{
+      this.readShip();
+      /*
+      const loading = await this.loadingController.create({
+        //cssClass: 'my-custom-class',
+        message: 'Loading Ship',
+        //duration: 2000
+      });
+      loading.present();
+
+      this.shipS.rpShip().then(
+        (aShip) => {
+          this.aShip= aShip;
+          console.log(aShip);
+
+          this.shipS.rpSM().then(
+            (aModules) => {
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('ShipPage: Read Ship Modules');
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(aModules);
+                }
+              }
+              this.aModules= aModules;
+              this.shipS.rpSI().then(
+                (aInventory) => {
+                  if(this.ss.aRules.consoleLogging.mode >= 1){
+                    console.log('ShipPage: Read INV');
+                    if(this.ss.aRules.consoleLogging.mode >= 2){
+                      console.log(aInventory);
+                    }
+                  }
+                  this.aInventory= aInventory;
+                  this.shipS.setCargoCapacity().then(
+                    () => {
+                      if(this.ss.aRules.consoleLogging.mode >= 1){
+                        console.log('ShipPage: Capacity has been Set');
+                        if(this.ss.aRules.consoleLogging.mode >= 2){
+                          console.log(this.shipS.capacityAvailable);
+                        }
+                      }
+                      this.invLoaded= true;
+                    }
+                  );
+                }
+              );
+            }
+          );
+
+          if(this.shipS.aShip.status === 'Idle'){
+            this.aUniverse = this.uniS.readUniverse();
+            this.shipS.rslP(this.aShip.solarSystem, this.aShip.solarBody);
+
+            this.uniS.rpSB(this.shipS.aShip.solarBody).then(
+              (aSolarBody) => {
+                //Found Solar Body
+              }
+            );
+
+            this.uniS.rpSS(this.shipS.aShip.solarSystem).then(
+              (aSolarSystem) => {
+                //Found Solar System
+              }
+            );
+            this.uniS.rsbCP(this.aShip.solarBody).then(
+              (aColony) => {
+                this.aColony= aColony;
+                this.foundColony= true;
+              },
+              (noColony) => {
+                this.foundColony= false;
+              }
+            );
+
+            this.shipS.rpLW().then(
+              (aWarehouse) => {
+                if(this.ss.aRules.consoleLogging.mode >= 1){
+                  console.log('Warehouse Found');
+                }
+                this.aWarehouse= aWarehouse;
+                this.shipS.rpLWI().then(
+                  (aWInventory) => {}
+                );
+                this.foundWarehouse= true;
+              },
+              (noWarehouse) => {
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(noWarehouse);
+                }
+                this.foundWarehouse= false;
+              }
+            );
+          }
+
+          this.shipBootDone = Promise.resolve(true);
+
+          loading.dismiss();
+        },
+        async (rspError) => {
+          await this.router.navigate(['/dashboard']);
+        }
+      );
+      */
+      /*
+      this.readShipP().then((res) => {
+        this.shipBootDone = Promise.resolve(true);
+        loading.dismiss();
+      });
+      */
+    }
+  }
+
+  //C
+
+  //region Read
+  async readShip() {
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Loading Ship',
+      //duration: 2000
+    });
+    loading.present();
+
+    this.shipS.rpShip().then(
+      (aShip) => {
+        this.aShip = aShip;
+        console.log(aShip);
+
+        this.shipS.rpSM().then(
+          (aModules) => {
+            if (this.ss.aRules.consoleLogging.mode >= 1) {
+              console.log('ShipPage: Read Ship Modules');
+              if (this.ss.aRules.consoleLogging.mode >= 2) {
+                console.log(aModules);
+              }
+            }
+            this.aModules = aModules;
+            this.shipS.rpSI().then(
+              (aInventory) => {
+                if (this.ss.aRules.consoleLogging.mode >= 1) {
+                  console.log('ShipPage: Read INV');
+                  if (this.ss.aRules.consoleLogging.mode >= 2) {
+                    console.log(aInventory);
+                  }
+                }
+                this.aInventory = aInventory;
+                this.shipS.setCargoCapacity().then(
+                  () => {
+                    if (this.ss.aRules.consoleLogging.mode >= 1) {
+                      console.log('ShipPage: Capacity has been Set');
+                      if (this.ss.aRules.consoleLogging.mode >= 2) {
+                        console.log(this.shipS.capacityAvailable);
+                      }
+                    }
+                    this.invLoaded = true;
+                  }
+                );
+              }
+            );
+          }
+        );
+
+        if (this.shipS.aShip.status === 'Idle') {
+          this.aUniverse = this.uniS.readUniverse();
+          this.shipS.rslP(this.aShip.solarSystem, this.aShip.solarBody);
+
+          this.uniS.rpSB(this.shipS.aShip.solarBody).then(
+            (aSolarBody) => {
+              //Found Solar Body
+            }
+          );
+
+          this.uniS.rpSS(this.shipS.aShip.solarSystem).then(
+            (aSolarSystem) => {
+              //Found Solar System
+            }
+          );
+          this.uniS.rsbCP(this.aShip.solarBody).then(
+            (aColony) => {
+              this.aColony = aColony;
+              this.foundColony = true;
+            },
+            (noColony) => {
+              this.foundColony = false;
+            }
+          );
+
+          this.shipS.rpLW().then(
+            (aWarehouse) => {
+              if (this.ss.aRules.consoleLogging.mode >= 1) {
+                console.log('Warehouse Found');
+              }
+              this.aWarehouse = aWarehouse;
+              this.shipS.rpLWI().then(
+                (aWInventory) => {
+                }
+              );
+              this.foundWarehouse = true;
+            },
+            (noWarehouse) => {
+              if (this.ss.aRules.consoleLogging.mode >= 2) {
+                console.log(noWarehouse);
+              }
+              this.foundWarehouse = false;
+            }
+          );
+        }
+
+        this.shipBootDone = Promise.resolve(true);
+
+        loading.dismiss();
+      },
+      async (rspError) => {
+        await this.router.navigate(['/dashboard']);
+      }
+    );
+  }
+  //endregion
+
+  //region Update
+  async editNameAlert(){
+    const editNameAlert = await this.ionAlert.create({
+      cssClass: '',
+      header: 'Edit Ship Name',
+      subHeader: '',
+      message: '',
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          placeholder: 'Ship Name'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            //console.log('Confirm Cancel');
+          }
+        },
+        {
+          text: 'Confirm',
+          handler: (data: any) => {
+            this.editName(data);
+          }
+        }
+      ]
+    });
+
+    await editNameAlert.present();
+  }
+  editName(data){
+    this.hks.censorWords(data.name).then((result) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.aShip.id).update({name: result});
     });
   }
 
-  readShip(){
-    this.afs.collection('servers/' + this.ss.activeServer + '/ships')
-      .doc(this.id).valueChanges({idField:'id'})
-      .subscribe(aShip=>{
-        this.aShip= aShip;
-        this.shipS.rslP(this.aShip.solarSystem, this.aShip.solarBody).then((rslP: any) => {
-          this.colonyS.fcIDP(this.aShip.solarBody).then(
-            (fcIDRes: any) => {
-              this.foundColony= true;
-              this.colonyS.readColony(this.colonyS.colonyID);
-            },
-            (fcIDErr: any) =>{
-              this.foundColony= false;
-            }
-          );
+  detachModule(aModule, aShip: Ship){
+    //Check for Local Warehouse
+    this.ws.fwIDP(aShip.solarBody, aShip.ownerID).then(
+      (foundWarehouse) => {
+        switch (aModule){
+          case 'engine':
+            aModule= this.ss.aaDefaultItems.engine;
+            aModule.ownerID= this.ws.id;
+            aModule.type= 'Prepared Module';
+            aModule.quantity= 1;
+            aModule.level= aShip.moduleEngineLevel;
+
+            this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+              .doc(aShip.id).update({moduleEngine: false});
+            break;
+          case 'jumpEngine':
+            aModule= this.ss.aaDefaultItems.jumpEngine;
+            aModule.ownerID= this.ws.id;
+            aModule.type= 'Prepared Module';
+            aModule.quantity= 1;
+            aModule.level= aShip.moduleJumpEngineLevel;
+
+            this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+              .doc(aShip.id).update({moduleJumpEngine: false});
+             break;
+          case 'miningLaser':
+            aModule= this.ss.aaDefaultItems.miningLaser;
+            aModule.ownerID= this.ws.id;
+            aModule.type= 'Prepared Module';
+            aModule.quantity= 1;
+            aModule.level= aShip.moduleMiningLaserLevel;
+
+            this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+              .doc(aShip.id).update({moduleMiningLaser: false});
+            break;
+          default:
+            aModule.ownerID= this.ws.id;
+            aModule.type= 'Prepared Module';
+            aModule.quantity= 1;
+            //Remove item from Ship
+            this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + aShip.id +'/installedModules')
+              .doc(aModule.id).delete();
+            break;
+        }
+
+        //Add Module to Warehouse
+        this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
+          .add(aModule).then(() => {
+          this.gs.toastMessage('Module detached and moved to local warehouse', 'success');
         });
+      },
+    )
+      .catch((noWarehouse) => {
+        this.gs.toastMessage('No Warehouse to Detach Module to', 'danger');
       });
   }
+
+  attachModule(aModule){
+    switch (aModule.name){
+      case 'engine':
+        if(this.shipS.aShip.moduleEngine){
+          this.gs.toastMessage('Module is not stackable, and the ship has one already', 'danger');
+        }
+        else{
+          this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+            .doc(this.shipS.aShip.id)
+            .update({
+              moduleEngine: true,
+              moduleEngineLevel: aModule.level
+            });
+        }
+        break;
+      case 'jumpEngine':
+        if(this.shipS.aShip.moduleJumpEngine){
+          this.gs.toastMessage('Module is not stackable, and the ship has one already', 'danger');
+        }
+        else{
+          this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+            .doc(this.shipS.aShip.id).update({
+            moduleJumpEngine: true,
+            moduleJumpEngineLevel: aModule.level
+          });
+        }
+        break;
+      case 'miningLaser':
+        if(this.shipS.aShip.moduleMiningLaser){
+          this.gs.toastMessage('Module is not stackable, and the ship has one already', 'danger');
+        }
+        else{
+          this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+            .doc(this.shipS.aShip.id).update({
+            moduleMiningLaser: true,
+            moduleMiningLaserLevel: aModule.level
+          });
+        }
+        break;
+      default:
+        this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.shipS.aShip.id + '/installedModules')
+          .add(aModule);
+        break;
+    }
+
+    //region Adjust Inv Levels
+    const cog= +aModule.cost / +aModule.quantity;
+    aModule.quantity= +aModule.quantity - 1;
+    aModule.cost= +aModule.quantity * +cog;
+
+    if(aModule.quantity === 0){
+      this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aModule.id).delete();
+    }
+    else{
+      this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aModule.id)
+        .update({quantity: aModule.quantity, cost: aModule.cost});
+    }
+    //endregion
+  }
+
+  beginMining(aItem, aItemYield){
+    this.shipS.aShip.command= 'mine';
+    this.shipS.aShip.status= 'Mining';
+    this.shipS.aShip.miningTarget= aItem;
+    this.shipS.aShip.miningYield= aItemYield;
+
+    this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
+      .update(this.shipS.aShip);
+  }
+
+  cancelMining(){
+    this.shipS.aShip.command= 'cancel';
+    this.shipS.aShip.status= 'Idle';
+    //this.shipS.aShip.miningTarget= 'none';
+    //this.shipS.aShip.miningYield= aItemYield;
+
+    this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
+      .update(this.shipS.aShip).then(() => {this.readShip();});
+  }
+  //endregion
+
+  //D
 
   readSSSolarBodies(aSolarSystem){
     this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
@@ -312,10 +576,14 @@ export class ShipPage implements OnInit {
     );
 
     //600000
+    console.log('Travel Details');
+    console.log(distance);
+    console.log(this.ss.aRules.travel.solarSystem);
+    console.log(this.shipS.aShip.jumpEngine);
     this.aTravel.ssTTms=
       ((distance * this.ss.aRules.travel.solarSystem) / this.shipS.aShip.jumpEngine)
       *
-      (this.shipS.aShip.installedModules.length / 4);
+      (this.shipS.aModules.length / 4);
     this.aTravel.solarSystemTime= moment.utc(this.aTravel.ssTTms).format('HH:mm:ss');
   }
   calcSBTT(){//SolarBodyTravelTime
@@ -344,7 +612,7 @@ export class ShipPage implements OnInit {
     this.aTravel.sbTTms= (
       (distance * this.ss.aRules.travel.solarBody) / this.shipS.aShip.jumpEngine)
       *
-      (this.shipS.aShip.installedModules.length / 4)
+      (this.shipS.aModules.length / 4)
     ;
     this.aTravel.solarBodyTime= moment.utc(this.aTravel.sbTTms).format('HH:mm:ss');
   }
@@ -409,9 +677,10 @@ export class ShipPage implements OnInit {
     const colonyModal = await this.modalController.create({
       component: ColonyModalPage,
       componentProps: {
-        id:this.shipS.aLocation.aColony.id,
+        id: this.aColony.id,
         trading: true,
-        trader: 'ship'
+        trader: 'ship',
+        traderID: this.shipS.aShip.id
       },
       cssClass: 'custom-modal',
       showBackdrop: false
@@ -435,4 +704,13 @@ export class ShipPage implements OnInit {
 
     return await colonyModal.present();
   }
+
+  //region Other
+  ngOnDestroy() {
+    this.shipS.subscriptions.some((subscription) => {
+      subscription.unsubscribe();
+    });
+  }
+
+  //endregion
 }

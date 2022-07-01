@@ -1,6 +1,7 @@
 <ion-app>
   <ion-split-pane contentId="main-content" *ngIf="bootDone | async">
-    <ion-menu contentId="main-content" type="overlay"><!--*ngIf="userLoggedIn | async"-->
+
+    <ion-menu contentId="main-content" ><!--*ngIf="userLoggedIn | async"-->
       <ion-content>
         <ion-list id="character-details">
 
@@ -54,6 +55,12 @@
                 </ion-item>
               </ion-menu-toggle>
             </span>
+
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" routerLink="/profile" lines="none" detail="false" routerLinkActive="" >
+                <ion-label>Profile</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
 
             <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" routerLink="/" lines="none" detail="false" routerLinkActive="" (click)="logout()">

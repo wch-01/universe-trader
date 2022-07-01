@@ -7,6 +7,7 @@ import {Observable} from 'rxjs';
 import {Ship} from '../../classes/ship';
 import {UniverseService} from '../universe/universe.service';
 import {SolarBody, SolarSystem} from '../../classes/universe';
+import {ShipService} from "../ship/ship.service";
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +34,8 @@ export class CharacterService {
   constructor(
     private authService: AuthenticationService,
     private afs: AngularFirestore,
-    private ss: ServerService
+    private ss: ServerService,
+    private shipS: ShipService
   ) {}
   //endregion
 
@@ -56,7 +58,7 @@ export class CharacterService {
   }
 
   addStartingGearBoot(characterID){
-    console.log('Start: addStartingGearBoot');
+    console.log('characterService->addStartingGearBoot');
     return new Promise((resolve, reject) => {
       //region SolarSystem->SolarBody->Ship->Colony->Warehouse
       //Solar system
@@ -97,7 +99,7 @@ export class CharacterService {
 
                   //Fire Ship, Warehouse, and Pulsars Promise
                   Promise.all([
-                    this.createStarterShip(aSolarSystem[0].id, aSolarBody[0].id),
+                    this.createStarterShip(aSolarSystem[0], aSolarBody[0]),
                     this.createStarterWarehouse(aSolarSystem[0].id, aSolarBody[0].id, aColony[0].id),
                     this.startingCharacterFunds()
                   ])
@@ -111,13 +113,11 @@ export class CharacterService {
     });
   }
 
-  createStarterShip(solarSystemID, solarBodyID){
+  createStarterShipOld(aSolarSystem, aSolarBody){
     return new Promise((resolve, reject) => {
       //region Get Default Ship
-      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-        ref =>
-          ref.where('type', '==', 'ship')
-      )
+      this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear')
+        .doc('ship')
         .valueChanges()
         .pipe(take(1),)
         .subscribe((aDefaultShip: any)=>{
@@ -127,12 +127,38 @@ export class CharacterService {
               console.log(aDefaultShip);
             }
           }
-          const aShip= aDefaultShip[0];
+          //region Build New Ship Object
+          const aShip= Object.assign({}, aDefaultShip);
           aShip.ownerID= this.id;
-          aShip.solarBody= solarBodyID;
-          aShip.solarSystem= solarSystemID;
+          aShip.solarBody= aSolarBody.id;
+          aShip.solarBodyName= aSolarBody.name;
+          aShip.solarSystem= aSolarSystem.id;
+          aShip.solarSystemName= aSolarSystem.name;
+          //endregion
+          //Add Ship
           this.afs.collection('servers/' + this.ss.activeServer + '/ships').add(Object.assign({}, aShip)).then((createShipResult: any) => {
-            this.afs.collection('servers/' + this.ss.activeServer + '/z_items').valueChanges()
+            //Get and Add Ship Modules
+            this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear/ship/installedModules')
+              .valueChanges()
+              .pipe(take(1))
+              .subscribe((aInstalledModules) => {
+                aInstalledModules.some((aInstalledModule) => {
+                  this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + createShipResult.id + '/installedModules')
+                    .add(Object.assign({}, aInstalledModule));
+                });
+              });
+
+            this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear/ship/modules_slots')
+              .valueChanges()
+              .pipe(take(1))
+              .subscribe((aModules) => {
+                aModules.some((aModule: any) => {
+                  this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + createShipResult.id + '/modules_slots')
+                    .doc(aModule.name).update(Object.assign({}, aModule));
+                });
+              });
+            /*
+            this.afs.collection('servers/' + this.ss.activeServer + '/zItems').valueChanges()
               .pipe(take(1))
               .subscribe((aAllItems) =>{
                 console.log('createShip: Add Items');
@@ -145,19 +171,53 @@ export class CharacterService {
                 });
                 resolve(true);
               });
+            */
+            resolve(true);
           });
         });
       //endregion
     });
   }
 
+  createStarterShip(aSolarSystem, aSolarBody) {
+    //todo hand errors
+    return new Promise((resolve, reject) => {
+      this.shipS.rpDS('starting').then((aBasicShip: any) => {
+        aBasicShip.aShip.name = 'Assembled Ship';
+        aBasicShip.aShip.ownerID= this.id;
+        aBasicShip.aShip.solarBody= aSolarBody.id;
+        aBasicShip.aShip.solarBodyName= aSolarBody.name;
+        aBasicShip.aShip.solarSystem= aSolarSystem.id;
+        aBasicShip.aShip.solarSystemName= aSolarSystem.name;
+
+        //Add Ship
+        this.afs.collection('servers/' + this.ss.activeServer + '/ships').add(Object.assign({}, aBasicShip.aShip))
+          .then((createShipResult: any) => {
+            for(const aModule of aBasicShip.aModules) {
+              this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + createShipResult.id + '/installedModules')
+                .add(Object.assign({}, aModule));
+            }
+
+            /*
+            for(const aModuleSlot of aBasicShip.aModuleSlots) {
+              this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + createShipResult.id + '/moduleSlots')
+                .doc(aModuleSlot.name)
+                .set(Object.assign({}, aModuleSlot));
+            }
+            */
+
+            resolve(true);
+            //todo handle errors
+          });
+      });
+    });
+  }
+
   createStarterWarehouse(solarSystemID, solarBodyID, colonyID){
     return new Promise((resolve, reject) => {
       //region Get Default Warehouse
-      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-        ref =>
-          ref.where('type', '==', 'warehouse')
-      )
+      this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear')
+        .doc('warehouse')
         .valueChanges()
         .pipe(take(1),)
         .subscribe((aDefaultWarehouse: any)=>{
@@ -167,19 +227,21 @@ export class CharacterService {
               //console.log(aDefaultShip);
             }
           }
-          const aWarehouse= aDefaultWarehouse[0];
+          const aWarehouse= aDefaultWarehouse;
           aWarehouse.ownerID= this.id;
           aWarehouse.solarSystem= solarSystemID;
           aWarehouse.solarBody= solarBodyID;
           aWarehouse.colonyID= colonyID;
           this.afs.collection('servers/' + this.ss.activeServer + '/warehouses')
             .add(Object.assign({}, aWarehouse)).then((createWarehouseResult: any) => {
+              /*
             this.ss.aDefaultItems.some((item: any) =>{
               item.quantity= 0;
               item.cost= 0;
               item.ownerID= createWarehouseResult.id;
               this.afs.collection('servers/' + this.ss.activeServer + '/inventories').add(Object.assign({}, item));
             });
+            */
               resolve(true);
           });
         });
@@ -189,16 +251,14 @@ export class CharacterService {
 
   startingCharacterFunds(){
     return new Promise((resolve, reject) => {
-      this.afs.collection('servers/' + this.ss.activeServer + '/z_startingGear',
-        ref =>
-          ref.where('type', '==', 'pulsars')
-      )
+      this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear')
+        .doc('pulsars')
         .valueChanges()
         .pipe(take(1))
         .subscribe((aStartingCredits: any) => {
           this.afs.collection('servers/' + this.ss.activeServer + '/characters')
             .doc(this.id)
-            .update({pulsars: aStartingCredits[0].amount}).then((result: any) => {
+            .update({pulsars: aStartingCredits.amount}).then((result: any) => {
               resolve(true);
           });
         });

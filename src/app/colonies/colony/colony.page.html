@@ -89,7 +89,8 @@
 
   <ion-row>
     <ion-col>
-      <app-trade [trader]="viewer" [market]="'colony'"></app-trade>
+      <!--<app-trade [trader]="viewer" [market]="'colony'"></app-trade>-->
+      <app-trade [market]="'colony'" [trader]="trader" [traderID]="traderID"></app-trade>
     </ion-col>
   </ion-row>
 </ion-grid>
