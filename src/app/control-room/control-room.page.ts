@@ -24,7 +24,7 @@ export class ControlRoomPage implements OnInit {
     private ss: ServerService,
     private afs: AngularFirestore,
     public charS: CharacterService,
-    private warehouseS: WarehouseService,
+    public warehouseS: WarehouseService,
     public colonyS: ColonyService,
     public us: UniverseService,
     private router: Router,

@@ -6,6 +6,7 @@
 export class Ship {
   id: string;
   ownerUID: string;
+  ownerID: string;
   name: string;
   engine: number;
   jumpEngine: number;
@@ -21,6 +22,12 @@ export class Ship {
   orderList: any;
   traveling: any;
   location: any;
+  moduleEngine: any;
+  moduleEngineLevel: any;
+  moduleJumpEngine: any;
+  moduleJumpEngineLevel: any;
+  moduleMiningLaser: any;
+  moduleMiningLaserLevel: any;
 }
 
 /**

@@ -359,8 +359,14 @@ export class UniversePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.uniS.ssSub.unsubscribe();
-    this.uniS.sbSub.unsubscribe();
-    this.uniS.cSub.unsubscribe();
+    if(this.uniS.ssSub){
+      this.uniS.ssSub.unsubscribe();
+    }
+    if(this.uniS.sbSub){
+      this.uniS.sbSub.unsubscribe();
+    }
+    if(this.uniS.cSub){
+      this.uniS.cSub.unsubscribe();
+    }
   }
 }

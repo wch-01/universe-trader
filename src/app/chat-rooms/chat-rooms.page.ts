@@ -52,7 +52,7 @@ export class ChatRoomsPage implements OnInit {
 
   //Get Chat Rooms
   getRooms(){
-    this.afs.collection('servers/' + this.ss.activeServer + '/chat').valueChanges({idField: 'id'}).subscribe((aChatrooms: any) => {
+    this.afs.collection('servers/' + this.ss.activeServer + '/chatrooms').valueChanges({idField: 'id'}).subscribe((aChatrooms: any) => {
       console.log(aChatrooms);
       this.aChatrooms= aChatrooms;
     });

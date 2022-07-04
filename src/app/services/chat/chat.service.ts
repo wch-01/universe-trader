@@ -86,7 +86,7 @@ export class ChatService {
     return new Promise((resolve, reject) => {
       this.afs.collection('badWords').valueChanges().subscribe((aWords: any) => {
         for (const item of aWords) {
-          this.message= this.message.replace(item.word, '**');
+          this.message= this.message.replace(item.word, 'IllegalWordUsed');
         }
         resolve(true);
       });

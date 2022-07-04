@@ -1,25 +1,28 @@
 <ion-header>
   <ion-toolbar>
-    <!--
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    -->
     <ion-title>Dashboard</ion-title>
 
     <!--<ion-segment (ionChange)="segmentChanged($event)" value="ships">-->
-    <ion-segment [(ngModel)]="segment">
-      <ion-segment-button value="ships">
-        <ion-label>Ships</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="warehouses">
-        <ion-label>Warehouses</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+
   </ion-toolbar>
+
+  <ion-segment [(ngModel)]="segment">
+    <ion-segment-button value="ships">
+      <ion-label>Ships</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="warehouses">
+      <ion-label>Warehouses</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 </ion-header>
 
-<ion-content [ngSwitch]="segment">
+<ion-content >
+  <span [ngSwitch]="segment">
+
+
   <ion-card id="ships" *ngSwitchCase="'ships'">
     <ion-card-header>
       <ion-title>
@@ -84,4 +87,5 @@
     </ion-card-content>
   </ion-card>
 
+    </span>
 </ion-content>

@@ -135,7 +135,11 @@ const routes: Routes = [
     path: 'price-list',
     loadChildren: () => import('./price-list/price-list.module').then( m => m.PriceListPageModule),
     canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
+  },  {
+    path: 'profile',
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   },
+
 
 
 

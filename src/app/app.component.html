@@ -1,6 +1,7 @@
 <ion-app>
   <ion-split-pane contentId="main-content" *ngIf="bootDone | async">
-    <ion-menu contentId="main-content" type="overlay"><!--*ngIf="userLoggedIn | async"-->
+
+    <ion-menu contentId="main-content" ><!--*ngIf="userLoggedIn | async"-->
       <ion-content>
         <ion-list id="character-details">
 
@@ -54,6 +55,12 @@
                 </ion-item>
               </ion-menu-toggle>
             </span>
+
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" routerLink="/profile" lines="none" detail="false" routerLinkActive="" >
+                <ion-label>Profile</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
 
             <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" routerLink="/" lines="none" detail="false" routerLinkActive="" (click)="logout()">
@@ -116,17 +123,15 @@
         -->
         <ion-card style="margin: 0; text-align: center">
           <ion-card-header>
-            <ion-card-title>
-              Beta One
-            </ion-card-title>
-            <ion-card-subtitle>Trade and Travel</ion-card-subtitle>
+            <ion-card-title>{{aAM.versionTitle}}</ion-card-title>
+            <ion-card-subtitle>{{aAM.versionSubTitle}}</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content>
             <ion-grid>
               <ion-row>
                 <ion-col>
-                  <p>Welcome to the Universe Trader Beta One, -Trade and Travel-</p>
-                  <p>Read all the details about the beta here: <a href="https://universetrader.online/beta-one-trade-and-travel/">Trade and Travel</a> </p>
+                  <p>{{aAM.versionDescription}}</p>
+                  <p>Read all the details about the current version here: <a href="{{aAM.versionReleaseNotes}}" target="_blank">{{aAM.versionSubTitle}}</a> </p>
                 </ion-col>
               </ion-row>
               <ion-row>
@@ -135,9 +140,6 @@
                     <img src="../assets/images/ss_support_med_01.png" alt="" srcset="" style="max-width: 50%;">
                   </a>
                 </ion-col>
-                <!--
-                <ion-col></ion-col>
-                -->
               </ion-row>
               <ion-row>
                 <ion-col>
@@ -161,7 +163,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version 0.0.1</p>
+                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}</p>
                 </ion-col>
               </ion-row>
             </ion-grid>

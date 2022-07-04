@@ -9,6 +9,13 @@ import {WarehouseService} from './services/warehouse/warehouse.service';
 import {StationService} from './services/station/station.service';
 import {ColonyService} from './services/colony/colony.service';
 import {ChatService} from './services/chat/chat.service';
+import {HousekeepingService} from './services/housekeeping/housekeeping.service';
+import {GlobalService} from './services/global/global.service';
+import {AngularFirestore} from '@angular/fire/compat/firestore';
+import {take} from "rxjs/operators";
+
+// @ts-ignore
+const moment= require('moment');
 
 //todo rebuild this to present a server selection firs, store last used server in local storage/user record.
 // Need to bypass server not loaded before other modules
@@ -35,20 +42,26 @@ export class AppComponent {
     { title: 'Chatroom', url: '/chat-rooms', icon: '', auth: true },
     { title: 'Universe', url: '/universe', icon: '', auth: true },
     { title: 'Price List', url: '/price-list', icon: '', auth: true },
+    { title: 'Servers', url: '/servers', icon: '', auth: true },
     /*{ title: 'Favorites', url: '/folder/Favorites', icon: 'heart' },
     { title: 'Archived', url: '/folder/Archived', icon: 'archive' },
     { title: 'Trash', url: '/folder/Trash', icon: 'trash' },
     { title: 'Spam', url: '/folder/Spam', icon: 'warning' },*/
   ];
+  aAM;
+  aAppStatus;
   //endregion
 
   //region Constructor
   constructor(
+    private afs: AngularFirestore,
+    private hks: HousekeepingService,
     public authService: AuthenticationService,
     public ss: ServerService,
     public cs: CharacterService,
     private router: Router,
     private pLocation: PlatformLocation,
+    private gs: GlobalService,
     private ws: WarehouseService,
     private stationS: StationService,
     private colonyService: ColonyService,
@@ -57,53 +70,62 @@ export class AppComponent {
   ) {
     //this.logout();
     console.log('App Boot');
-    if((pLocation as any).location.hash === '#/login-register'){
-      this.bootDone= Promise.resolve(true);
-    }
-    else if(!this.ss.serverBoot){
-      console.log('App: Boot Server');
-      this.ss.bootServer().then(
-        bsRes => {
-          //Get Character
-          this.cs.rcP().then(
-            rcpRes => {
-              this.bootDone= Promise.resolve(true);
-              //this.cs.readCharacterShips();
+    this.appMessage();
+    this.appStatus().then((result) => {
+      if(this.aAppStatus.allowLogin){
+        if((pLocation as any).location.hash === '#/login-register'){
+          this.bootDone= Promise.resolve(true);
+        }
+        else if(!this.ss.serverBoot){
+          console.log('App: Boot Server');
+          this.ss.bootServer().then(
+            bsRes => {
+              //Get Character
+              this.cs.rcP().then(
+                rcpRes => {
+                  this.bootDone= Promise.resolve(true);
+                },
+                rcpError =>{
+                  console.log('No character found.');
+                  this.bootDone= Promise.resolve(true);
+                  this.router.navigate(['/character']);
+                }
+              );
             },
-            rcpError =>{
-              console.log('No character found.');
+            bsError =>{
+              console.log('Server Boot Failed');
               this.bootDone= Promise.resolve(true);
-              this.router.navigate(['/character']);
+              this.router.navigate(['/servers']);
             }
           );
-        },
-        bsError =>{
-          console.log('Server Boot Failed');
-          this.bootDone= Promise.resolve(true);
-          this.router.navigate(['/servers']);
         }
-      );
-    }
-    else{
-      if(!this.cs.characterFound){
-        this.cs.rcP().then(
-          rcpRes => {
+        else{
+          if(!this.cs.characterFound){
+            this.cs.rcP().then(
+              rcpRes => {
+                this.cs.readCharacterShips();
+                this.bootDone= Promise.resolve(true);
+              },
+              rcpError =>{
+                console.log('No character found.');
+                this.bootDone= Promise.resolve(true);
+                this.router.navigate(['/character']);
+              }
+            );
+          }
+          else{
             this.cs.readCharacterShips();
             this.bootDone= Promise.resolve(true);
-          },
-          rcpError =>{
-            console.log('No character found.');
-            this.bootDone= Promise.resolve(true);
-            this.router.navigate(['/character']);
           }
-        );
+        }
       }
       else{
-        this.cs.readCharacterShips();
+        this.router.navigate(['/login-register']);
         this.bootDone= Promise.resolve(true);
       }
-    }
+    });
 
+    // this.globalMessages();
 
     /*
     this.bootDone= Promise.resolve(true);
@@ -135,6 +157,47 @@ export class AppComponent {
   }
   //endregion
 
+  appStatus(){
+    return new Promise((resolve) => {
+      this.afs.collection('app').doc('1_status').valueChanges()
+        .pipe(take(1))
+        .subscribe((aAppStatus: any) => {
+          this.aAppStatus= aAppStatus;
+          resolve(true);
+        });
+    });
+  }
+
+  appMessage(){
+    //Always update this version number
+    const version= '0.0.2';
+    this.afs.collection('app').doc(version).valueChanges()
+      .pipe(take(1))
+      .subscribe((aAppMessage: any) => {
+        this.aAM= aAppMessage;
+      });
+  }
+
+  globalMessages(){
+    const rightNow= moment().unix();
+    this.afs.collection('globalAlerts',
+      ref =>
+        ref.where('time', '>', rightNow)
+      )
+      .valueChanges({idField: 'id'})
+      .subscribe((aMessages: any) => {
+        aMessages.some((aMessage: any) => {
+          if(!aMessage[this.authService.user.uid]){
+            this.gs.toastMessage(aMessage.msg, aMessage.type).then(() => {
+              aMessage[this.authService.user.uid]= true;
+              this.afs.collection('globalAlerts').doc(aMessage.id)
+                .update(aMessage);
+            });
+          }
+        });
+      });
+  }
+
   async authBoot(){
     await this.authService.checkUser().subscribe((userResponse: any) => {
       if (userResponse) {
@@ -150,12 +213,17 @@ export class AppComponent {
   }
 
   async logout() {
+    this.hks.subscriptions.some((subscription) => {
+      subscription.unsubscribe();
+    });
+    /*
     this.stationS.logoutStation();
     this.colonyService.logoutColony();
     this.chatService.logoutChat();
     this.ws.logoutWarehouse();
     this.cs.logoutCharacter();
     this.ss.logoutServer();
+    */
     await this.authService.logout();
     /*
     switch (this.authService.loginType){

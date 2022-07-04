@@ -43,7 +43,7 @@
           <ion-label>{{station.ownerID}}</ion-label>
           <ion-label>{{station.market}}</ion-label>
           <ion-label>{{station.access}}</ion-label>
-          <ion-item><ion-button *ngIf="station.access === 'public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-item>
+          <ion-item><ion-button *ngIf="station.access === 'Public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-item>
         </ion-item>
       </ion-list>
     </ion-card-content>

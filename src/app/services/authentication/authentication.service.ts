@@ -7,6 +7,9 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import {first, take, tap} from 'rxjs/operators';
 import {Observable, Observer} from 'rxjs';
 import User = firebase.User;
+import {AngularFirestore} from '@angular/fire/compat/firestore';
+// @ts-ignore
+const moment= require('moment');
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +23,14 @@ export class AuthenticationService {
   userLoggedInP: Promise<boolean> | undefined;
   userLoggedIn= false;
   //userOBS= new Observable(this.checkUserOBS);
+
+  emailInput: string;
+  passwordInput: string;
   //endregion
 
   //region Constructor
   constructor(
+    private afs: AngularFirestore,
     public angularFireAuth: AngularFireAuth,
     public router: Router
   ) {
@@ -38,6 +45,13 @@ export class AuthenticationService {
         console.log(this.userLoggedIn);
         console.log(this.userLoggedInP);
         this.user= userResponse;
+        //Get Custom Claims
+        this.user.getIdTokenResult().then((tokenResult) => {
+          console.log('Claims');
+          console.log(tokenResult.claims);
+          this.user.claims= tokenResult.claims;
+        });
+        this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().unix()});
         localStorage.setItem('user', JSON.stringify(userResponse));
       }
       else {
@@ -90,9 +104,127 @@ export class AuthenticationService {
   }
   //endregion
 
-  checkUserOBS(observer: Observer<User>){
-    return this.angularFireAuth.authState;
+  login(method){
+    return new Promise((resolve, reject) => {
+      const loginP= new Promise((loginRes, loginRej) => {
+        switch (method){
+          case 'google':
+            this.loginWithGoogle()
+              .then(
+                res => {
+                  console.log('Logged in with Google');
+                  console.log(res);
+                  loginRes(true);
+                }
+              )
+              .catch(
+                error => {
+                  console.log('Login with Email & Password Failed');
+                  console.log(error);
+                  loginRej(error);
+                }
+              );
+            break;
+          case 'ep':
+            this.loginEP(this.emailInput, this.passwordInput)
+              .then(
+                res => {
+                  console.log('Logged in with Email and Password Success');
+                  console.log(res);
+                  loginRes(true);
+                }
+              )
+              .catch (
+                error => {
+                  console.log('Login with Email & Password Failed');
+                  console.log(error);
+                  loginRej(error);
+                }
+              );
+            break;
+        }
+      });
+
+      loginP.then(
+        res => {
+          // If the User does not have a record, creat it, and update last login
+          const userSub= this.afs.collection('users').doc(this.user.uid).valueChanges()
+            .subscribe((userRecord: any) => {
+              if(!userRecord){
+                //console.log('Record Does not Exist');
+                this.afs.collection('users/').doc(this.user.uid)
+                  .set({
+                    lastLogin: moment().unix(),
+                    email: this.user.email
+                  });
+              }
+              else{
+                this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().unix()});
+              }
+              userSub.unsubscribe();
+              this.userLoggedInP= Promise.resolve(true);
+              resolve(true);
+            });
+
+          //Get Custom Claims
+          this.user.getIdTokenResult().then((tokenResult) => {
+            console.log('Claims');
+            console.log(tokenResult.claims);
+            this.user.claims= tokenResult.claims;
+          });
+        },
+        err => {
+          console.log('Login Failed');
+          reject(err);
+        }
+      );
+    });
   }
+
+  async loginWithGoogle() {
+    console.log('Login with Google');
+    return new Promise((resolve, reject) => {
+      this.angularFireAuth.signInWithPopup(
+        new firebase.auth.GoogleAuthProvider()
+      )
+        .then(
+          (gAuthRes: any) => {
+            console.log('Google Auth');
+            //console.log(gAuthRes);
+            this.user= gAuthRes.user;
+            resolve(true);
+          }
+        )
+        .catch(
+          error => {
+            console.log('Catch Error');
+            reject(error.message);
+          }
+        );
+    });
+  }
+
+  loginEP(email: string, password: string) {
+    console.log('Login Email & Password');
+    return new Promise ((resolve, reject) => {
+      this.angularFireAuth.signInWithEmailAndPassword(email, password)
+        .then(
+          (epSignRes: any) => {
+            console.log('Email & Password Auth');
+            //console.log(epSignRes);
+            this.user = epSignRes.user;
+            resolve(true);
+          }
+        )
+        .catch(error => {
+          console.log('Catch Error');
+          reject(error.message);
+        });
+
+    });
+
+  }
+
   //todo update this to a better name, but this method worked best for the call order
   checkUser(): any{
     return this.angularFireAuth.authState.pipe(tap(userResponse => {
@@ -112,33 +244,6 @@ export class AuthenticationService {
       }
     })
     );
-  }
-
-  async loginWithGoogle() {
-    return await this.angularFireAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then((gAuthRes: any) => {
-      console.log('Google Auth');
-      console.log(gAuthRes);
-      this.user= gAuthRes.user;
-      /* this is where the claims are.
-      this.user.getIdTokenResult().then((tokenResult) => {
-        console.log(tokenResult.claims);
-      });
-      */
-      this.userLoggedIn= true;
-      this.userLoggedInP= Promise.resolve(true);
-    });
-  }
-
-  async login(email: string, password: string) {
-    console.log('Login Email & Password');
-    return await this.angularFireAuth.signInWithEmailAndPassword(email, password)
-      .then((epSignRes: any) => {
-        console.log('Email & Password Auth');
-        //console.log(epSignRes);
-        this.user= epSignRes.user;
-        this.userLoggedIn= true;
-        this.userLoggedInP= Promise.resolve(true);
-      });
   }
 
   async register(email: string, password: string) {
@@ -180,6 +285,4 @@ export class AuthenticationService {
     }
     */
   }
-
-
 }

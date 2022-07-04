@@ -25,12 +25,22 @@ export class WarehouseService {
   ) { }
   //endregion
 
+  //c
+
+  //region Read
   /**
    * Name: Find Warehouse ID by SolarBodyID
    *
    * @return: Promise
    * */
   fwIDP(solarBodyID, ownerID){
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('warehouseService: fwIDP');
+      if(this.ss.aRules.consoleLogging.mode >= 2){
+        console.log(solarBodyID);
+        console.log(ownerID);
+      }
+    }
     return new Promise((resolve, reject) => {
       this.warehouseSub= this.afs.collection('servers/' + this.ss.activeServer + '/warehouses',
         ref =>
@@ -43,8 +53,13 @@ export class WarehouseService {
               console.log(aWarehouses);
             }
           }
-          this.id= aWarehouses[0].id;
-          resolve(true);
+          if(aWarehouses.length > 0){
+            this.id= aWarehouses[0].id;
+            resolve(true);
+          }
+          else{
+            reject('No Warehouse Found');
+          }
         });
     });
   }
@@ -66,7 +81,23 @@ export class WarehouseService {
     });
   }
 
-  //readWarehouseInventoryPromise
+  rpLocalShips(){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/ships',
+        ref =>
+          ref.where('ownerID', '==', this.aWarehouse.ownerID)
+            .where('solarSystem', '==', this.aWarehouse.solarSystem)
+            .where('solarBody', '==', this.aWarehouse.solarBody)
+      ).valueChanges({idField: 'id'})
+        .subscribe((aShips: any) => {
+          resolve(aShips);
+        });
+    });
+  }
+
+  /**
+   * Name: Warehouse Inventory
+   */
   rwiP(){
     if(this.ss.aRules.consoleLogging.mode >= 1){
       console.log('warehouseService: rwiP');
@@ -75,6 +106,7 @@ export class WarehouseService {
       this.inventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
         ref =>
           ref.where('ownerID', '==', this.aWarehouse.id)//.where('market', '==', true)
+            // .where('type', '!=', 'preparedModule')// Adding this requires an index
       ).valueChanges({idField: 'id'})
         .subscribe((aInventory: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
@@ -85,16 +117,27 @@ export class WarehouseService {
           }
           this.aInventory= aInventory;
 
+          this.aaInventory= [];
           aInventory.some((item: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 2){
               console.log(item);
             }
-            this.aaInventory[item.name]= item;
+            if(item.type === 'Prepared Module'){
+              this.aaInventory[item.name+'_pm']= item;
+            }
+            else{
+              this.aaInventory[item.name]= item;
+            }
           });
           resolve(true);
         });
     });
   }
+  //endregion
+
+  //u
+
+  //d
 
   setCargoCapacity(){
     if(this.ss.aRules.consoleLogging.mode >= 1){

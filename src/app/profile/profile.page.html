@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>User Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="dataLoaded">
+    <ion-card-header>
+      <ion-card-title>Notification Settings</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="3">
+            <ion-item>
+              <ion-label>Email Notifications</ion-label>
+              <ion-checkbox [(ngModel)]="aUser.ntfE"></ion-checkbox>
+              <ion-note slot="helper">Currently this will send an email every 20 minutes if you have notifications waiting</ion-note>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+
+      <ion-item>
+        <ion-button (click)="uNtfSettings()">Save</ion-button>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

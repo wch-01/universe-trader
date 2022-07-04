@@ -77,6 +77,7 @@ export class CharacterPage implements OnInit {
         else{
           this.charS.createCharacter(characterName).then(r => {
             loading.dismiss();
+            //todo this still sometimes does not load ships at first
             this.router.navigate(['/dashboard']);
             //this.router.navigateByUrl('/dashboard');
             //this.zone.run(() => this.router.navigate(['/dashboard']));

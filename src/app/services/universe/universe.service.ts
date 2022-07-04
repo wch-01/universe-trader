@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ServerService } from '../server/server.service';
 import {Colony, SolarBody, SolarSystem} from '../../classes/universe';
 import {take} from 'rxjs/operators';
+import {HousekeepingService} from '../housekeeping/housekeeping.service';
 // @ts-ignore
 const moment= require('moment');
 
@@ -17,6 +18,7 @@ export class UniverseService {
   aSolarSystems;
   aSolarBodies: any;
   aColonies: any;
+  aColony: any;
   aSolarSystem= new SolarSystem();
   aSolarBody= new SolarBody();
   //endregion
@@ -25,6 +27,7 @@ export class UniverseService {
   constructor(
     private afs: AngularFirestore,
     private ss: ServerService,
+    private hks: HousekeepingService
   ) {}
   //endregion
 
@@ -81,6 +84,17 @@ export class UniverseService {
     });
   }
 
+  rpSS(id){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+        .doc(id).valueChanges({idField:'id'}).pipe(take(1))
+        .subscribe((aSolarSystem: SolarSystem)=>{
+          this.aSolarSystem= aSolarSystem;
+          resolve(aSolarSystem);
+        });
+    });
+  }
+
   rpSolarBodies(){
     return new Promise((resolve, reject) => {
       if(localStorage.getItem('ut_server_universe_solar_bodies')
@@ -107,6 +121,17 @@ export class UniverseService {
           resolve(true);
         });
       }
+    });
+  }
+
+  rpSB(id){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+        .doc(id).valueChanges({idField:'id'}).pipe(take(1))
+        .subscribe((aSolarBody: SolarBody)=>{
+          this.aSolarBody= aSolarBody;
+          resolve(aSolarBody);
+        });
     });
   }
 
@@ -169,8 +194,13 @@ export class UniverseService {
           if(this.ss.aRules.consoleLogging.mode >= 2){
             console.log(aColonies);
           }
-          this.aColonies= aColonies;
-          resolve(true);
+          if(aColonies.length > 0){
+            // this.aColony= aColonies[0];
+            resolve(aColonies[0]);
+          }
+          else{
+            reject('No Colony Found');
+          }
         });
     });
   }

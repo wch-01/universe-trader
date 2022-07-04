@@ -15,6 +15,8 @@ import {StationPage} from './station/station.page';
 export class StationsPage implements OnInit {
   //region Variables
   @Input() trader: any;
+  @Input() traderID: any;
+  @Input() solarBodyID: any;
   //endregion
 
   //region Constructor
@@ -25,12 +27,11 @@ export class StationsPage implements OnInit {
     private router: Router,
     public stationS: StationService,
     private modalController: ModalController,
-  ) {
-    this.stationS.fsaSBP(this.us.aSolarBody.id).then((fsaSBPRes: any) => {});
-  }
+  ) { }
   //endregion
 
   ngOnInit() {
+    this.stationS.fsaSBP(this.solarBodyID).then((fsaSBPRes: any) => {});
   }
 
   async viewStationModal(aStation){
@@ -42,7 +43,8 @@ export class StationsPage implements OnInit {
       component: StationPage,
       componentProps: {
         isModal: true,
-        trader: this.trader
+        trader: this.trader,
+        traderID: this.traderID
       },
       cssClass: 'ship_modal',
       showBackdrop: true

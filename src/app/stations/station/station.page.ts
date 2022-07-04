@@ -17,7 +17,7 @@ export class StationPage implements OnInit {
   @Input() id: any;
   @Input() modal: Components.IonModal;
   isModal;
-  trader;
+  trader;traderID;
   stationLoaded= false;
   nsTab= 'market';
   //endregion

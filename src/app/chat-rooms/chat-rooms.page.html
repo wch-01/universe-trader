@@ -1,15 +1,18 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>Global Chat</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="scrollToBottomInit()">Scroll</ion-button>
     </ion-buttons>
-    <ion-segment [(ngModel)]="chatTab">
-      <ion-segment-button *ngFor="let aRoom of aChatrooms" [value]="aRoom.id" (click)="changeRoom(aRoom.id)">
-        <ion-label>{{aRoom.id}}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
   </ion-toolbar>
+  <ion-segment [(ngModel)]="chatTab">
+    <ion-segment-button *ngFor="let aRoom of aChatrooms" [value]="aRoom.id" (click)="changeRoom(aRoom.id)">
+      <ion-label>{{aRoom.id}}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 </ion-header>
 
 <ion-content class="ion-padding" #chatContent id="chatContent">
