@@ -55,6 +55,9 @@ export class ColonyModalPage implements OnInit, OnDestroy {
         this.colonyS.rCSB().then(() => {
           this.sbLoaded= Promise.resolve(true);
         });
+        this.colonyS.rciP().then((aInventory) => {
+          this.aInventory= aInventory;
+        });
       },
       (rpcError) => {}
     );

@@ -10,7 +10,7 @@ import {HousekeepingService} from '../housekeeping/housekeeping.service';
 // @ts-ignore
 const moment= require('moment');
 
-//todo With the new storage method, we need to add a check for server change
+//todo With the new storage method, we need to add a check for server change!!!!!
 @Injectable({
   providedIn: 'root'
 })
@@ -106,16 +106,17 @@ export class ServerService {
 
   async readRules(){
     return await new Promise((resolve, reject) => {
-      //if(localStorage.getItem('ut_server_rules') && localStorage.getItem('ut_server_rules_time') < moment().add(7, 'days').unix()){
+      //if(localStorage.getItem('ut_server_'+this.activeServer+'_rules') &&
+      // localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').unix()){
       if(
-        localStorage.getItem('ut_server_rules')
+        localStorage.getItem('ut_server_'+this.activeServer+'_'+this.activeServer+'_rules')
         &&
-        localStorage.getItem('ut_server_rules_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_rules_time') > this.lastUpdate.rulesUpdated
+        localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') > this.lastUpdate.rulesUpdated
       ){
         //Stored Rules are good
-        const aRules= JSON.parse(localStorage.getItem('ut_server_rules'));
+        const aRules= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_rules'));
         aRules.some((aRule: any) => {
           this.aRules[aRule.name]= aRule;
         });
@@ -126,8 +127,8 @@ export class ServerService {
           .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aRules: any) =>{
-            localStorage.setItem('ut_server_rules', JSON.stringify(aRules));
-            localStorage.setItem('ut_server_rules_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_rules', JSON.stringify(aRules));
+            localStorage.setItem('ut_server_'+this.activeServer+'_rules_time', moment().unix());
             aRules.some((aRule: any) => {
               this.aRules[aRule.name]= aRule;
             });
@@ -146,14 +147,14 @@ export class ServerService {
   async readItems(){
     return await new Promise((resolve, reject) => {
       if(
-        localStorage.getItem('ut_server_items')
+        localStorage.getItem('ut_server_'+this.activeServer+'_items')
         &&
-        localStorage.getItem('ut_server_items_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_items_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_items_time') > this.lastUpdate.itemsUpdated
+        localStorage.getItem('ut_server_'+this.activeServer+'_items_time') > this.lastUpdate.itemsUpdated
       ){
         //Stored Rules are good
-        this.aDefaultItems= JSON.parse(localStorage.getItem('ut_server_items'));
+        this.aDefaultItems= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_items'));
         this.aDefaultItems.some((aRule: any) => {
           this.aaDefaultItems[aRule.name]= aRule;
         });
@@ -171,8 +172,8 @@ export class ServerService {
               }
             }
             this.aDefaultItems= aDefaultItems;
-            localStorage.setItem('ut_server_items', JSON.stringify(this.aDefaultItems));
-            localStorage.setItem('ut_server_items_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_items', JSON.stringify(this.aDefaultItems));
+            localStorage.setItem('ut_server_'+this.activeServer+'_items_time', moment().unix());
             aDefaultItems.some((aDefaultItem: any) => {
               if(this.aRules.consoleLogging >= 1){
                 console.log('Default Item');
@@ -191,14 +192,14 @@ export class ServerService {
   async readStructures(){
     return await new Promise((resolve, reject) => {
       // eslint-disable-next-line max-len
-      if(localStorage.getItem('ut_server_structures')
+      if(localStorage.getItem('ut_server_'+this.activeServer+'_structures')
         &&
-        localStorage.getItem('ut_server_structures_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_structures_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_structures_time') > this.lastUpdate.structuresUpdated
+        localStorage.getItem('ut_server_'+this.activeServer+'_structures_time') > this.lastUpdate.structuresUpdated
       ){
         //Stored Rules are good
-        this.aDStructures= JSON.parse(localStorage.getItem('ut_server_structures'));
+        this.aDStructures= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_structures'));
         this.aDStructures.some((aRule: any) => {
           this.aaDStructures[aRule.name]= aRule;
         });
@@ -210,8 +211,8 @@ export class ServerService {
           .pipe(take(1))
           .subscribe((aDStructures: any) =>{
             this.aDStructures= aDStructures;
-            localStorage.setItem('ut_server_structures', JSON.stringify(this.aDStructures));
-            localStorage.setItem('ut_server_structures_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_structures', JSON.stringify(this.aDStructures));
+            localStorage.setItem('ut_server_'+this.activeServer+'_structures_time', moment().unix());
             aDStructures.some((aDStructure: any) => {
               this.aaDStructures[aDStructure.name]= aDStructure;
             });

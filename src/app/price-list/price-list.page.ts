@@ -53,15 +53,15 @@ export class PriceListPage implements OnInit, OnDestroy {
     */
     //this.ss.serverBoot.
 
-    if(localStorage.getItem('ut_server_price_list_colonies')
+    if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies')
       &&
-      localStorage.getItem('ut_server_price_list_colonies_time') < moment().add(7, 'days').unix()
+      localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') < moment().add(7, 'days').unix()
       &&
-      localStorage.getItem('ut_server_price_list_colonies_time') > this.ss.lastUpdate.universeUpdated
+      localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') > this.ss.lastUpdate.universeUpdated
     ){
       console.log('Local Storage is in date');
       //Stored Rules are good
-      this.aColonies= JSON.parse(localStorage.getItem('ut_server_price_list_colonies'));
+      this.aColonies= JSON.parse(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies'));
       console.log(this.aColonies);
       this.sort('name', true);
       this.pricesLoaded= true;
@@ -71,8 +71,10 @@ export class PriceListPage implements OnInit, OnDestroy {
       if(this.ss.aRules.consoleLogging.mode >= 1){
         console.log('Local Storage is out of date');
         if(this.ss.aRules.consoleLogging.mode >= 2){
-          console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' < ' + moment().add(7, 'days').unix());
-          console.log(localStorage.getItem('ut_server_price_list_colonies_time') + ' > ' + this.ss.lastUpdate.universeUpdated);
+          console.log(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') + '' +
+            '< ' + moment().add(7, 'days').unix());
+          console.log(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') + '' +
+            '> ' + this.ss.lastUpdate.universeUpdated);
         }
       }
       this.coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
@@ -92,8 +94,8 @@ export class PriceListPage implements OnInit, OnDestroy {
               aColony[aItem.name + '_lp']= aItem.listPrice;
               aColony[aItem.name + '_bp']= aItem.buyPrice;
             });
-            localStorage.setItem('ut_server_price_list_colonies', JSON.stringify(this.aColonies));
-            localStorage.setItem('ut_server_price_list_colonies_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies', JSON.stringify(this.aColonies));
+            localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().unix());
             this.pricesLoaded= true;
             invSub.unsubscribe();
             //coloniesSub.unsubscribe();
@@ -109,8 +111,8 @@ export class PriceListPage implements OnInit, OnDestroy {
       /*
       const coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
         this.aColonies= aColonies;
-        localStorage.setItem('ut_server_price_list_colonies', JSON.stringify(this.aColonies));
-        localStorage.setItem('ut_server_price_list_colonies_time', moment().unix());
+        localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies', JSON.stringify(this.aColonies));
+        localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().unix());
         this.aColonies.some((aColony: any) => {
           //aColony.aInventory;
           aColony.aaInventory= [];
