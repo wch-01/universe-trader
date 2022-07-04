@@ -545,6 +545,7 @@ export class ShipPage implements OnInit, OnDestroy {
     this.shipS.aShip.status= 'Mining';
     this.shipS.aShip.miningTarget= aItem;
     this.shipS.aShip.miningYield= aItemYield;
+    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').unix();
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
       .update(this.shipS.aShip);

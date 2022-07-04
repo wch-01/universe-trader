@@ -12,6 +12,7 @@ import {ChatService} from './services/chat/chat.service';
 import {HousekeepingService} from './services/housekeeping/housekeeping.service';
 import {GlobalService} from './services/global/global.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
+import {take} from "rxjs/operators";
 
 // @ts-ignore
 const moment= require('moment');
@@ -48,6 +49,7 @@ export class AppComponent {
     { title: 'Spam', url: '/folder/Spam', icon: 'warning' },*/
   ];
   aAM;
+  aAppStatus;
   //endregion
 
   //region Constructor
@@ -69,54 +71,61 @@ export class AppComponent {
     //this.logout();
     console.log('App Boot');
     this.appMessage();
-    if((pLocation as any).location.hash === '#/login-register'){
-      this.bootDone= Promise.resolve(true);
-    }
-    else if(!this.ss.serverBoot){
-      console.log('App: Boot Server');
-      this.ss.bootServer().then(
-        bsRes => {
-          //Get Character
-          this.cs.rcP().then(
-            rcpRes => {
-              this.bootDone= Promise.resolve(true);
-              //this.cs.readCharacterShips();
+    this.appStatus().then((result) => {
+      if(this.aAppStatus.allowLogin){
+        if((pLocation as any).location.hash === '#/login-register'){
+          this.bootDone= Promise.resolve(true);
+        }
+        else if(!this.ss.serverBoot){
+          console.log('App: Boot Server');
+          this.ss.bootServer().then(
+            bsRes => {
+              //Get Character
+              this.cs.rcP().then(
+                rcpRes => {
+                  this.bootDone= Promise.resolve(true);
+                },
+                rcpError =>{
+                  console.log('No character found.');
+                  this.bootDone= Promise.resolve(true);
+                  this.router.navigate(['/character']);
+                }
+              );
             },
-            rcpError =>{
-              console.log('No character found.');
+            bsError =>{
+              console.log('Server Boot Failed');
               this.bootDone= Promise.resolve(true);
-              this.router.navigate(['/character']);
+              this.router.navigate(['/servers']);
             }
           );
-        },
-        bsError =>{
-          console.log('Server Boot Failed');
-          this.bootDone= Promise.resolve(true);
-          this.router.navigate(['/servers']);
         }
-      );
-    }
-    else{
-      if(!this.cs.characterFound){
-        this.cs.rcP().then(
-          rcpRes => {
+        else{
+          if(!this.cs.characterFound){
+            this.cs.rcP().then(
+              rcpRes => {
+                this.cs.readCharacterShips();
+                this.bootDone= Promise.resolve(true);
+              },
+              rcpError =>{
+                console.log('No character found.');
+                this.bootDone= Promise.resolve(true);
+                this.router.navigate(['/character']);
+              }
+            );
+          }
+          else{
             this.cs.readCharacterShips();
             this.bootDone= Promise.resolve(true);
-          },
-          rcpError =>{
-            console.log('No character found.');
-            this.bootDone= Promise.resolve(true);
-            this.router.navigate(['/character']);
           }
-        );
+        }
       }
       else{
-        this.cs.readCharacterShips();
+        this.router.navigate(['/login-register']);
         this.bootDone= Promise.resolve(true);
       }
-    }
+    });
 
-    this.globalMessages();
+    // this.globalMessages();
 
     /*
     this.bootDone= Promise.resolve(true);
@@ -148,10 +157,22 @@ export class AppComponent {
   }
   //endregion
 
+  appStatus(){
+    return new Promise((resolve) => {
+      this.afs.collection('app').doc('1_status').valueChanges()
+        .pipe(take(1))
+        .subscribe((aAppStatus: any) => {
+          this.aAppStatus= aAppStatus;
+          resolve(true);
+        });
+    });
+  }
+
   appMessage(){
     //Always update this version number
     const version= '0.0.2';
     this.afs.collection('app').doc(version).valueChanges()
+      .pipe(take(1))
       .subscribe((aAppMessage: any) => {
         this.aAM= aAppMessage;
       });

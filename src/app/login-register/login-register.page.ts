@@ -3,6 +3,7 @@ import { AuthenticationService } from '../services/authentication/authentication
 import {Router} from '@angular/router';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {AlertController, LoadingController, ToastController} from '@ionic/angular';
+import {take} from "rxjs/operators";
 const moment= require('moment');
 
 @Component({
@@ -22,6 +23,8 @@ export class LoginRegisterPage implements OnInit {
   userLoggedIn: Promise<boolean> | undefined;
   userLoggedInTwo: Promise<boolean> | undefined;
   nsTab= 'login';
+  aAppStatus;
+  appStatus: Promise<boolean> | undefined;
   //endregion
 
   //region Constructor
@@ -35,11 +38,22 @@ export class LoginRegisterPage implements OnInit {
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
-
   }
   //endregion
 
   ngOnInit() {
+    this.afs.collection('app').doc('1_status').valueChanges()
+      .pipe(take(1))
+      .subscribe((aAppStatus: any) => {
+        console.log('Check Status');
+        console.log(aAppStatus);
+        if(aAppStatus.allowLogin === true){
+          this.appStatus= Promise.resolve(true);
+        }
+        else{
+          // this.appStatus= Promise.resolve(false);
+        }
+      });
   }
 
   //Login function to handle Google and EP Login, and dynamically decide where to redirect to

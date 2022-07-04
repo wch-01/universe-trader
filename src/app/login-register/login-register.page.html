@@ -32,7 +32,7 @@
     <ion-card-header>
       <ion-card-title style="text-align: center">Login or Register</ion-card-title>
     </ion-card-header>
-    <ion-card-content >
+    <ion-card-content *ngIf="appStatus; else notAllowed">
       <ion-segment [(ngModel)]="nsTab">
         <ion-segment-button value="login">
           <ion-label>Login</ion-label>
@@ -72,5 +72,13 @@
       </div>
 
     </ion-card-content>
+
+    <ng-template #notAllowed>
+      <ion-card-content>
+        The Servers are offline for Maintenance
+      </ion-card-content>
+    </ng-template>
+
+
   </ion-card>
 </ion-content>
