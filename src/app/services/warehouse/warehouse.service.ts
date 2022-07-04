@@ -122,7 +122,12 @@ export class WarehouseService {
             if(this.ss.aRules.consoleLogging.mode >= 2){
               console.log(item);
             }
-            this.aaInventory[item.name]= item;
+            if(item.type === 'Prepared Module'){
+              this.aaInventory[item.name+'_pm']= item;
+            }
+            else{
+              this.aaInventory[item.name]= item;
+            }
           });
           resolve(true);
         });
