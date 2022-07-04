@@ -278,6 +278,7 @@ export class ServerService {
       this.afs.collection('servers/' + this.activeServer + '/zItems',
         ref =>
           ref.where('market', '==', true)
+             .where('colony', '==', true)
       )
         .valueChanges()
         .pipe(take(1))
