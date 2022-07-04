@@ -56,13 +56,13 @@ export class UniverseService {
   rpSolarSystems(){
     console.log('Read Solar Systems');
     return new Promise((resolve, reject) => {
-      if(localStorage.getItem('ut_server_universe_solar_systems')
+      if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems')
         &&
-        localStorage.getItem('ut_server_universe_solar_systems_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_universe_solar_systems_time') > this.ss.lastUpdate.universeUpdated
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems_time') > this.ss.lastUpdate.universeUpdated
       ){
-        this.aSolarSystems= JSON.parse(localStorage.getItem('ut_server_universe_solar_systems'));
+        this.aSolarSystems= JSON.parse(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems'));
         resolve(true);
       }
       else{
@@ -73,8 +73,8 @@ export class UniverseService {
         ).valueChanges({idField:'id'})
           .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
           .subscribe((aSolarSystems: any) => {
-          localStorage.setItem('ut_server_universe_solar_systems', JSON.stringify(aSolarSystems));
-          localStorage.setItem('ut_server_universe_solar_systems_time', moment().unix());
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems', JSON.stringify(aSolarSystems));
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_solar_systems_time', moment().unix());
           this.aSolarSystems= aSolarSystems;
           console.log(this.aSolarSystems);
           //ssSub.unsubscribe();//Only works the first time the function is called, any other calls it only pulls one system
@@ -97,13 +97,13 @@ export class UniverseService {
 
   rpSolarBodies(){
     return new Promise((resolve, reject) => {
-      if(localStorage.getItem('ut_server_universe_solar_bodies')
+      if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies')
         &&
-        localStorage.getItem('ut_server_universe_solar_bodies_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_universe_solar_bodies_time') > this.ss.lastUpdate.universeUpdated
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies_time') > this.ss.lastUpdate.universeUpdated
       ){
-        this.aSolarBodies= JSON.parse(localStorage.getItem('ut_server_universe_solar_bodies'));
+        this.aSolarBodies= JSON.parse(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies'));
         resolve(true);
       }
       else{
@@ -114,8 +114,8 @@ export class UniverseService {
         ).valueChanges({idField:'id'})
           .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
           .subscribe((aSolarBodies: any) => {
-          localStorage.setItem('ut_server_universe_solar_bodies', JSON.stringify(aSolarBodies));
-          localStorage.setItem('ut_server_universe_solar_bodies_time', moment().unix());
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies', JSON.stringify(aSolarBodies));
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies_time', moment().unix());
           this.aSolarBodies= aSolarBodies;
           //sbSub.unsubscribe();
           resolve(true);
@@ -140,13 +140,13 @@ export class UniverseService {
    **/
   rpColonies(){
     return new Promise((resolve, reject) => {
-      if(localStorage.getItem('ut_server_universe_colonies')
+      if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_colonies')
         &&
-        localStorage.getItem('ut_server_universe_colonies_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_colonies_time') < moment().add(7, 'days').unix()
         &&
-        localStorage.getItem('ut_server_universe_colonies_time') > this.ss.lastUpdate.universeUpdated
+        localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_colonies_time') > this.ss.lastUpdate.universeUpdated
       ){
-        this.aColonies= JSON.parse(localStorage.getItem('ut_server_universe_colonies'));
+        this.aColonies= JSON.parse(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_colonies'));
         resolve(true);
       }
       else{
@@ -157,8 +157,8 @@ export class UniverseService {
         ).valueChanges({idField:'id'})
           .pipe(take(2))//Not ideal, but makes sure it gets all items instead of just one
           .subscribe((aColonies: any) => {
-          localStorage.setItem('ut_server_universe_colonies', JSON.stringify(aColonies));
-          localStorage.setItem('ut_server_universe_colonies_time', moment().unix());
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_colonies', JSON.stringify(aColonies));
+          localStorage.setItem('ut_server_'+this.ss.activeServer+'_universe_colonies_time', moment().unix());
           this.aColonies= aColonies;
           //cSub.unsubscribe();
           resolve(true);

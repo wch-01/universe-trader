@@ -250,14 +250,17 @@ export class ColonyService {
       console.log('colonyService: Get Inv');
     }
     return new Promise((resolve, reject) => {
-      this.inventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe/' + this.aColony.id)
+      this.inventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories/',
+        ref =>
+          ref.where('ownerID', '==', this.aColony.id)
+      )
         .valueChanges({idField: 'id'})
         .subscribe((aInventory: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('colonyService: rciP');
-          }
-          if(this.ss.aRules.consoleLogging.mode >= 2){
-            console.log(aInventory);
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(aInventory);
+            }
           }
           aInventory.some((item: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 2){
@@ -265,7 +268,7 @@ export class ColonyService {
             }
             this.aInventory[item.name]= item;
           });
-          resolve(true);
+          resolve(aInventory);
         });
     });
   }
