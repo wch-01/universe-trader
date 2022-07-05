@@ -99,31 +99,31 @@
 
               <ion-row *ngIf="platform.sizeTemplate === 'small'">
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Name</ion-note>
                     <ion-label>{{shipS.aShip.name}} <ion-icon name="pencil-outline" (click)="editNameAlert()" style="cursor: pointer"></ion-icon></ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Status</ion-note>
                     <ion-label>{{shipS.aShip.status}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Solar System</ion-note>
                     <ion-label>{{shipS.aShip.solarSystemName}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Solar Body</ion-note>
                     <ion-label>{{shipS.aShip.solarBodyName}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Colony</ion-note>
                     <ion-label>
                       <span *ngIf="foundColony && shipS.aShip.status === 'Idle'; else noColony">
@@ -138,7 +138,7 @@
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Warehouse</ion-note>
                     <ion-label>
                       <span *ngIf="foundWarehouse && shipS.aShip.status === 'Idle'; else noWarehouse">
@@ -158,7 +158,7 @@
           <ion-card-content id="mining" *ngIf="shipS.aShip.status === 'Mining'">
             <ion-grid>
               <ion-grid>
-                <ion-row *ngIf="sizeTemplate === 'standard'">
+                <ion-row *ngIf="platform.sizeTemplate === 'standard'">
                   <ion-col>
                     <ion-item>
                       <ion-label>Name</ion-label>
@@ -184,32 +184,29 @@
                   </ion-col>
                 </ion-row>
 
-                <ion-row *ngIf="sizeTemplate === 'small'">
+                <ion-row *ngIf="platform.sizeTemplate === 'small'">
                   <ion-col>
-                    <ion-item>
+                    <ion-item lines="none">
                       <ion-note slot="helper">Name</ion-note>
                       <ion-label>{{shipS.aShip.name}}</ion-label>
                     </ion-item>
                   </ion-col>
                   <ion-col>
-                    <ion-item>
+                    <ion-item lines="none">
                       <ion-note slot="helper">Status</ion-note>
                       <ion-label>
                         {{shipS.aShip.status}} {{shipS.aShip.miningTarget | uppercase}}
-                        <ion-button (click)="cancelMining()" color="danger">
-                          Cancel Mining
-                        </ion-button>
                       </ion-label>
                     </ion-item>
                   </ion-col>
                   <ion-col>
-                    <ion-item>
+                    <ion-item lines="none">
                       <ion-note slot="helper">Solar System</ion-note>
                       <ion-label>{{shipS.aShip.solarSystemName}}</ion-label>
                     </ion-item>
                   </ion-col>
                   <ion-col>
-                    <ion-item>
+                    <ion-item lines="none">
                       <ion-note slot="helper">Solar Body</ion-note>
                       <ion-label>{{shipS.aShip.solarBodyName}}</ion-label>
                     </ion-item>
@@ -282,19 +279,19 @@
           <ion-card-content>
             <ion-grid>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>Mining</ion-label>
                   <ion-label>{{shipS.aShip.miningTarget}}</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>Laser Level</ion-label>
                   <ion-label>{{shipS.aShip.moduleMiningLaserLevel}}</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>Resource Base Yield</ion-label>
                   <ion-label>
                     <span *ngIf="shipS.aShip.miningTarget === 'ore'">{{ss.aRules.mining.mOre}}</span>
@@ -303,13 +300,13 @@
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>Resource System Yield</ion-label>
                   <ion-label>{{shipS.aShip.miningYield}}%</ion-label>
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>Total per 15 Minute Cycle:</ion-label>
                   <ion-label>
                     <span *ngIf="shipS.aShip.miningTarget === 'ore'">
@@ -322,7 +319,7 @@
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>
                     Mining Cycle Finishes at
                   </ion-label>
@@ -330,13 +327,17 @@
                 </ion-item>
               </ion-col>
               <ion-col>
-                <ion-item>
+                <ion-item lines="none">
                   <ion-label>
                     If your ship does not have room, the excess is lost.
                   </ion-label>
                 </ion-item>
               </ion-col>
-
+              <ion-col>
+                <ion-button (click)="cancelMining()" color="danger">
+                  Cancel Mining
+                </ion-button>
+              </ion-col>
             </ion-grid>
           </ion-card-content>
         </ion-card>
@@ -378,31 +379,31 @@
 
               <ion-row *ngIf="platform.sizeTemplate === 'small'">
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Name</ion-note>
                     <ion-label>{{shipS.aShip.solarBodyName}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Type</ion-note>
                     <ion-label>{{uniS.aSolarBody.solarBodyType | uppercase}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Coordinates</ion-note>
                     <ion-label>{{uniS.aSolarBody.xCoordinate}}, {{uniS.aSolarBody.yCoordinate}}</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Primary Export</ion-note>
                     <ion-label>{{uniS.aSolarBody.resourceOne | uppercase}} @ {{uniS.aSolarBody.resourceOneYield}}%</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-item>
+                  <ion-item lines="none">
                     <ion-note slot="helper">Secondary Export</ion-note>
                     <ion-label>{{uniS.aSolarBody.resourceTwo | uppercase}} @ {{uniS.aSolarBody.resourceTwoYield}}%</ion-label>
                   </ion-item>
@@ -577,7 +578,7 @@
 
   <ion-card id="inventory" *ngSwitchCase="'inventory'">
     <ion-card-header>
-      <ion-card-title></ion-card-title>
+      <ion-card-title> Available Capacity: {{shipS.capacityAvailable}}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-grid>
@@ -616,7 +617,7 @@
   <span id="modules" *ngSwitchCase="'modules'">
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Module Slots</ion-card-title>
+        <ion-card-title>Module Hard Points</ion-card-title>
         <ion-card-subtitle></ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
@@ -685,7 +686,7 @@
 
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Modules</ion-card-title>
+        <ion-card-title>Dynamic Modules</ion-card-title>
         <ion-card-subtitle>{{aModules.length}} Modules(s)</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
@@ -749,6 +750,4 @@
       </ion-card-content>
     </ion-card>
   </span>
-
-
 </ion-content>

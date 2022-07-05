@@ -19,10 +19,7 @@
   </ion-segment>
 </ion-header>
 
-<ion-content >
-  <span [ngSwitch]="segment">
-
-
+<ion-content [ngSwitch]="segment" *ngIf="platform.sizeTemplate === 'standard'">
   <ion-card id="ships" *ngSwitchCase="'ships'">
     <ion-card-header>
       <ion-title>
@@ -86,6 +83,75 @@
       </ul>
     </ion-card-content>
   </ion-card>
+</ion-content>
 
-    </span>
+<ion-content [ngSwitch]="segment" *ngIf="platform.sizeTemplate === 'small'">
+  <ion-card id="ships-small" *ngSwitchCase="'ships'">
+    <ion-card-header>
+      <ion-title></ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid class="ut-item-background-color">
+        <ion-row *ngFor="let ship of cs.aCharacterShips; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item>
+              <ion-note slot="helper">Name</ion-note>
+              <ion-label>
+              <ion-button (click)="viewShip(ship)" color="primary">{{ship.name}}</ion-button>
+            </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Status</ion-note>
+              <ion-label>{{ship.status}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Solar System</ion-note>
+              <ion-label>{{ship.solarSystemName}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Solar Body</ion-note>
+              <ion-label>{{ship.solarBodyName}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">View</ion-note>
+              <ion-label><ion-button (click)="viewShip(ship)" color="primary">View</ion-button></ion-label>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card id="warehouses-small" *ngSwitchCase="'warehouses'">
+    <ion-card-header>
+      <ion-title>
+        Warehouses
+      </ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <!--
+      <ion-list>
+        <ion-item>
+          <ion-label>Name</ion-label>
+          <ion-label>Status</ion-label>
+          <ion-label>View</ion-label>
+        </ion-item>
+        <ion-item *ngFor="let ship of characterShips | async">
+          <ion-label>{{ship.name}}</ion-label>
+          <ion-label>{{ship.status}}</ion-label>
+          <ion-label>WIP</ion-label>
+        </ion-item>
+      </ion-list>
+      -->
+      <h1>Planned Features</h1>
+      <ul>
+        <li>
+          List of Owned Warehouses
+        </li>
+        <li>
+          Ability to Transfer clone to warehouse to operate from that Control Room
+        </li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

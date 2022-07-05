@@ -10,6 +10,7 @@ import {CharacterService} from '../services/character/character.service';
 import {Router} from '@angular/router';
 import {HousekeepingService} from '../services/housekeeping/housekeeping.service';
 import {take} from 'rxjs/operators';
+import {PlatformService} from "../services/platform/platform.service";
 
 
 @Component({
@@ -35,7 +36,8 @@ export class DashboardPage implements OnInit {
     public modalController: ModalController,
     private shipS: ShipService,
     public router: Router,
-    private hks: HousekeepingService
+    private hks: HousekeepingService,
+    public platform: PlatformService
   ) {
     /*
     if(this.ss.aRules.consoleLogging.mode >= 1){

@@ -204,7 +204,7 @@ export class UniversePage implements OnInit, OnDestroy {
   }
 
   filterSolarSystems(){
-    this.aFilteredUniverse= this.aUniverse.filter((aUniverse) =>
+    this.aFilteredUniverse= this.uniS.aSolarSystems.filter((aUniverse) =>
       /*aUniverse.id.toLowerCase().indexOf(this.aSolarSystemFilters.id.toLowerCase()) > -1 */
         aUniverse.name.toLowerCase().indexOf(this.aSolarSystemFilters.name.toLowerCase()) > -1
         && aUniverse.resourceOne.toLowerCase().indexOf(this.aSolarSystemFilters.resourceOne.toLowerCase()) > -1
@@ -257,7 +257,7 @@ export class UniversePage implements OnInit, OnDestroy {
   }
 
   filterSolarBodies(){
-    this.aFilteredSolarBodies= this.aSolarBodies.filter((aSolarBody) =>
+    this.aFilteredSolarBodies= this.uniS.aSolarBodies.filter((aSolarBody) =>
       /*aSolarBody.id.toLowerCase().indexOf(this.aSolarBodyFilters.id.toLowerCase()) > -1*/
       aSolarBody.name.toLowerCase().indexOf(this.aSolarBodyFilters.name.toLowerCase()) > -1
       && aSolarBody.solarBodyType.toLowerCase().indexOf(this.aSolarBodyFilters.solarBodyType.toLowerCase()) > -1
@@ -310,7 +310,7 @@ export class UniversePage implements OnInit, OnDestroy {
   }
 
   filterColonies(){
-    this.aFilteredColonies= this.aColonies.filter((aColony) =>
+    this.aFilteredColonies= this.uniS.aColonies.filter((aColony) =>
       /*aColony.id.toLowerCase().indexOf(this.colonyS.aColoniesFilters.id.toLowerCase()) > -1*/
       aColony.name.toLowerCase().indexOf(this.colonyS.aColoniesFilters.name.toLowerCase()) > -1
       && aColony.population.toString().toLowerCase().indexOf(this.colonyS.aColoniesFilters.population.toLowerCase()) > -1

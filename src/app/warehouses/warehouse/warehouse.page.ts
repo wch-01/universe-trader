@@ -6,6 +6,7 @@ import {take} from 'rxjs/operators';
 import {UniverseService} from '../../services/universe/universe.service';
 import {AlertController, ToastController} from '@ionic/angular';
 import {ShipService} from '../../services/ship/ship.service';
+import {PlatformService} from "../../services/platform/platform.service";
 
 @Component({
   selector: 'app-warehouse',
@@ -28,7 +29,8 @@ export class WarehousePage implements OnInit, OnDestroy {
     private unis: UniverseService,
     private ionAlert: AlertController,
     private toastController: ToastController,
-    private shipS: ShipService
+    private shipS: ShipService,
+    public platform: PlatformService
   ) { }
   //endregion
 

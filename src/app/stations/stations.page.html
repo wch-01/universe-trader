@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content *ngIf="platform.sizeTemplate === 'standard'">
   <!--
   <ion-card>
     <ion-card-header>
@@ -46,6 +46,61 @@
           <ion-item><ion-button *ngIf="station.access === 'Public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-item>
         </ion-item>
       </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-content *ngIf="platform.sizeTemplate === 'small'">
+  <!--
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Stations</ion-card-title>
+      <ion-card-subtitle>Planned Features</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ul>
+        <li>Show a list of stations in orbit <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>View station button, go into trade/exchange <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>Trades go into warehouse <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>Tab for personal station</li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
+  -->
+
+  <ion-card>
+    <ion-card-header>
+      <ion-title>
+
+      </ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row *ngFor="let station of stationS.aStations; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item lines="none">
+              <ion-note slot="helper">Name</ion-note>
+              <ion-label>{{station.name}}</ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-note slot="helper">Owner</ion-note>
+              <ion-label>{{station.ownerID}}</ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-note slot="helper">Market</ion-note>
+              <ion-label>{{station.market}}</ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-note slot="helper">Access</ion-note>
+              <ion-label>{{station.access}}</ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-note slot="helper">View</ion-note>
+              <ion-label><ion-button *ngIf="station.access === 'Public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-label>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-card-content>
   </ion-card>
 </ion-content>

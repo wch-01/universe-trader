@@ -170,8 +170,7 @@ export class AppComponent {
 
   appMessage(){
     //Always update this version number
-    const version= '0.0.2';
-    this.afs.collection('app').doc(version).valueChanges()
+    this.afs.collection('app').doc('version').valueChanges()
       .pipe(take(1))
       .subscribe((aAppMessage: any) => {
         this.aAM= aAppMessage;

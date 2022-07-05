@@ -275,57 +275,59 @@
           <ion-grid>
             <ion-row>
               <ion-col *ngFor="let item of aFilteredMarketInventory" class="item-list-border">
-                <ion-item>
-                  <ion-note>name</ion-note>
+                <ion-item lines="none">
+                  <ion-note slot="helper">name</ion-note>
                   <ion-label>
                     {{ss.aaDefaultItems[item.name].displayName}}
                   </ion-label>
                 </ion-item>
-                <ion-item>
-                  <ion-note>type</ion-note>
+                <ion-item lines="none">
+                  <ion-note slot="helper">type</ion-note>
                   <ion-label>
                     {{item.type}}
                   </ion-label>
                 </ion-item>
-                <ion-item>
-                  <ion-note>available</ion-note>
+                <ion-item lines="none">
+                  <ion-note slot="helper">available</ion-note>
                   <ion-label>
                     {{item.quantity | number}}
                   </ion-label>
                 </ion-item>
-                <ion-item>
-                  <ion-note>Buy For</ion-note>
+                <ion-item lines="none">
+                  <ion-note slot="helper">Buy For</ion-note>
                   <ion-label>
                     {{item.listPrice | number}}
                   </ion-label>
                 </ion-item>
-                <ion-item *ngIf="market === 'colony'">
-                  <ion-note>Sell For</ion-note>
+                <ion-item lines="none" *ngIf="market === 'colony'">
+                  <ion-note slot="helper">Sell For</ion-note>
                   <ion-label>
                     ({{item.buyPrice}})
                   </ion-label>
                 </ion-item>
 
-                <ion-item>
+                <ion-item lines="none">
                   <ion-grid>
                     <ion-row>
                       <ion-col style="text-align: center">
                         Buy {{buySellAmount.value}} @ {{item.listPrice | number}} = {{buySellAmount.value * item.listPrice | number}}
                         <br />
                         <span *ngIf="market === 'colony'">
-                  (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
-                </span>
+                          (Sell {{buySellAmount.value}} @ {{item.buyPrice | number}} = {{buySellAmount.value * item.buyPrice | number}})
+                        </span>
                       </ion-col>
                     </ion-row>
                     <ion-row>
                       <ion-col>
-                        <ion-item>
-                          <ion-label position="floating">Amount</ion-label>
+                        <ion-item lines="none">
+                          <ion-note slot="helper">Amount</ion-note>
                           <ion-input
                             name="buySellAmount_{{item.name}}"
                             type="number"
                             #buySellAmount
                             min="0"
+                            placeholder="0"
+                            style="background: #1a1a1a;text-align: center"
                           >
                           </ion-input>
                         </ion-item>
