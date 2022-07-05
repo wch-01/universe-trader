@@ -5,6 +5,7 @@ import {UniverseService} from '../../services/universe/universe.service';
 import {ModalController} from '@ionic/angular';
 import {take} from 'rxjs/operators';
 import {SolarBodyModalPage} from '../solar-body-modal/solar-body-modal.page';
+import {PlatformService} from "../../services/platform/platform.service";
 
 @Component({
   selector: 'app-solar-system-modal',
@@ -75,7 +76,8 @@ export class SolarSystemModalPage implements OnInit {
   //region Constructor
   constructor(
     public uniS: UniverseService,
-    public modalController: ModalController
+    public modalController: ModalController,
+    public platform: PlatformService
   ) { }
   //endregion
 

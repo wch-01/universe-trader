@@ -10,6 +10,7 @@ import {ServerService} from '../../services/server/server.service';
 import {take} from 'rxjs/operators';
 import {ColonyModalPage} from '../colony-modal/colony-modal.page';
 import {SolarBodyService} from '../../services/universe/solar-body.service';
+import {PlatformService} from "../../services/platform/platform.service";
 
 @Component({
   selector: 'app-solar-body-modal',
@@ -120,7 +121,8 @@ export class SolarBodyModalPage implements OnInit {
     public stationS: StationService,
     public modalController: ModalController,
     private afs: AngularFirestore,
-    private ss: ServerService
+    private ss: ServerService,
+    public platform: PlatformService
   ) { }
   //endregion
 

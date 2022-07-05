@@ -4,18 +4,18 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Universe</ion-title>
-    <ion-segment [(ngModel)]="nsTab">
-      <ion-segment-button value="solarSystems">
-        <ion-label>Solar Systems</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="solarBodies">
-        <ion-label>Solar Bodies</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="colonies">
-        <ion-label>Colonies</ion-label>
-      </ion-segment-button>
-    </ion-segment>
   </ion-toolbar>
+  <ion-segment [(ngModel)]="nsTab">
+    <ion-segment-button value="solarSystems">
+      <ion-label>Solar Systems</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="solarBodies">
+      <ion-label>Solar Bodies</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="colonies">
+      <ion-label>Colonies</ion-label>
+    </ion-segment-button>
+  </ion-segment>
 </ion-header>
 
 <ion-content [ngSwitch]="nsTab">
@@ -26,7 +26,7 @@
         <span *ngIf="aFilteredUniverse">{{aFilteredUniverse.length}}</span> Solar Systems
       </ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="platform.sizeTemplate === 'standard'">
       <ion-grid>
         <ion-row>
           <ion-col *ngFor="let column of aSolarSystemsTable">
@@ -71,13 +71,64 @@
         </ion-row>
       </ion-grid>
     </ion-card-content>
+    <ion-card-content *ngIf="platform.sizeTemplate === 'small'">
+      <ion-button id="nested-button-small"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+      <ion-popover trigger="nested-button-small" [dismissOnSelect]="true">
+        <ng-template>
+          <ion-content>
+            <ion-list>
+              <ion-item [button]="true" [detail]="false" *ngFor="let column of aSolarSystemsTable">
+                <ion-label (click)="sortSolarSystems(column.filter, order= !order)">{{column.label}}</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+
+      <ion-button *ngIf="order === false" (click)="sortSolarSystems(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+      <ion-button *ngIf="order === true" (click)="sortSolarSystems(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+
+      <ion-grid class="ut-item-background-color">
+        <ion-row *ngFor="let solarSystem of aFilteredUniverse; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item>
+              <ion-note slot="helper">Name</ion-note>
+              <ion-label>{{solarSystem.name}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Primary Export</ion-note>
+              <ion-label>{{solarSystem.resourceOne}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Secondary Export</ion-note>
+              <ion-label>{{solarSystem.resourceTwo}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Solar Yield</ion-note>
+              <ion-label>{{solarSystem.solarYield}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">X Coordinate</ion-note>
+              <ion-label>{{solarSystem.xCoordinate}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-note slot="helper">Y Coordinate</ion-note>
+              <ion-label>{{solarSystem.yCoordinate}}</ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-button (click)="viewSolarSystem(solarSystem)">View</ion-button>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
   </ion-card>
 
   <ion-card id="solarBodies" *ngSwitchCase="'solarBodies'">
     <ion-card-header>
       <ion-card-title><span *ngIf="aFilteredSolarBodies">{{aFilteredSolarBodies.length}}</span> Solar Bodies</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="platform.sizeTemplate === 'standard'">
       <ion-grid>
         <ion-row>
           <ion-col *ngFor="let col of aSolarBodiesTable">
@@ -118,13 +169,43 @@
         </ion-row>
       </ion-grid>
     </ion-card-content>
+
+    <ion-card-content *ngIf="platform.sizeTemplate === 'small'">
+      <ion-button id="nested-button-two-small"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+      <ion-popover trigger="nested-button-two-small" [dismissOnSelect]="true">
+        <ng-template>
+          <ion-content>
+            <ion-list>
+              <ion-item [button]="true" [detail]="false" *ngFor="let column of aSolarBodiesTable">
+                <ion-label (click)="sortSolarBodies(column.filter, order= !order)">{{column.label}}</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+
+      <ion-button *ngIf="order === false" (click)="sortSolarBodies(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+      <ion-button *ngIf="order === true" (click)="sortSolarBodies(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+
+      <ion-grid class="ut-item-background-color">
+        <ion-row *ngFor="let solarBody of aFilteredSolarBodies; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item *ngFor="let col of aSolarBodiesTable">
+              <ion-note slot="helper">{{col.label}}</ion-note>
+              <ion-label>{{solarBody[col.filter]}}</ion-label>
+            </ion-item>
+            <ion-item><ion-button (click)="viewSolarBody(solarBody)">View</ion-button></ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
   </ion-card>
 
   <ion-card id="colonies" *ngSwitchCase="'colonies'">
     <ion-card-header>
       <ion-card-title><span *ngIf="aFilteredColonies">{{aFilteredColonies.length}}</span> Colonies</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+    <ion-card-content *ngIf="platform.sizeTemplate === 'standard'">
       <ion-grid>
         <ion-row>
           <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
@@ -165,6 +246,35 @@
         </ion-row>
       </ion-grid>
     </ion-card-content>
-  </ion-card>
 
+    <ion-card-content *ngIf="platform.sizeTemplate === 'small'">
+      <ion-button id="nested-button-three-small"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+      <ion-popover trigger="nested-button-three-small" [dismissOnSelect]="true">
+        <ng-template>
+          <ion-content>
+            <ion-list>
+              <ion-item [button]="true" [detail]="false" *ngFor="let column of colonyS.aColoniesTableColumns">
+                <ion-label (click)="sortColonies(column.filter, order= !order)">{{column.label}}</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+
+      <ion-button *ngIf="order === false" (click)="sortColonies(sortField, order= !order)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+      <ion-button *ngIf="order === true" (click)="sortColonies(sortField, order= !order)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+
+      <ion-grid class="ut-item-background-color">
+        <ion-row *ngFor="let colony of aFilteredColonies; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item *ngFor="let col of colonyS.aColoniesTableColumns">
+              <ion-note slot="helper">{{col.label}}</ion-note>
+              <ion-label>{{colony[col.filter]}}</ion-label>
+            </ion-item>
+            <ion-item><ion-button (click)="viewColony(colony)">View</ion-button></ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
