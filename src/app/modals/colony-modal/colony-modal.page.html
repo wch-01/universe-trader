@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="colonyLoaded">
+<ion-content *ngIf="colonyLoaded && platform.sizeTemplate === 'standard'">
   <ion-grid>
     <ion-row>
       <ion-col>
@@ -130,4 +130,129 @@
     </ion-card>
   </ng-template>
 
+</ion-content>
+
+<ion-content *ngIf="colonyLoaded && platform.sizeTemplate === 'small'">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Colony Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item *ngFor="let col of colonyS.aColoniesTableColumns" lines="none">
+                    <ion-note slot="helper">{{col.label}}</ion-note>
+                    <ion-label>
+                      <span *ngIf="col.filter === 'population'; else standard">
+                    {{colonyS.aColony[col.filter] | number}}
+                  </span>
+                      <ng-template #standard>
+                        {{colonyS.aColony[col.filter]}}
+                      </ng-template>
+                    </ion-label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card *ngIf="ssLoaded">
+          <ion-card-header>
+            <ion-card-title>Solar System Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item lines="none">
+                    <ion-note slot="helper">Name</ion-note>
+                    <ion-label>
+                      {{colonyS.aSolarSystem.name}}
+                    </ion-label>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <ion-note slot="helper">Coordinates</ion-note>
+                    <ion-label>
+                      {{colonyS.aSolarSystem.xCoordinate}}, {{colonyS.aSolarSystem.yCoordinate}}
+                    </ion-label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card *ngIf="sbLoaded">
+          <ion-card-header>
+            <ion-card-title>Solar Body Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item lines="none">
+                    <ion-note slot="helper">Name</ion-note>
+                    <ion-label>
+                      {{colonyS.aSolarBody.name}}
+                    </ion-label>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <ion-note slot="helper">Coordinates</ion-note>
+                    <ion-label>
+                      {{colonyS.aSolarBody.xCoordinate}}, {{colonyS.aSolarBody.yCoordinate}}
+                    </ion-label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <app-trade *ngIf="trading; else standard" [trader]="trader" [traderID]="traderID" [market]="'colony'"></app-trade>
+
+  <ng-template #standard>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Inventory</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col *ngFor="let aItem of aInventory" class="item-list-border">
+              <ion-item lines="none">
+                <ion-note slot="helper">Name</ion-note>
+                <ion-label>{{aItem.name}}</ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-note slot="helper">Quantity</ion-note>
+                <ion-label>{{aItem.quantity | number}}</ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-note slot="helper">Demand %</ion-note>
+                <ion-label>{{aItem.demand}}</ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-note slot="helper">Sells For</ion-note>
+                <ion-label>{{aItem.listPrice}}</ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-note slot="helper">Buys For</ion-note>
+                <ion-label>{{aItem.buyPrice}}</ion-label>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
 </ion-content>

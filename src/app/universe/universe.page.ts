@@ -8,6 +8,7 @@ import {take} from 'rxjs/operators';
 import {SolarSystemModalPage} from '../modals/solar-system-modal/solar-system-modal.page';
 import {SolarBodyModalPage} from '../modals/solar-body-modal/solar-body-modal.page';
 import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
+import {PlatformService} from '../services/platform/platform.service';
 const moment= require('moment');
 
 @Component({
@@ -172,6 +173,7 @@ export class UniversePage implements OnInit, OnDestroy {
     public loadingController: LoadingController,
     private popoverController: PopoverController,
     private ionAlert: AlertController,
+    public platform: PlatformService
   ) {}
   //endregion
 

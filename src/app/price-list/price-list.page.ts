@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import {take} from 'rxjs/operators';
 import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
 import {ModalController} from '@ionic/angular';
+import {PlatformService} from '../services/platform/platform.service';
 const moment= require('moment');
 
 @Component({
@@ -35,6 +36,7 @@ export class PriceListPage implements OnInit, OnDestroy {
     private us: UniverseService,
     public router: Router,
     public modalController: ModalController,
+    public platform: PlatformService
   ) { }
   //endregion
 

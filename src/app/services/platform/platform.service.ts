@@ -15,7 +15,7 @@ export class PlatformService {
     // console.log(this.platform);
     // console.log(this.platform.is('desktop'));
     this.platform.ready().then(() => {
-      if(this.platform.width() <= 750){
+      if(this.platform.width() <= 1180){
         this.sizeTemplate= 'small';
       }
     });
@@ -23,7 +23,7 @@ export class PlatformService {
       console.log('Resize event detected');
       console.log('Width: ' + this.platform.width());
       console.log('Height: ' + this.platform.height());
-      if(this.platform.width() <= 750){
+      if(this.platform.width() <= 1180){
         this.sizeTemplate= 'small';
       }
       else{
