@@ -351,7 +351,7 @@ export class ShipService {
 
             for(const module of this.aModules){
               if(module.name === 'cargo'){
-                capacityTotal= +capacityTotal + (module.level * this.ss.aaDefaultItems.cargo.capacity);
+                capacityTotal= +capacityTotal + (module.level * this.ss.aRules.storage.cargoModule);
               }
             }
             cmResolve(true);
@@ -391,7 +391,7 @@ export class ShipService {
       console.log('shipService: setWCargoCapacity');
     }
     return new Promise((resolve, reject) => {
-      const capacityTotal= +this.aWarehouse.size * 1000;
+      const capacityTotal= +this.aWarehouse.level * this.ss.aRules.storage.warehouse;
       let capacityUsed= 0;
       this.wCapacityAvailable= 0;
       this.aWInventory.some(inventoryItem =>{

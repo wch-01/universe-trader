@@ -2,6 +2,7 @@ export class Rules {
   travel: any;
   consoleLogging: any;
   mining: any;
+  storage: any;
 }
 
 export class DefaultItems {

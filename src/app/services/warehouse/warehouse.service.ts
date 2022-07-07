@@ -144,12 +144,16 @@ export class WarehouseService {
       console.log('warehouseService: setCargoCapacity');
     }
     return new Promise((resolve, reject) => {
-      const capacityTotal= +this.aWarehouse.size * 1000;
+      if(this.ss.aRules.consoleLogging.mode >= 2){
+        console.log(this.ss.aRules.storage.warehouse);
+      }
+      const capacityTotal= +this.aWarehouse.level * this.ss.aRules.storage.warehouse;
       let capacityUsed= 0;
       this.capacityAvailable= 0;
       this.aInventory.some(inventoryItem =>{
-        console.log('Cap');
-        console.log(inventoryItem);
+        if(this.ss.aRules.consoleLogging.mode >= 2){
+          console.log(inventoryItem);
+        }
         capacityUsed= +capacityUsed + +inventoryItem.quantity;
       });
       this.capacityAvailable= +capacityTotal - +capacityUsed;

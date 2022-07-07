@@ -5,7 +5,7 @@ import {ColonyService} from '../../services/colony/colony.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../../services/server/server.service';
 import {LoadingController} from '@ionic/angular';
-import {PlatformService} from "../../services/platform/platform.service";
+import {PlatformService} from '../../services/platform/platform.service';
 
 @Component({
   selector: 'app-colony-modal',

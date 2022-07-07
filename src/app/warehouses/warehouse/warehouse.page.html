@@ -25,6 +25,30 @@
   </ion-card>
   -->
 
+  <ion-card *ngIf="ws.aWarehouse">
+    <ion-card-header>
+      <ion-card-title>Details</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-note slot="helper">name</ion-note>
+              <ion-label>Warehouse</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-note slot="helper">capacity</ion-note>
+              <ion-label *ngIf="capReady">{{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}</ion-label>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
   <ion-card>
     <ion-grid>
       <ion-row class="">

@@ -39,7 +39,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   uNtfSettings(){
     this.afs.collection('users').doc(this.auth.user.uid)
       .update({
-        emailNotifications: this.aUser.emailNotifications
+        ntfE: this.aUser.ntfE
       });
   }
   //endregion

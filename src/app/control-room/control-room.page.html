@@ -33,17 +33,7 @@
 
   <app-colony *ngSwitchCase="'colony'" [market]="'colony'" [trader]="'warehouse'" [traderID]="warehouseS.aWarehouse.id"></app-colony>
 
-  <ion-card id="businesses" *ngSwitchCase="'businesses'">
-    <ion-card-header>
-      <ion-card-title>Businesses</ion-card-title>
-      <ion-card-subtitle>Planned Features</ion-card-subtitle>
-    </ion-card-header>
-    <ul>
-      <li>Lists your local businesses.</li>
-      <li>Create new ones.</li>
-    </ul>
-    <!--<app-businesses></app-businesses>-->
-  </ion-card>
+  <app-businesses *ngSwitchCase="'businesses'"></app-businesses>
 
   <app-stations trader='warehouse' [traderID]="warehouseS.aWarehouse.id" [solarBodyID]="warehouseS.aWarehouse.solarBody" *ngSwitchCase="'stations'"></app-stations>
 

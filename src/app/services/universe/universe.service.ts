@@ -12,6 +12,46 @@ const moment= require('moment');
 })
 export class UniverseService {
   //region Variables
+  //region Solar System
+  aSSTableColumns= [
+    {
+      label: 'Name',
+      filter: 'name'
+    },
+    {
+      label: 'Coordinates',
+      filter: 'coordinates'
+    },
+    {
+      label: 'Solar Yield',
+      filter: 'solarYield'
+    }
+  ];
+  //endregion
+
+  //region Solar Body
+  aSBTableColumns= [
+    {
+      label: 'Name',
+      filter: 'name'
+    },
+    {
+      label: 'Coordinates',
+      filter: 'coordinates'
+    },
+    {
+      label: 'Primary Resource',
+      filter: 'resourceOne'
+    },
+    {
+      label: 'Secondary Resource',
+      filter: 'resourceTwo'
+    }
+  ];
+  //endregion
+
+  //region Colony
+  //endregion
   ssSub;
   sbSub;
   cSub;

@@ -206,7 +206,10 @@ export class ServerService {
         resolve(true);
       }
       else{
-        this.afs.collection('servers/' + this.activeServer +'/z_structures')
+        this.afs.collection('servers/' + this.activeServer +'/zStructures',
+          ref =>
+            ref.where('type', '!=', 'storage')
+        )
           .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aDStructures: any) =>{

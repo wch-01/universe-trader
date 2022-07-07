@@ -294,8 +294,8 @@
                 <ion-item lines="none">
                   <ion-label>Resource Base Yield</ion-label>
                   <ion-label>
-                    <span *ngIf="shipS.aShip.miningTarget === 'ore'">{{ss.aRules.mining.mOre}}</span>
-                    <span *ngIf="shipS.aShip.miningTarget === 'silicone'">{{ss.aRules.mining.mSilicone}}</span>
+                    <span *ngIf="shipS.aShip.miningTarget === 'ore'">{{ss.aRules.mining.sOre}}</span>
+                    <span *ngIf="shipS.aShip.miningTarget === 'silicone'">{{ss.aRules.mining.sSilicone}}</span>
                   </ion-label>
                 </ion-item>
               </ion-col>
@@ -310,10 +310,10 @@
                   <ion-label>Total per 15 Minute Cycle:</ion-label>
                   <ion-label>
                     <span *ngIf="shipS.aShip.miningTarget === 'ore'">
-                      {{((ss.aRules.mining.mOre * shipS.aShip.moduleMiningLaserLevel) * (shipS.aShip.miningYield / 100))}}
+                      {{((ss.aRules.mining.sOre * shipS.aShip.moduleMiningLaserLevel) * (shipS.aShip.miningYield / 100))}}
                     </span>
                     <span *ngIf="shipS.aShip.miningTarget === 'silicone'">
-                      {{((ss.aRules.mining.mSilicone * shipS.aShip.moduleMiningLaserLevel) * (shipS.aShip.miningYield / 100))}}
+                      {{((ss.aRules.mining.sSilicone * shipS.aShip.moduleMiningLaserLevel) * (shipS.aShip.miningYield / 100))}}
                     </span>
                   </ion-label>
                 </ion-item>
@@ -368,11 +368,17 @@
                   </ion-item>
                   <ion-item>
                     <ion-label>Primary Export</ion-label>
-                    <ion-label>{{uniS.aSolarBody.resourceOne | uppercase}} @ {{uniS.aSolarBody.resourceOneYield}}%</ion-label>
+                    <ion-label>
+                      {{uniS.aSolarBody.resourceOne | uppercase}}
+                      <span *ngIf="uniS.aSolarBody.resourceOne === 'ore' || uniS.aSolarBody.resourceOne === 'silicone' || uniS.aSolarBody.resourceOne === 'power'">- {{uniS.aSolarBody.resourceOneYield}}% Yield</span>
+                    </ion-label>
                   </ion-item>
                   <ion-item>
                     <ion-label>Secondary Export</ion-label>
-                    <ion-label>{{uniS.aSolarBody.resourceTwo | uppercase}} @ {{uniS.aSolarBody.resourceTwoYield}}%</ion-label>
+                    <ion-label>
+                      {{uniS.aSolarBody.resourceTwo | uppercase}}
+                      <span *ngIf="uniS.aSolarBody.resourceTwo === 'ore' || uniS.aSolarBody.resourceTwo === 'silicone' || uniS.aSolarBody.resourceTwo === 'power'">- {{uniS.aSolarBody.resourceTwoYield}}% Yield</span>
+                    </ion-label>
                   </ion-item>
                 </ion-col>
               </ion-row>

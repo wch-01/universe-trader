@@ -10,7 +10,7 @@ import {CharacterService} from '../services/character/character.service';
 import {Router} from '@angular/router';
 import {HousekeepingService} from '../services/housekeeping/housekeeping.service';
 import {take} from 'rxjs/operators';
-import {PlatformService} from "../services/platform/platform.service";
+import {PlatformService} from '../services/platform/platform.service';
 
 
 @Component({

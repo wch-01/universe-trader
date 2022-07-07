@@ -103,6 +103,44 @@ export class ColonyService {
     cog: '',
     //demand: ''
   };
+
+  //region Colony Solar System
+  aSSTableColumns= [
+    {
+      label: 'Name',
+      filter: 'name'
+    },
+    {
+      label: 'Coordinates',
+      filter: 'coordinates'
+    },
+    {
+      label: 'Solar Yield %',
+      filter: 'solarYield'
+    }
+  ];
+  //endregion
+
+  //region Colony Solar Body
+  aSBTableColumns= [
+    {
+      label: 'Name',
+      filter: 'name'
+    },
+    {
+      label: 'Coordinates',
+      filter: 'coordinates'
+    },
+    {
+      label: 'Primary Resource',
+      filter: 'resourceOne'
+    },
+    {
+      label: 'Secondary Resource',
+      filter: 'resourceTwo'
+    }
+  ];
+  //endregion
   //endregion
 
   //region Constructor

@@ -7,7 +7,7 @@ import {Observable} from 'rxjs';
 import {Ship} from '../../classes/ship';
 import {UniverseService} from '../universe/universe.service';
 import {SolarBody, SolarSystem} from '../../classes/universe';
-import {ShipService} from "../ship/ship.service";
+import {ShipService} from '../ship/ship.service';
 
 @Injectable({
   providedIn: 'root'

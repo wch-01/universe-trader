@@ -3,7 +3,7 @@ import {ServerService} from '../../services/server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ColonyService} from '../../services/colony/colony.service';
 import {ShipService} from '../../services/ship/ship.service';
-import {WarehouseService} from "../../services/warehouse/warehouse.service";
+import {WarehouseService} from '../../services/warehouse/warehouse.service';
 
 @Component({
   selector: 'app-colony',
@@ -29,7 +29,7 @@ export class ColonyPage implements OnInit {
     private afs: AngularFirestore,
     public colonyS: ColonyService,
     private shipS: ShipService,
-    private warehouseS: WarehouseService,
+    private warehouseS: WarehouseService
   ) { }
   //endregion
 

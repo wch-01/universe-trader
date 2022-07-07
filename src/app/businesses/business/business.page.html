@@ -1,0 +1,99 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>business</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="businessFound">
+  <ion-grid>
+    <ion-row>
+      <ion-col id="details">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label>Name</ion-label>
+                    <ion-label>{{bs.aBusiness.displayName}} <ion-icon name="pencil-outline" (click)="editNameAlert()" style="cursor: pointer"></ion-icon></ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Type</ion-label>
+                    <ion-label>{{bs.aBusiness.name}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Status</ion-label>
+                    <ion-label>{{bs.aBusiness.status}}</ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label>Level</ion-label>
+                    <ion-label>{{bs.aBusiness.level}}</ion-label>
+                  </ion-item>
+
+                  <ion-item id="dMine" *ngIf="bs.aBusiness.name === 'mine'">
+                    <ion-label>Base Mining Rates</ion-label>
+                    <ion-label>
+                      Ore-{{ss.aRules.mining.ore}}, Silicone-{{ss.aRules.mining.silicone}}
+                    </ion-label>
+                  </ion-item>
+
+                  <ion-item id="dSolarFarm" *ngIf="bs.aBusiness.name === 'solarFarm'">
+                    <ion-label>Base Collection Rate</ion-label>
+                    <ion-label>
+                      {{ss.aRules.mining.power}}
+                    </ion-label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col id="operations">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Operations</ion-card-title>
+          </ion-card-header>
+          <ion-card-content *ngIf="bs.aBusiness.status === 'Idle'">
+            <ion-grid>
+              <ion-row>
+                <ion-col *ngFor="let aProduct of bs.aBusiness.production">
+                  <span id="mine" *ngIf="bs.aBusiness.name === 'mine'">
+                    <ion-button
+                      *ngIf="uniS.aSolarBody.resourceOne === aProduct.name"
+                      (click)="beginMining(bs.aSolarBody.resourceOne, bs.aSolarBody.resourceOneYield)"
+                    >
+                      Mine {{aProduct.name}} @ {{bs.aSolarBody.resourceOneYield}}% Yield
+                    </ion-button>
+
+                    <ion-button
+                      *ngIf="uniS.aSolarBody.resourceTwo === aProduct.name"
+                      (click)="beginMining(bs.aSolarBody.resourceTwo, bs.aSolarBody.resourceTwoYield)"
+                    >
+                      Mine {{aProduct.name}} @ {{bs.aSolarBody.resourceTwoYield}}% Yield
+                    </ion-button>
+                  </span>
+
+                  <span id="solarFarm" *ngIf="bs.aBusiness.name === 'solarFarm'">
+                    <ion-button
+                      (click)="beginMining('power', bs.aSolarSystem.solarYield)"
+                    >
+                      Collect {{aProduct.name}} @ {{bs.aSolarSystem.solarYield}}% Yield
+                    </ion-button>
+                  </span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

@@ -6,7 +6,7 @@ import {take} from 'rxjs/operators';
 import {UniverseService} from '../../services/universe/universe.service';
 import {AlertController, ToastController} from '@ionic/angular';
 import {ShipService} from '../../services/ship/ship.service';
-import {PlatformService} from "../../services/platform/platform.service";
+import {PlatformService} from '../../services/platform/platform.service';
 
 @Component({
   selector: 'app-warehouse',
@@ -19,11 +19,12 @@ export class WarehousePage implements OnInit, OnDestroy {
 
   aShips;
   aShip;
+  capReady= false;
   //endregion
 
   //region Constructor
   constructor(
-    private ss: ServerService,
+    public ss: ServerService,
     private afs: AngularFirestore,
     public ws: WarehouseService,
     private unis: UniverseService,
@@ -37,7 +38,9 @@ export class WarehousePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.ws.readWarehouse(this.warehouseID).then((res: any) => {
       this.ws.rwiP().then((rwiPRes: any) => {
-        this.ws.setCargoCapacity();
+        this.ws.setCargoCapacity().then(() => {
+          this.capReady= true;
+        });
       });
       this.ws.rpLocalShips().then(
         (aShips) => {
