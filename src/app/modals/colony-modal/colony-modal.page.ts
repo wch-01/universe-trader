@@ -47,6 +47,7 @@ export class ColonyModalPage implements OnInit, OnDestroy {
     }
 
     this.colonyS.id= this.id;
+    /*
     this.colonyS.rpColony().then(
       (aColony) => {
         //this.aColony= aColony;
@@ -63,6 +64,7 @@ export class ColonyModalPage implements OnInit, OnDestroy {
       },
       (rpcError) => {}
     );
+    */
     /*
     this.colonyS.readColony(this.id).then((rcRes) => {
       this.aColony= this.colonyS.aColony;
@@ -85,7 +87,7 @@ export class ColonyModalPage implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this.colonyS.colonySub.unsubscribe();
-    console.log('Ondestroy');
+    console.log('OnDestroy');
     console.log(this.colonyS.colonySub);
   }
 

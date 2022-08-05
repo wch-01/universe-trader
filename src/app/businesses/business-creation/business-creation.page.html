@@ -21,7 +21,9 @@
       <ion-item>
         <ion-label position="floating">Select Business Type</ion-label>
         <ion-select name="colony" [(ngModel)]="aNewBusiness.name">
-          <ion-select-option *ngFor="let businessType of ss.aDStructures" [value]="businessType.id">{{businessType.displayName}}</ion-select-option>
+          <span *ngFor="let businessType of ss.aDStructures">
+            <ion-select-option [value]="businessType.id" *ngIf="businessType.type !== 'storage'">{{businessType.displayName}}</ion-select-option>
+          </span>
         </ion-select>
       </ion-item>
     </form>

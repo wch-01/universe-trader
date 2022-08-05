@@ -4,7 +4,6 @@
     <ion-menu contentId="main-content" ><!--*ngIf="userLoggedIn | async"-->
       <ion-content>
         <ion-list id="character-details">
-
           <span #notLoggedIn *ngIf="!authService.userLoggedIn">
             <ion-list-header>Welcome Captain</ion-list-header>
             <ion-note>
@@ -163,7 +162,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}</p>
+                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}} | {{projectName}}</p>
                 </ion-col>
               </ion-row>
             </ion-grid>

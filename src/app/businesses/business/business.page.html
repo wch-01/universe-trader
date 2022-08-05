@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>business</ion-title>
+    <ion-title>business <ion-icon (click)="helpMessageAlert()" name="help-circle-outline" style="cursor: pointer"></ion-icon></ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
     </ion-buttons>
@@ -35,18 +35,24 @@
                     <ion-label>Level</ion-label>
                     <ion-label>{{bs.aBusiness.level}}</ion-label>
                   </ion-item>
+                  <ion-item>
+                    <ion-label>Upkeep</ion-label>
+                    <ion-label>{{bs.aBusiness.upkeep * bs.aBusiness.level | number}} per operating cycle</ion-label>
+                  </ion-item>
 
+                  <!--
                   <ion-item id="dMine" *ngIf="bs.aBusiness.name === 'mine'">
                     <ion-label>Base Mining Rates</ion-label>
                     <ion-label>
                       Ore-{{ss.aRules.mining.ore}}, Silicone-{{ss.aRules.mining.silicone}}
                     </ion-label>
                   </ion-item>
+                  -->
 
                   <ion-item id="dSolarFarm" *ngIf="bs.aBusiness.name === 'solarFarm'">
                     <ion-label>Base Collection Rate</ion-label>
                     <ion-label>
-                      {{ss.aRules.mining.power}}
+                      {{ss.aRules.production['solarFarm'].power.amount}}
                     </ion-label>
                   </ion-item>
                 </ion-col>
@@ -61,33 +67,112 @@
           <ion-card-header>
             <ion-card-title>Operations</ion-card-title>
           </ion-card-header>
-          <ion-card-content *ngIf="bs.aBusiness.status === 'Idle'">
+          <ion-card-content>
+            <ion-grid>
+              <ion-row id="cancelOperations" *ngIf="bs.aBusiness.status === 'Producing'">
+                <ion-col>
+                  Next Cycle ends at: {{eta(bs.aBusiness.productionEndTime)}}
+                </ion-col>
+                <ion-col>
+                  <span *ngIf="bs.aBusiness.productionFrequency === true">Will stop operation at end of current cycle.</span>
+                  <span *ngIf="bs.aBusiness.productionFrequency === false">Will operate until resources are not available.</span>
+                  <span *ngIf="bs.aBusiness.productionFrequency === 'other'">Has {{bs.aBusiness.productionCycles}} cycles remaining.</span>
+                </ion-col>
+                <ion-col>
+                  <ion-button (click)="cancelOperations()" color="danger">Cancel Operations</ion-button>
+                </ion-col>
+              </ion-row>
+              <ion-row id="cycleOptions" *ngIf="bs.aBusiness.status === 'Idle'">
+                <ion-col>
+                  <ion-label>Cycles</ion-label>
+                  <ion-radio-group [(ngModel)]="cycles">
+                    <ion-item>
+                      <ion-label>One Cycle</ion-label>
+                      <ion-radio value="true"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Continuous</ion-label>
+                      <ion-radio value="false"></ion-radio>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label>Other</ion-label>
+                      <ion-radio value="other"></ion-radio>
+                    </ion-item>
+                  </ion-radio-group>
+                </ion-col>
+                <ion-col *ngIf="cycles === 'other'">
+                  <ion-item>
+                    <ion-label>Other</ion-label>
+                    <ion-input type="number" [(ngModel)]="manualCycles" min="1" placeholder="1"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+
+              <ion-row id="extraction" *ngIf="bs.aBusiness.status === 'Idle' && bs.aBusiness.type === 'extraction'">
+                <ion-col *ngFor="let aProduct of bs.aBusiness.production">
+                  <span *ngIf="aProduct.name === 'power'; else notPower">
+                    <ion-button (click)="beginOperation('power', bs.aSolarSystem.solarYield)">
+                    Collect {{aProduct.name}} @ {{bs.aSolarSystem.solarYield}}% Yield
+                  </ion-button>
+                  </span>
+                  <ng-template #notPower>
+                    <span *ngFor="let avP of bs.aSolarBody.resources">
+                      <ion-button *ngIf="aProduct.name === avP.name" (click)="beginOperation(aProduct.name, avP.yield)">
+                        Mine {{aProduct.name}} @ {{avP.yield}}% Yield
+                      </ion-button>
+                    </span>
+                  </ng-template>
+                </ion-col>
+              </ion-row>
+
+              <ion-row id="rest" *ngIf="bs.aBusiness.status === 'Idle' && bs.aBusiness.name !== 'mine' && bs.aBusiness.name !== 'solarFarm'">
+                <ion-col *ngFor="let aProduct of bs.aBusiness.production">
+                  <ion-button (click)="beginOperation(aProduct.name)">
+                    Begin {{bs.aBusiness.type}} Operations of {{aProduct.name}}
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col id="productionDetails">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Production Details</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
             <ion-grid>
               <ion-row>
-                <ion-col *ngFor="let aProduct of bs.aBusiness.production">
-                  <span id="mine" *ngIf="bs.aBusiness.name === 'mine'">
-                    <ion-button
-                      *ngIf="uniS.aSolarBody.resourceOne === aProduct.name"
-                      (click)="beginMining(bs.aSolarBody.resourceOne, bs.aSolarBody.resourceOneYield)"
-                    >
-                      Mine {{aProduct.name}} @ {{bs.aSolarBody.resourceOneYield}}% Yield
-                    </ion-button>
+                <ion-col *ngFor="let aProduct of ss.aRules.production[bs.aBusiness.name] | keyvalue" style="border-style: dashed">
+                  <ion-item>
+                    <ion-note slot="helper">name</ion-note>
+                    <ion-label>{{aProduct.key}}</ion-label>
+                  </ion-item>
 
-                    <ion-button
-                      *ngIf="uniS.aSolarBody.resourceTwo === aProduct.name"
-                      (click)="beginMining(bs.aSolarBody.resourceTwo, bs.aSolarBody.resourceTwoYield)"
-                    >
-                      Mine {{aProduct.name}} @ {{bs.aSolarBody.resourceTwoYield}}% Yield
-                    </ion-button>
+                  <span *ngFor="let aItem of aProduct.value | keyvalue">
+                    <ion-item *ngIf="aItem.key === 'amount'">
+                      <ion-note slot="helper">amount</ion-note>
+                      <ion-label>{{aItem.value}}</ion-label>
+                    </ion-item>
+
+                    <span *ngIf="aItem.key === 'requiredResources'">
+                      Required Resources
+                      <ion-item *ngFor="let aRR of aItem.value">
+                        <ion-label>{{aRR.name}} x {{aRR.amount}}</ion-label>
+                      </ion-item>
+                    </span>
                   </span>
 
-                  <span id="solarFarm" *ngIf="bs.aBusiness.name === 'solarFarm'">
-                    <ion-button
-                      (click)="beginMining('power', bs.aSolarSystem.solarYield)"
-                    >
-                      Collect {{aProduct.name}} @ {{bs.aSolarSystem.solarYield}}% Yield
-                    </ion-button>
-                  </span>
+                  <!--
+                  Required Resources
+                  <ion-item *ngFor="let aItem of aProduct.value | keyvalue">
+                    <ion-label>{{aItem.key}} - {{aItem.value}}</ion-label>
+                  </ion-item>
+                  -->
+
                 </ion-col>
               </ion-row>
             </ion-grid>

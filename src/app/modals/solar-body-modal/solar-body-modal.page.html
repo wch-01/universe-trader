@@ -8,37 +8,110 @@
 </ion-header>
 
 <ion-content *ngIf="platform.sizeTemplate === 'standard'">
-  <ion-card>
-    <ion-card-header>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            Details
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Name</ion-label>
+                    {{aSolarBody.name}}
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Colony</ion-label>
+                    <span *ngIf="aSolarBody.colony === true; else noColony">
+                      True
+                    </span>
+                    <ng-template #noColony>
+                      No Colony at Location
+                    </ng-template>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">X Coordinate</ion-label>
+                    {{aSolarBody.xCoordinate}}
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Y Coordinate</ion-label>
+                    {{aSolarBody.yCoordinate}}
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Primary Export</ion-label>
+                    {{aSolarBody.resourceOne}}
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Secondary Export</ion-label>
+                    {{aSolarBody.resourceTwo}}
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            Solar System
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Name</ion-label>
+                    {{aSolarSystem.name}}
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">X Coordinate</ion-label>
+                    {{aSolarSystem.xCoordinate}}
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Y Coordinate</ion-label>
+                    {{aSolarSystem.yCoordinate}}
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <!--<ion-label>ID</ion-label>-->
-        <ion-label>Name</ion-label>
-        <ion-label>Primary Export</ion-label>
-        <ion-label>Secondary Export</ion-label>
-        <ion-label>X Coordinate</ion-label>
-        <ion-label>Y Coordinate</ion-label>
-      </ion-item>
-      <ion-item>
-        <!--<ion-label>{{aSolarBody.id}}</ion-label>-->
-        <ion-label>{{aSolarBody.name}}</ion-label>
-        <ion-label>{{aSolarBody.resourceOne}}</ion-label>
-        <ion-label>{{aSolarBody.resourceTwo}}</ion-label>
-        <ion-label>{{aSolarBody.xCoordinate}}</ion-label>
-        <ion-label>{{aSolarBody.yCoordinate}}</ion-label>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
 
   <ion-card id="colonies">
     <ion-card-header>
-      <ion-card-title><span *ngIf="aFilteredColonies">{{aFilteredColonies.length}}</span> Colonies
-
+      <ion-card-title>
+        <span *ngIf="aFilteredColonies">{{aFilteredColonies.length}}</span>
         <ion-segment [(ngModel)]="nsTab">
           <ion-segment-button value="colonies">
-            <ion-label>Colonies</ion-label>
+            <ion-label>Colony Market</ion-label>
           </ion-segment-button>
           <ion-segment-button value="stations">
             <ion-label>Stations</ion-label>
@@ -49,19 +122,19 @@
     <ion-card-content [ngSwitch]="nsTab">
       <ion-grid *ngSwitchCase="'colonies'">
         <ion-row>
-          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
-            <ion-item fill="solid" class="ion-margin-bottom">
-              <ion-label position="floating">{{col.label}}</ion-label>
-              <ion-input type="text" name="filter{{col.label}}" [(ngModel)]="colonyS.aColoniesFilters[col.filter]" (ngModelChange)="filterColonies()" clearInput=""></ion-input>
-            </ion-item>
+          <ion-col *ngFor="let col of colonyS.aInventoryColumns">
+            {{col.label}}
           </ion-col>
-          <ion-col></ion-col>
         </ion-row>
-        <ion-row *ngFor="let colony of aFilteredColonies">
-          <ion-col *ngFor="let col of colonyS.aColoniesTableColumns">
-            {{colony[col.filter]}}
+        <ion-row *ngFor="let item of aInventory">
+          <ion-col *ngFor="let col of colonyS.aInventoryColumns">
+            <div *ngIf="col.filter === 'quantity'; else standardCol">
+              {{item[col.filter] | number}}
+            </div>
+            <ng-template #standardCol>
+              {{item[col.filter]}}
+            </ng-template>
           </ion-col>
-          <ion-col><ion-button (click)="viewColony(colony)">View</ion-button></ion-col>
         </ion-row>
       </ion-grid>
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {ServerService} from '../server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {tap} from 'rxjs/operators';
+import {Colony, SolarBody} from '../../classes/universe';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class ColonyService {
   colonySub;
   rCSBSub;
   rCSSSub;
-  aColony;
+  aColony= new Colony();
   inventorySub;
   aInventory= [];
   marketInventorySub;
@@ -156,12 +157,13 @@ export class ColonyService {
    *
    * @return: Promise
    * */
-  rpColony(){
+  rpColony(solarBodyID){
     if(this.ss.aRules.consoleLogging.mode >= 1){
       console.log('colonyService: rpColony');
     }
     return new Promise((resolve, reject) => {
-      this.colonySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(this.id).valueChanges({idField:'id'})
+      this.colonySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+        .doc(solarBodyID).valueChanges()
         .subscribe((aColony: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 2){
             console.log(aColony);
@@ -174,7 +176,7 @@ export class ColonyService {
             if(this.ss.aRules.consoleLogging.mode >= 1){
               console.log('colonyService->rpColony: Rejecting');
             }
-            reject('No Colony Found');
+            reject('cols->rpColony: No Colony Found');
           }
         });
     });
@@ -203,7 +205,7 @@ export class ColonyService {
             resolve(true);
           }
           else{
-            reject('No colony found');
+            reject('cols->rCsbID: No colony found');
           }
         });
     });
@@ -216,6 +218,25 @@ export class ColonyService {
    * @return: Promise
    * */
   fcIDP(solarBodyID){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+        .doc(solarBodyID)
+        .valueChanges({idField:'id'})
+        .subscribe((aSolarBody: SolarBody) => {
+          if(aSolarBody.colony === true){
+            if(this.ss.aRules.consoleLogging.mode >= 1){
+              console.log('ColonyService: Colony');
+            }
+            this.aColony.population= aSolarBody.colonyPopulation;
+            resolve(true);
+          }
+          else{
+            reject('cols->fcIDP: No colony found');
+          }
+        });
+    });
+  }
+  fcIDPOrig(solarBodyID){
     return new Promise((resolve, reject) => {
       this.afs.collection('servers/' + this.ss.activeServer + '/universe',
         ref =>
@@ -234,13 +255,13 @@ export class ColonyService {
             resolve(true);
           }
           else{
-            reject('No colony found');
+            reject('cols->fcIDP: No colony found');
           }
         });
     });
   }
 
-  readColony(id){
+  readColonyOrig(id){
     return new Promise((resolve, reject) => {
       this.colonySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(id).valueChanges({idField:'id'})
         .subscribe((aColony: any) => {
@@ -272,7 +293,17 @@ export class ColonyService {
   /**
    * Name: Read Colony Solar System
    **/
-  rCSS(){
+  rCSS(solarSystemID){
+    return new Promise((resolve, reject) => {
+      this.rCSSSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(solarSystemID).valueChanges()
+        .subscribe((aSolarSystem: any) => {
+          this.aSolarSystem= aSolarSystem;
+          resolve(true);
+        });
+    });
+  }
+  /*
+  rCSSOrig(){
     return new Promise((resolve, reject) => {
       this.rCSSSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe').doc(this.aColony.solarSystemID).valueChanges()
         .subscribe((aSolarSystem: any) => {
@@ -281,6 +312,7 @@ export class ColonyService {
         });
     });
   }
+  */
 
   //readColonyInventoryPromise
   rciP(){

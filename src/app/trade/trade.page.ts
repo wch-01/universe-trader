@@ -66,10 +66,10 @@ export class TradePage implements OnInit {
     private afs: AngularFirestore,
     private ionAlert: AlertController,
     public cs: CharacterService,
-    public us: UniverseService,
+    public uniS: UniverseService,
     public colonyS: ColonyService,
     public stationS: StationService,
-    public platform: PlatformService
+    public platform: PlatformService,
   ) { }
   //endregion
 
@@ -107,7 +107,8 @@ export class TradePage implements OnInit {
       case 'colony':
         this.marketInventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories/',
           ref =>
-            ref.where('ownerID', '==', this.colonyS.aColony.id)
+            ref.where('ownerID', '==', this.uniS.aSolarBody.id)
+              .where('ownerType', '==', 'colony')
         )
           .valueChanges({idField: 'id'})
           .subscribe((aMarketInventory: any) => {

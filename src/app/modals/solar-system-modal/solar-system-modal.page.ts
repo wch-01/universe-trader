@@ -5,7 +5,7 @@ import {UniverseService} from '../../services/universe/universe.service';
 import {ModalController} from '@ionic/angular';
 import {take} from 'rxjs/operators';
 import {SolarBodyModalPage} from '../solar-body-modal/solar-body-modal.page';
-import {PlatformService} from "../../services/platform/platform.service";
+import {PlatformService} from '../../services/platform/platform.service';
 
 @Component({
   selector: 'app-solar-system-modal',
@@ -86,7 +86,7 @@ export class SolarSystemModalPage implements OnInit {
     this.uniS.readSolarSystem(this.id).pipe(take(1)).subscribe((solarSystem: SolarSystem) => {
       this.aSolarSystem= solarSystem;
     });
-    this.uniS.readSSSolarBodies(this.id).pipe(take(1)).subscribe((aSolarBodies: any) => {
+    this.uniS.readSSSolarBodies(this.id).subscribe((aSolarBodies: any) => {
       this.aFilteredSolarBodies= aSolarBodies;
     });
   }

@@ -22,6 +22,7 @@ export class CharacterService {
   aUserShips: any;
   characterShipsSub;
   aCharacterShips: any;
+  aCharacterWarehouses: any;
   aWarehouses: any;
   aLocation= {
     aSolarSystem: new SolarSystem(),
@@ -82,30 +83,21 @@ export class CharacterService {
             .valueChanges({idField: 'id'})
             .pipe(take(1))
             .subscribe((aSolarBody: any) => {
-              //Colony
-              this.afs.collection('servers/' + this.ss.activeServer + '/universe',
-                ref =>
-                  ref.where('solarBodyID', '==', aSolarBody[0].id)
-              )
-                .valueChanges({idField: 'id'})
-                .pipe(take(1))
-                .subscribe((aColony: any) => {
-                  //region Set Character Clone Location
-                  this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(characterID).update({
-                    solarSystemID: aSolarSystem[0].id,
-                    solarBodyID: aSolarBody[0].id
-                  });
-                  //endregion
+              //region Set Character Clone Location
+              this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(characterID).update({
+                solarSystemID: aSolarSystem[0].id,
+                solarBodyID: aSolarBody[0].id
+              });
+              //endregion
 
-                  //Fire Ship, Warehouse, and Pulsars Promise
-                  Promise.all([
-                    this.createStarterShip(aSolarSystem[0], aSolarBody[0]),
-                    this.createStarterWarehouse(aSolarSystem[0].id, aSolarBody[0].id, aColony[0].id),
-                    this.startingCharacterFunds()
-                  ])
-                    .then((promiseAllResult: any) => {
-                      resolve(true);
-                    });
+              //Fire Ship, Warehouse, and Pulsars Promise
+              Promise.all([
+                this.createStarterShip(aSolarSystem[0], aSolarBody[0]),
+                this.createStarterWarehouse(aSolarSystem[0].id, aSolarBody[0].id),
+                this.startingCharacterFunds()
+              ])
+                .then((promiseAllResult: any) => {
+                  resolve(true);
                 });
             });
         });
@@ -213,7 +205,7 @@ export class CharacterService {
     });
   }
 
-  createStarterWarehouse(solarSystemID, solarBodyID, colonyID){
+  createStarterWarehouse(solarSystemID, solarBodyID){
     return new Promise((resolve, reject) => {
       //region Get Default Warehouse
       this.afs.collection('servers/' + this.ss.activeServer + '/zStartingGear')
@@ -231,7 +223,6 @@ export class CharacterService {
           aWarehouse.ownerID= this.id;
           aWarehouse.solarSystem= solarSystemID;
           aWarehouse.solarBody= solarBodyID;
-          aWarehouse.colonyID= colonyID;
           this.afs.collection('servers/' + this.ss.activeServer + '/warehouses')
             .add(Object.assign({}, aWarehouse)).then((createWarehouseResult: any) => {
               /*
@@ -362,6 +353,9 @@ export class CharacterService {
     });
   }
 
+  /**
+   * Name: Read Character Ships
+   * */
   readCharacterShips(){
     return this.characterShipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/ships',
         ref => ref
@@ -396,6 +390,41 @@ export class CharacterService {
             });
 
           this.aCharacterShips.push(aShip);
+        });
+      });
+  }
+
+  /**
+   * Name: Read Character Warehouses
+   * */
+  rCharacterWarehouses(){
+    return this.characterShipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/warehouses',
+      ref => ref
+        .where('ownerID', '==', this.id))
+      .valueChanges({idField:'id'})
+      .subscribe(aWarehouses=>{
+        this.aCharacterWarehouses= [];//Reset the Character ship list each time the DB has changes.
+        aWarehouses.some((aWarehouse: any)=> {
+          const aSolarSystem= this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+            .doc(aWarehouse.solarSystem).valueChanges({idField:'id'})
+            .subscribe((solarSystem: any)=>{
+              const solarSystemName= solarSystem.name;
+              aWarehouse.solarSystemName= solarSystemName;
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('Character Service: readCharacterShips');
+              }
+              if(this.ss.aRules.consoleLogging.mode >= 2){
+                console.log(solarSystemName);
+              }
+            });
+
+          const aSolarBodyQuery= this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+            .doc(aWarehouse.solarBody).valueChanges({idField:'id'})
+            .subscribe((aSolarBody: any)=>{
+              aWarehouse.solarBodyName= aSolarBody.name;
+            });
+
+          this.aCharacterWarehouses.push(aWarehouse);
         });
       });
   }

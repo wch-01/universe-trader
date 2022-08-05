@@ -10,11 +10,14 @@ export class SolarBodyService {
   solarBodyID;
   //endregion
 
+  //region Constructor
   constructor(
     private afs: AngularFirestore,
     private ss: ServerService
   ) { }
+  //endregion
 
+  //region Read
   readSolarBody(){
     return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
       .doc(this.solarBodyID).valueChanges({idField:'id'});
@@ -35,4 +38,13 @@ export class SolarBodyService {
     )
       .valueChanges({idField:'id'});
   }
+
+  readInventory(){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
+      ref =>
+        ref.where('ownerID', '==', this.solarBodyID)
+    )
+      .valueChanges({idField:'id'});
+  }
+  //endregion
 }

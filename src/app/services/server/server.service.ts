@@ -32,7 +32,7 @@ export class ServerService {
   aDCMI;
   aRules= new Rules();
   aDStructures: any;
-  aaDStructures= new Structures();
+  aaDStructures: { [key: string]: Structures } = {};// { [key: string]: Item } = {};
   aActiveServers;
   //endregion
 
@@ -200,16 +200,13 @@ export class ServerService {
       ){
         //Stored Rules are good
         this.aDStructures= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_structures'));
-        this.aDStructures.some((aRule: any) => {
-          this.aaDStructures[aRule.name]= aRule;
+        this.aDStructures.some((aDStructure: any) => {
+          this.aaDStructures[aDStructure.name]= aDStructure;
         });
         resolve(true);
       }
       else{
-        this.afs.collection('servers/' + this.activeServer +'/zStructures',
-          ref =>
-            ref.where('type', '!=', 'storage')
-        )
+        this.afs.collection('servers/' + this.activeServer +'/zStructures')
           .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aDStructures: any) =>{
@@ -306,7 +303,7 @@ export class ServerService {
     this.aDefaultItems= new DefaultItems();
     //this.aRules= new Rules();
     this.aDStructures= undefined;
-    this.aaDStructures= new Structures();
+    this.aaDStructures= undefined;
     this.serverBoot= undefined;
     this.aActiveServers= undefined;
   }

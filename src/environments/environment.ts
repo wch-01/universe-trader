@@ -1,18 +1,19 @@
+export const environment = {
+  firebase: {
+    apiKey: 'AIzaSyDwrZL5qrCDouL-2SmyOzbyn01aqHeF1vU',
+    authDomain: 'universe-trader-dev.firebaseapp.com',
+    projectId: 'universe-trader-dev',
+    storageBucket: 'universe-trader-dev.appspot.com',
+    messagingSenderId: '384755449464',
+    appId: '1:384755449464:web:869aba43a3092dac3c378d'
+  },
+  production: false,
+  name: 'development'
+};
+
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
-
-export const environment = {
-  firebase: {
-    apiKey: 'AIzaSyBIaT39CSLfsZJOTLGeJQm2623qNeTmc1w',
-    authDomain: 'universe-trader-6f8f2.firebaseapp.com',
-    projectId: 'universe-trader-6f8f2',
-    storageBucket: 'universe-trader-6f8f2.appspot.com',
-    messagingSenderId: '950442984528',
-    appId: '1:950442984528:web:8cac074ee7c37e76befd55'
-  },
-  production: false
-};
 
 /*
  * For easier debugging in development mode, you can import the following file

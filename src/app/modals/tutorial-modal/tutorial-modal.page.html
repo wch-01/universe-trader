@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Tutorials</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="id === 'dashboard'">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-header>Dashboard Tutorial</ion-card-header>
+    </ion-card-header>
+    <ion-card-content>
+      This is your dashboard page. Here you can see a full list of all your ships and warehouses.
+      By clicking on the ship's name you will gain access to that ships details and give it specific instructions.
+      On the warehouse tab, you can transfer your clone to any other warehouse you own, allowing you to perform actions in that area.
+    </ion-card-content>
+  </ion-card>
+</ion-content>

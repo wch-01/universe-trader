@@ -11,6 +11,7 @@ import {Router} from '@angular/router';
 import {HousekeepingService} from '../services/housekeeping/housekeeping.service';
 import {take} from 'rxjs/operators';
 import {PlatformService} from '../services/platform/platform.service';
+import {TutorialModalPage} from "../modals/tutorial-modal/tutorial-modal.page";
 
 
 @Component({
@@ -56,6 +57,7 @@ export class DashboardPage implements OnInit {
           this.cs.rcP().then(
             rcpRes => {
               this.cs.readCharacterShips();
+              this.cs.rCharacterWarehouses();
             },
             rcpError =>{
               console.log('No character found.');
@@ -74,6 +76,7 @@ export class DashboardPage implements OnInit {
         this.cs.rcP().then(
           rcpRes => {
             this.cs.readCharacterShips();
+            this.cs.rCharacterWarehouses();
           },
           rcpError =>{
             console.log('No character found.');
@@ -83,6 +86,7 @@ export class DashboardPage implements OnInit {
       }
       else{
         this.cs.readCharacterShips();
+        this.cs.rCharacterWarehouses();
       }
     }
   }
@@ -142,4 +146,22 @@ export class DashboardPage implements OnInit {
     //await this.router.navigate(['/ship', aShip]);// Used this for a while, but want to get away from url params
     await this.router.navigate(['/ship']);
   }
+
+  transfer(aWarehouse){
+    this.afs.collection('servers/'+this.ss.activeServer+'/characters')
+      .doc(this.cs.id)
+      .update({solarBodyID: aWarehouse.solarBody, solarSystemID: aWarehouse.solarSystem});
+  }
+
+  //region Other
+  async viewTutorial(){
+    const shipModal= await this.modalController.create({
+      component: TutorialModalPage,
+      componentProps: {id: 'dashboard'},
+      cssClass: 'ship_modal',
+      showBackdrop: true
+    });
+    return await shipModal.present();
+  }
+  //endregion
 }

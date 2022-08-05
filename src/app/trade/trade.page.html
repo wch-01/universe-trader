@@ -5,24 +5,36 @@
     <ion-col>
       <ion-card>
         <ion-card-content>
-          <ion-icon name="wallet-outline" style="display:block;"></ion-icon>
+          <ion-item>
+            <ion-label position="stacked"><ion-icon name="wallet-outline"></ion-icon> Pulsars</ion-label>
+            <ion-item class="ion-no-padding" lines="none">
+              <ion-label>{{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon></ion-label>
+            </ion-item>
+          </ion-item>
+
             <!--
             Pulsar Balance: {{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditIcon-3.svg"></ion-icon>
             <br />
             -->
-          Pulsar Balance: {{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon>
+          <!--Pulsar Balance: {{cs.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon>-->
         </ion-card-content>
       </ion-card>
     </ion-col>
     <ion-col>
       <ion-card>
         <ion-card-content>
-          <span *ngIf="trader === 'ship'">
-            Ship Capacity: {{capacityAvailable}}
-          </span>
-          <span *ngIf="trader === 'warehouse'">
-            Warehouse Capacity: {{capacityAvailable}}
-          </span>
+          <ion-item *ngIf="trader === 'ship'">
+            <ion-label position="stacked">Ship Capacity</ion-label>
+            <ion-item class="ion-no-padding" lines="none">
+              <ion-label>{{capacityAvailable}}</ion-label>
+            </ion-item>
+          </ion-item>
+          <ion-item *ngIf="trader === 'warehouse'">
+            <ion-label position="stacked">Warehouse Capacity</ion-label>
+            <ion-item class="ion-no-padding" lines="none">
+              <ion-label>{{capacityAvailable}}</ion-label>
+            </ion-item>
+          </ion-item>
         </ion-card-content>
       </ion-card>
     </ion-col>

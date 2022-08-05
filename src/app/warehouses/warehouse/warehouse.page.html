@@ -32,16 +32,20 @@
     <ion-card-content>
       <ion-grid>
         <ion-row>
-          <ion-col>
+          <ion-col size="1">
             <ion-item>
-              <ion-note slot="helper">name</ion-note>
-              <ion-label>Warehouse</ion-label>
+              <ion-label position="stacked">name</ion-label>
+              <ion-item class="ion-no-padding" lines="none">
+                <ion-label>warehouse</ion-label>
+              </ion-item>
             </ion-item>
           </ion-col>
           <ion-col>
             <ion-item>
-              <ion-note slot="helper">capacity</ion-note>
-              <ion-label *ngIf="capReady">{{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}</ion-label>
+              <ion-label position="stacked">capacity</ion-label>
+              <ion-item>
+                <ion-label *ngIf="capReady">{{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}</ion-label>
+              </ion-item>
             </ion-item>
           </ion-col>
         </ion-row>
@@ -62,7 +66,7 @@
       </ion-row>
       <ion-row *ngFor="let aItem of ws.aInventory; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
         <ion-col>
-          {{aItem.displayName}}
+          {{aItem.reference.displayName}}
         </ion-col>
         <ion-col>
           {{aItem.quantity | number}}
@@ -74,7 +78,7 @@
           {{aItem.cost | number}}
         </ion-col>
         <ion-col>
-          {{aItem.type}}
+          {{aItem.reference.type}}
         </ion-col>
         <ion-col>
           <span *ngIf="aItem.type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
@@ -88,7 +92,7 @@
             <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
           </span>
           <span *ngIf="aItem.type === 'Prepared Module'">
-            <ion-button (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
+            <ion-button *ngIf="aItem.level < 10" (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
 
             <!--
             <ion-item>

@@ -46,7 +46,11 @@ export class UniverseService {
     {
       label: 'Secondary Resource',
       filter: 'resourceTwo'
-    }
+    },
+    {
+      label: 'Population',
+      filter: 'colonyPopulation'
+    },
   ];
   //endregion
 
@@ -135,6 +139,25 @@ export class UniverseService {
     });
   }
 
+  readSolarSystem(id){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+      .doc(id).valueChanges({idField:'id'});
+    /*
+    .subscribe((solarSystem: SolarSystem)=>{
+      this.aSolarSystem= solarSystem;
+    });
+  */
+  }
+
+  readSolarBodies(){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+      ref =>
+        ref.where('type', '==', 'solarBody')
+          .where('colony', '==', true)
+    )
+      .valueChanges({idField:'id'});
+  }
+
   rpSolarBodies(){
     return new Promise((resolve, reject) => {
       if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_universe_solar_bodies')
@@ -173,6 +196,14 @@ export class UniverseService {
           resolve(aSolarBody);
         });
     });
+  }
+
+  readSolarBody(id){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
+      .doc(id).valueChanges({idField:'id'})
+      .subscribe((solarBody: SolarBody)=>{
+        this.aSolarBody= solarBody;
+      });
   }
 
   /**
@@ -239,51 +270,13 @@ export class UniverseService {
             resolve(aColonies[0]);
           }
           else{
-            reject('No Colony Found');
+            reject('unis: No Colony Found');
           }
         });
     });
   }
 
-  //Read Solar System Promise
-  rssP(id){
-    return new Promise((resolve, reject) => {
-      this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-        .doc(id).valueChanges({idField:'id'}).pipe(take(1))
-        .subscribe((aSolarSystem: SolarSystem)=>{
-          this.aSolarSystem= aSolarSystem;
-          resolve(true);
-        });
-    });
-  }
-  readSolarSystem(id){
-    return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-      .doc(id).valueChanges({idField:'id'});
-      /*
-      .subscribe((solarSystem: SolarSystem)=>{
-        this.aSolarSystem= solarSystem;
-      });
-    */
-  }
 
-  //Read Solar Body Promise
-  rsbP(id){
-    return new Promise((resolve, reject) => {
-      this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-        .doc(id).valueChanges({idField:'id'}).pipe(take(1))
-        .subscribe((aSolarBody: SolarBody)=>{
-          this.aSolarBody= aSolarBody;
-          resolve(true);
-        });
-    });
-  }
-  readSolarBody(id){
-    return this.afs.collection('servers/' + this.ss.activeServer + '/universe')
-      .doc(id).valueChanges({idField:'id'})
-      .subscribe((solarBody: SolarBody)=>{
-        this.aSolarBody= solarBody;
-      });
-  }
 
   //Read Colony
   readColony(id){

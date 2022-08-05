@@ -97,7 +97,7 @@ export class BusinessCreationPage implements OnInit {
       // aStructure.solarSystemName= this.ws.aWarehouse;
 
       this.afs.collection('servers/'+this.ss.activeServer+'/businesses').add(aStructure).then(() => {
-        this.gs.toastMessage('Business Constructed', 'danger');
+        this.gs.toastMessage('Business Constructed', 'success');
         this.modal.dismiss('cancel');
       });
     }

@@ -6,6 +6,7 @@ import {UniverseService} from '../services/universe/universe.service';
 import {WarehouseService} from '../services/warehouse/warehouse.service';
 import {ColonyService} from '../services/colony/colony.service';
 import {Router} from '@angular/router';
+import {ControlRoomService} from '../services/control-room/control-room.service';
 
 @Component({
   selector: 'app-control-room',
@@ -28,6 +29,7 @@ export class ControlRoomPage implements OnInit {
     public colonyS: ColonyService,
     public us: UniverseService,
     private router: Router,
+    private crS: ControlRoomService
   ) { }
   //endregion
 
@@ -35,18 +37,7 @@ export class ControlRoomPage implements OnInit {
     if(!this.charS.aCharacter){
       this.charS.rcP().then(
         rcpRes => {
-          //this.router.navigate(['/dashboard']);
-          console.log(this.charS.aCharacter);
-          this.us.readSolarSystem(this.charS.aCharacter.solarSystemID);
-          this.us.readSolarBody(this.charS.aCharacter.solarBodyID);
-          //this.findWarehouseID();
-          this.warehouseS.fwIDP(this.charS.aCharacter.solarBodyID, this.charS.id).then((fwIDPRes: any) => {
-            this.warehouseID= this.warehouseS.id;
-            this.warehouseBoot= true;
-          });
-          this.colonyS.fcIDP(this.charS.aCharacter.solarBodyID).then((fcIDPRes: any) => {
-            this.colonyS.readColony(this.colonyS.colonyID);
-          });
+          this.rControlRoom();
         },
         rcpError =>{
           console.log('No character found.');
@@ -55,17 +46,31 @@ export class ControlRoomPage implements OnInit {
       );
     }
     else{
-      console.log(this.charS.aCharacter);
-      this.us.readSolarSystem(this.charS.aCharacter.solarSystemID);
-      this.us.readSolarBody(this.charS.aCharacter.solarBodyID);
-      //this.findWarehouseID();
-      this.warehouseS.fwIDP(this.charS.aCharacter.solarBodyID, this.charS.id).then((fwIDPRes: any) => {
-        this.warehouseID= this.warehouseS.id;
+      this.rControlRoom();
+    }
+  }
+
+  /**
+   * Name: Read Control Room
+   * */
+  rControlRoom(){
+    Promise.all([
+      this.us.rpSS(this.charS.aCharacter.solarSystemID),
+      this.us.rpSB(this.charS.aCharacter.solarBodyID),
+      this.crS.fwIDP(this.charS.aCharacter.solarBodyID, this.charS.id)
+    ])
+      .then(() => {
+        this.warehouseID= this.crS.warehouseID;
         this.warehouseBoot= true;
       });
-      this.colonyS.fcIDP(this.charS.aCharacter.solarBodyID).then((fcIDPRes: any) => {
-        this.colonyS.readColony(this.colonyS.colonyID);
-      });
-    }
+    /*
+    this.crS.fwIDP(this.charS.aCharacter.solarBodyID, this.charS.id).then((fwIDPRes: any) => {
+      this.warehouseID= this.crS.warehouseID;
+      this.warehouseBoot= true;
+    });
+    this.colonyS.fcIDP(this.charS.aCharacter.solarBodyID).then((fcIDPRes: any) => {
+      this.colonyS.readColony(this.colonyS.colonyID);
+    });
+    */
   }
 }

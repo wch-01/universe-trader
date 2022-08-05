@@ -1,0 +1,159 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Command Center</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="ordersLoaded">
+    <ion-card-header>
+      <ion-card-title>Level: {{shipS.aShip.moduleCommandCenterLevel}}</ion-card-title>
+      <ion-card-subtitle>Max Orders: {{shipS.aShip.moduleCommandCenterLevel * 5}}</ion-card-subtitle>
+      <ion-card-subtitle>
+        Current: {{aOrders.length}} / {{shipS.aShip.moduleCommandCenterLevel * 5}}
+
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            Rearrange
+          </ion-col>
+          <ion-col size="1">
+            Command Order
+          </ion-col>
+          <ion-col size="1">
+            Type
+          </ion-col>
+          <ion-col>
+            Settings
+          </ion-col>
+          <ion-col>
+            Remove
+          </ion-col>
+        </ion-row>
+
+        <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
+        <ion-row *ngFor="let aOrder of aOrders; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col size="1">
+            <ion-reorder></ion-reorder>
+          </ion-col>
+          <ion-col size="1">
+            {{i + 1}}
+          </ion-col>
+          <ion-col size="1">
+            <ion-item>
+              <ion-label position="floating">Order</ion-label>
+              <ion-select [(ngModel)]="aOrder.type">
+                <ion-select-option value="travel">Travel</ion-select-option>
+                <ion-select-option value="buy">Buy</ion-select-option>
+                <ion-select-option value="sell">Sell</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
+          <ion-col>
+            <span *ngIf="aOrder.type === 'travel'">
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label position="floating">Solar System: {{aOrder.destSSName}}</ion-label>
+                      <ion-select
+                        name="solar_system"
+                        [(ngModel)]="aOrder.aDestSS"
+                        (ngModelChange)="readSSSolarBodies(aOrder.aDestSS); aOrder.destSSName= aOrder.aDestSS.name"
+                        class="solar-system-select"
+                        [interfaceOptions]="{'cssClass':'wider-popover'}"
+                      >
+                        <ion-select-option *ngFor="let solarSystem of aUniverse | async" [value]="solarSystem">
+                          {{solarSystem.name}}: {{solarSystem.xCoordinate}}, {{solarSystem.yCoordinate}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label position="floating">Solar Body: {{aOrder.destSBName}}</ion-label>
+                      <ion-select
+                        name="solar_body"
+                        [(ngModel)]="aOrder.aDestSB"
+                        (ngModelChange)="aOrder.destSBName= aOrder.aDestSB.name"
+                        class="solar-system-select"
+                        [interfaceOptions]="{'cssClass':'wider-popover'}"
+                      >
+                        <ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody">
+                          {{solarBody.name}}: {{solarBody.xCoordinate}}, {{solarBody.yCoordinate}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </span>
+            <span *ngIf="aOrder.type === 'buy' || aOrder.type === 'sell'">
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label position="floating">Item</ion-label>
+                      <ion-select
+                        name="solar_system"
+                        [(ngModel)]="aOrder.item"
+                      >
+                      <!--
+                        <ion-select-option *ngFor="let aItem of aUniverse | async" [value]="aItem.name">
+                          {{aItem.displayName}}
+                        </ion-select-option>
+                      -->
+                      <ion-select-option value="power">Power</ion-select-option>
+                      <ion-select-option value="mre">MRE</ion-select-option>
+                      <ion-select-option value="ore">Ore</ion-select-option>
+                      <ion-select-option value="silicone">Silicone</ion-select-option>
+                      <ion-select-option value="metal">Metal</ion-select-option>
+                      <ion-select-option value="electronics">Electronics</ion-select-option>
+                    </ion-select>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label position="floating">
+                        Amount
+                      </ion-label>
+                      <ion-input type="number" [max]="shipS.capacityAvailable" [(ngModel)]="aOrder.quantity"></ion-input>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </span>
+          </ion-col>
+          <ion-col>
+            <ion-button (click)="deleteOrder(aOrder.id)" color="danger">
+              Delete Order
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        </ion-reorder-group>
+      </ion-grid>
+
+      <ion-button *ngIf="aOrders.length < (shipS.aShip.moduleCommandCenterLevel * 5)" (click)="addOrder()">
+        Add Order
+      </ion-button>
+
+      <ion-button (click)="updateOrders()">
+        update orders
+      </ion-button>
+
+      <ion-button (click)="activateOrders()" *ngIf="this.shipS.aShip.orders === false || this.shipS.aShip.orders === undefined">
+        activate orders
+      </ion-button>
+      <ion-button (click)="cancelOrders()" *ngIf="this.shipS.aShip.orders === true">
+        cancel orders
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

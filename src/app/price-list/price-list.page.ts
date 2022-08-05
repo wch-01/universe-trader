@@ -8,6 +8,7 @@ import {take} from 'rxjs/operators';
 import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
 import {ModalController} from '@ionic/angular';
 import {PlatformService} from '../services/platform/platform.service';
+import {SolarBodyModalPage} from '../modals/solar-body-modal/solar-body-modal.page';
 const moment= require('moment');
 
 @Component({
@@ -79,7 +80,7 @@ export class PriceListPage implements OnInit, OnDestroy {
             '> ' + this.ss.lastUpdate.universeUpdated);
         }
       }
-      this.coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
+      this.coloniesSub= this.us.readSolarBodies().subscribe((aColonies: any) => {
         this.aColonies= aColonies;
         console.log(aColonies);
         this.aColonies.some((aColony: any) => {
@@ -186,6 +187,17 @@ export class PriceListPage implements OnInit, OnDestroy {
     });
 
     return await colonyModal.present();
+  }
+
+  async viewSolarBody(aSolarBody){
+    const solarBodyModal = await this.modalController.create({
+      component: SolarBodyModalPage,
+      componentProps: {id:aSolarBody.id},
+      cssClass: 'custom-modal',
+      showBackdrop: false
+    });
+
+    return await solarBodyModal.present();
   }
 
   ngOnDestroy() {

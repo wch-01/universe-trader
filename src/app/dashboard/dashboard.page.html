@@ -4,9 +4,12 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Dashboard</ion-title>
-
+    <ion-buttons slot="end">
+      <ion-button (click)="viewTutorial()">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
     <!--<ion-segment (ionChange)="segmentChanged($event)" value="ships">-->
-
   </ion-toolbar>
 
   <ion-segment [(ngModel)]="segment">
@@ -58,29 +61,27 @@
       </ion-title>
     </ion-card-header>
     <ion-card-content>
-      <!--
       <ion-list>
         <ion-item>
           <ion-label>Name</ion-label>
-          <ion-label>Status</ion-label>
-          <ion-label>View</ion-label>
+          <ion-label>Solar System</ion-label>
+          <ion-label>Solar Body</ion-label>
+          <ion-item>Transfer Clone</ion-item>
         </ion-item>
-        <ion-item *ngFor="let ship of characterShips | async">
-          <ion-label>{{ship.name}}</ion-label>
-          <ion-label>{{ship.status}}</ion-label>
-          <ion-label>WIP</ion-label>
+
+
+        <ion-item *ngFor="let aWarehouse of cs.aCharacterWarehouses">
+          <ion-label>{{aWarehouse.name}}</ion-label>
+          <ion-label>{{aWarehouse.solarSystemName}}</ion-label>
+          <ion-label>{{aWarehouse.solarBodyName}}</ion-label>
+          <ion-item>
+            <ion-button *ngIf="cs.aCharacter.solarBodyID !== aWarehouse.solarBody; else currentLocation" (click)="transfer(aWarehouse)" color="primary">Transfer Clone</ion-button>
+            <ng-template #currentLocation>
+              Current Location
+            </ng-template>
+          </ion-item>
         </ion-item>
       </ion-list>
-      -->
-      <h1>Planned Features</h1>
-      <ul>
-        <li>
-          List of Owned Warehouses
-        </li>
-        <li>
-          Ability to Transfer clone to warehouse to operate from that Control Room
-        </li>
-      </ul>
     </ion-card-content>
   </ion-card>
 </ion-content>

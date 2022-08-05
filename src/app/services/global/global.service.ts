@@ -57,5 +57,9 @@ export class GlobalService {
         });
       });
   }
+
+  formatTimeStamp(timeStamp){
+    return moment.unix(timeStamp).format('HH:mm:ss');
+  }
   //endregion
 }

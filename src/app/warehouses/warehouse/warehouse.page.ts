@@ -216,18 +216,9 @@ export class WarehousePage implements OnInit, OnDestroy {
     const confirmTradeAlert = await this.ionAlert.create({
       cssClass: '',
       header: 'Upgrade Module',
-      subHeader: 'Consumes One ' + aItem.displayName + ' module per level',
-      message: 'Input desired level, max 10.',
-      inputs: [
-        {
-          name: 'level',
-          label: 'Desired Level',
-          type: 'number',
-          placeholder: '10',
-          min: minLevel,
-          max: 10
-        }
-      ],
+      subHeader: 'Upgrading ' + aItem.displayName + ' to level ' + minLevel,
+      message: 'Will consume ' + minLevel + ' ' + aItem.displayName + ' un-prepared modules',
+      inputs: [],
       buttons: [
         {
           text: 'Cancel',
@@ -240,7 +231,7 @@ export class WarehousePage implements OnInit, OnDestroy {
         {
           text: 'Confirm',
           handler: (data: any) => {
-            this.upgradeModule(data, aItem);
+            this.upgradeModule(minLevel, aItem);
           }
         }
       ]
@@ -249,8 +240,8 @@ export class WarehousePage implements OnInit, OnDestroy {
     await confirmTradeAlert.present();
   }
 
-  upgradeModule(data, aItem){
-    console.log(data);
+  upgradeModule(upgradeLevel, aItem){
+    console.log(upgradeLevel);
     console.log(aItem);
     this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
       ref =>
@@ -261,9 +252,9 @@ export class WarehousePage implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe((aItems: any) => {
         if(aItems.length > 0){
-          if(aItems[0].quantity >= data.level){
+          if(aItems[0].quantity >= upgradeLevel){
             const cog= +aItems[0].cost / +aItems[0].quantity;
-            aItems[0].quantity= +aItems[0].quantity - data.level;
+            aItems[0].quantity= +aItems[0].quantity - upgradeLevel;
             aItems[0].cost= +aItems[0].quantity * +cog;
 
             if(aItems[0].quantity === 0){
@@ -275,7 +266,7 @@ export class WarehousePage implements OnInit, OnDestroy {
             }
 
             this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aItem.id)
-              .update({level: data.level});
+              .update({level: upgradeLevel});
           }
           else{
             this.toastMessage('Not enough Spare Modules Available', 'danger');

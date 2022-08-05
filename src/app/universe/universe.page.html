@@ -12,9 +12,11 @@
     <ion-segment-button value="solarBodies">
       <ion-label>Solar Bodies</ion-label>
     </ion-segment-button>
+    <!--
     <ion-segment-button value="colonies">
       <ion-label>Colonies</ion-label>
     </ion-segment-button>
+    -->
   </ion-segment>
 </ion-header>
 
@@ -62,8 +64,6 @@
         <ion-row *ngFor="let solarSystem of aFilteredUniverse">
           <!--<ion-col>{{solarSystem.id}}</ion-col>-->
           <ion-col>{{solarSystem.name}}</ion-col>
-          <ion-col>{{solarSystem.resourceOne}}</ion-col>
-          <ion-col>{{solarSystem.resourceTwo}}</ion-col>
           <ion-col>{{solarSystem.solarYield}}</ion-col>
           <ion-col>{{solarSystem.xCoordinate}}</ion-col>
           <ion-col>{{solarSystem.yCoordinate}}</ion-col>

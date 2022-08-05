@@ -37,6 +37,7 @@ export class UniversePage implements OnInit, OnDestroy {
       label: 'Name',
       filter: 'name'
     },
+    /*
     {
       label: 'Primary Export',
       filter: 'resourceOne'
@@ -45,6 +46,7 @@ export class UniversePage implements OnInit, OnDestroy {
       label: 'Secondary Export',
       filter: 'resourceTwo'
     },
+    */
     {
       label: 'Solar Yield',
       filter: 'solarYield'
@@ -207,8 +209,10 @@ export class UniversePage implements OnInit, OnDestroy {
     this.aFilteredUniverse= this.uniS.aSolarSystems.filter((aUniverse) =>
       /*aUniverse.id.toLowerCase().indexOf(this.aSolarSystemFilters.id.toLowerCase()) > -1 */
         aUniverse.name.toLowerCase().indexOf(this.aSolarSystemFilters.name.toLowerCase()) > -1
+      /*
         && aUniverse.resourceOne.toLowerCase().indexOf(this.aSolarSystemFilters.resourceOne.toLowerCase()) > -1
         && aUniverse.resourceTwo.toLowerCase().indexOf(this.aSolarSystemFilters.resourceTwo.toLowerCase()) > -1
+      */
         && aUniverse.solarYield.toString().toLowerCase().indexOf(this.aSolarSystemFilters.solarYield.toLowerCase()) > -1
         && aUniverse.xCoordinate.toString().toLowerCase().indexOf(this.aSolarSystemFilters.xCoordinate.toLowerCase()) > -1
         && aUniverse.yCoordinate.toString().toLowerCase().indexOf(this.aSolarSystemFilters.yCoordinate.toLowerCase()) > -1);

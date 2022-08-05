@@ -19,6 +19,14 @@ const routes: Routes = [
   {
     path: 'ship-warehouse',
     loadChildren: () => import('./ship-warehouse/ship-warehouse.module').then( m => m.ShipWarehousePageModule)
+  },
+  {
+    path: 'ship-orders',
+    loadChildren: () => import('./ship-orders/ship-orders.module').then( m => m.ShipOrdersPageModule)
+  },
+  {
+    path: 'ship-orders-modal',
+    loadChildren: () => import('./ship-orders-modal/ship-orders-modal.module').then( m => m.ShipOrdersModalPageModule)
   }
 ];
 

@@ -13,6 +13,7 @@ import {HousekeepingService} from './services/housekeeping/housekeeping.service'
 import {GlobalService} from './services/global/global.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {take} from 'rxjs/operators';
+import {environment} from '../environments/environment';
 
 // @ts-ignore
 const moment= require('moment');
@@ -50,6 +51,7 @@ export class AppComponent {
   ];
   aAM;
   aAppStatus;
+  projectName= environment.name;
   //endregion
 
   //region Constructor
@@ -124,36 +126,6 @@ export class AppComponent {
         this.bootDone= Promise.resolve(true);
       }
     });
-
-    // this.globalMessages();
-
-    /*
-    this.bootDone= Promise.resolve(true);
-    if(!this.ss.activeServer){
-      console.log('No server Selected.');
-      this.router.navigate(['/servers']);
-    }
-    else{
-      console.log('AppC Boot Server');
-      this.ss.bootServer().then(
-        bsRes => {
-          this.cs.rcP().then(
-            rcpRes => {
-              console.log('AppC: Found Character loading requested page');
-            },
-            rcpError =>{
-              console.log('No character found.');
-              this.router.navigate(['/character']);
-            }
-          );
-        },
-        bsError =>{
-          console.log('Server Boot Failed');
-          this.router.navigate(['/servers']);
-        }
-      );
-    }
-    */
   }
   //endregion
 

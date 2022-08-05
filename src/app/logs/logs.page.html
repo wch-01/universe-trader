@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>logs</ion-title>
+  </ion-toolbar>
+  <ion-segment [(ngModel)]="logTab">
+    <ion-segment-button value="transactions">
+      <ion-label>Transactions</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="notifications">
+      <ion-label>Notifications</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-header>
+
+<span [ngSwitch]="logTab">
+  <ion-grid *ngSwitchCase="'transactions'">
+    <ion-row>
+      <ion-col>Type</ion-col>
+      <ion-col>Item</ion-col>
+      <ion-col>Quantity</ion-col>
+      <ion-col>Profit/Loss</ion-col>
+      <ion-col><ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon>Balance</ion-col>
+      <ion-col>Time</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let aTransaction of aTransactions; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+      <ion-col>{{aTransaction.type}}</ion-col>
+      <ion-col>{{aTransaction.item}}</ion-col>
+      <ion-col>{{aTransaction.quantity | number}}</ion-col>
+      <ion-col>{{aTransaction.pl | number}}</ion-col>
+      <ion-col>{{aTransaction.balance | number}}</ion-col>
+      <ion-col>{{globalS.formatTimeStamp(aTransaction.time)}}</ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngSwitchCase="'notifications'">
+    <ion-row>
+      <ion-col>Message</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let aNotification of aNotifications; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+      <ion-col>{{aNotification.type}}</ion-col>
+    </ion-row>
+  </ion-grid>
+</span>
