@@ -4,7 +4,6 @@
     <ion-menu contentId="main-content" ><!--*ngIf="userLoggedIn | async"-->
       <ion-content>
         <ion-list id="character-details">
-
           <span #notLoggedIn *ngIf="!authService.userLoggedIn">
             <ion-list-header>Welcome Captain</ion-list-header>
             <ion-note>
@@ -123,15 +122,15 @@
         -->
         <ion-card style="margin: 0; text-align: center">
           <ion-card-header>
-            <ion-card-title>{{aAM.versionTitle}}</ion-card-title>
-            <ion-card-subtitle>{{aAM.versionSubTitle}}</ion-card-subtitle>
+            <ion-card-title>{{aAM.title}}</ion-card-title>
+            <ion-card-subtitle>{{aAM.subTitle}}</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content>
             <ion-grid>
               <ion-row>
                 <ion-col>
-                  <p>{{aAM.versionDescription}}</p>
-                  <p>Read all the details about the current version here: <a href="{{aAM.versionReleaseNotes}}" target="_blank">{{aAM.versionSubTitle}}</a> </p>
+                  <p>{{aAM.description}}</p>
+                  <p>Read all the details about the current version here: <a href="{{aAM.releaseNotes}}" target="_blank">{{aAM.subTitle}}</a> </p>
                 </ion-col>
               </ion-row>
               <ion-row>
@@ -163,7 +162,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}</p>
+                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}<span *ngIf="projectName === 'development'"> | {{projectName}}</span></p>
                 </ion-col>
               </ion-row>
             </ion-grid>

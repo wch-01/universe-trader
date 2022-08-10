@@ -1,0 +1,73 @@
+<ion-header>
+  <!--
+  <ion-toolbar>
+    <ion-title>logs</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('logs')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  -->
+  <ion-segment [(ngModel)]="logTab">
+    <ion-segment-button value="transactions" *ngIf="aTransactions">
+      <ion-label>Transactions</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="notifications" *ngIf="aNotifications">
+      <ion-label>Notifications</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-header>
+
+<span [ngSwitch]="logTab">
+  <ion-grid *ngSwitchCase="'transactions'">
+    <ion-row>
+      <ion-col *ngFor="let column of transactionLogsFields">
+        {{column.label}}
+        <span *ngIf="transactionLogsSortField === column.filter">
+          <ion-icon *ngIf="transactionLogsOrder === false" name="arrow-up-circle-outline"></ion-icon>
+          <ion-icon *ngIf="transactionLogsOrder === true" name="arrow-down-circle-outline"></ion-icon>
+        </span>
+      </ion-col>
+
+      <ion-col>
+        <ion-button id="nested-button"><ion-icon name="funnel-outline"></ion-icon></ion-button>
+        <ion-popover trigger="nested-button" [dismissOnSelect]="true">
+          <ng-template>
+            <ion-content>
+              <ion-list>
+                <ion-item [button]="true" [detail]="false" *ngFor="let column of transactionLogsFields">
+                  <ion-label (click)="sortSolarSystems(column.filter, transactionLogsOrder= !transactionLogsOrder)">{{column.label}}</ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+
+        <ion-button *ngIf="transactionLogsOrder === false" (click)="sortSolarSystems(transactionLogsSortField, transactionLogsOrder= !transactionLogsOrder)"><ion-icon name="arrow-up-circle-outline"></ion-icon></ion-button>
+        <ion-button *ngIf="transactionLogsOrder === true" (click)="sortSolarSystems(transactionLogsSortField, transactionLogsOrder= !transactionLogsOrder)"><ion-icon name="arrow-down-circle-outline"></ion-icon></ion-button>
+      </ion-col>
+
+    </ion-row>
+    <ion-row *ngFor="let aTransaction of aTransactions; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+      <ion-col>{{aTransaction.type}}</ion-col>
+      <ion-col>{{aTransaction.item}}</ion-col>
+      <ion-col>{{aTransaction.quantity | number}}</ion-col>
+      <ion-col>{{aTransaction.pl | number}}</ion-col>
+      <ion-col>{{aTransaction.balance | number}}</ion-col>
+      <ion-col>{{globalS.formatTimeStamp(aTransaction.time)}}</ion-col>
+      <ion-col></ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngSwitchCase="'notifications'">
+    <ion-row>
+      <ion-col>Message</ion-col>
+      <ion-col>Time</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let aNotification of aNotifications; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+      <ion-col>{{aNotification.type}}</ion-col>
+      <ion-col>{{globalS.formatTimeStamp(aNotification.time)}}</ion-col>
+    </ion-row>
+  </ion-grid>
+</span>

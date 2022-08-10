@@ -51,7 +51,7 @@ export class AuthenticationService {
           console.log(tokenResult.claims);
           this.user.claims= tokenResult.claims;
         });
-        this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().unix()});
+        this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().valueOf()});
         localStorage.setItem('user', JSON.stringify(userResponse));
       }
       else {
@@ -154,12 +154,12 @@ export class AuthenticationService {
                 //console.log('Record Does not Exist');
                 this.afs.collection('users/').doc(this.user.uid)
                   .set({
-                    lastLogin: moment().unix(),
+                    lastLogin: moment().valueOf(),
                     email: this.user.email
                   });
               }
               else{
-                this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().unix()});
+                this.afs.collection('users/').doc(this.user.uid).update({lastLogin: moment().valueOf()});
               }
               userSub.unsubscribe();
               this.userLoggedInP= Promise.resolve(true);

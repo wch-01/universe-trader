@@ -1,26 +1,59 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>businesses</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!--This page should always be included in another page.-->
 
-<ion-content>
-  <ion-card>
-    <ion-grid *ngIf="businessesLoaded">
+<ion-card *ngIf="ws.aWarehouse; else noWarehouse">
+  <ion-card-header>
+    <ion-toolbar>
+      <ion-card-title>
+        Businesses
+      </ion-card-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="globalS.viewTutorial('businesses')">
+          <ion-icon name="bulb-outline"></ion-icon>Tutorial
+        </ion-button>
+      </ion-buttons>
+      <ion-card-subtitle>
+        <span *ngIf="busS.aBusinesses">{{busS.aBusinesses.length}}</span> of 10 allowed
+      </ion-card-subtitle>
+      <ion-button *ngIf="newBAllowed" size="small" (click)="businessCreationModal()">
+        Start a new business
+      </ion-button>
+    </ion-toolbar>
+
+  </ion-card-header>
+
+  <ion-card-content>
+    <ion-grid>
       <ion-row>
-        <ion-col *ngFor="let business of busS.aBusinesses">
-          Business One
-        </ion-col>
-
-        <ion-col *ngIf="busS.aBusinesses.length < 10" style="border-style: dashed">
-          <ion-button (click)="businessCreationModal()">
-            Create a Business
-          </ion-button>
+        <ion-col *ngFor="let aBusiness of busS.aBusinesses" style="border-style: dashed;text-align: center" size="2">
+          <ion-grid>
+            <ion-col>
+              <ion-item>
+                <ion-note slot="start">name</ion-note>
+                <ion-label>{{aBusiness.displayName}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item>
+                <ion-note slot="start">Type</ion-note>
+                <ion-label>{{aBusiness.name}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item>
+                <ion-note slot="start">status</ion-note>
+                <ion-label>{{aBusiness.status}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-button (click)="viewBusinessModal(aBusiness)">Enter</ion-button>
+            </ion-col>
+          </ion-grid>
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ion-card>
-</ion-content>
+  </ion-card-content>
+</ion-card>
+
+<ng-template #noWarehouse>
+  No warehouse on planet. Please purchase a warehouse first
+</ng-template>

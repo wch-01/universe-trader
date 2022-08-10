@@ -139,6 +139,18 @@ const routes: Routes = [
     path: 'profile',
     loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   },
+  {
+    path: 'logs',
+    loadChildren: () => import('./logs/logs.module').then( m => m.LogsPageModule)
+  },
+  {
+    path: 'tutorial-modal',
+    loadChildren: () => import('./modals/tutorial-modal/tutorial-modal.module').then( m => m.TutorialModalPageModule)
+  },
+  {
+    path: 'wallet',
+    loadChildren: () => import('./wallet/wallet.module').then( m => m.WalletPageModule)
+  },
 
 
 

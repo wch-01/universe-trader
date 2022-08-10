@@ -4,6 +4,11 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Price List - Work in Progress</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('priceList')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -16,7 +21,7 @@
       <ion-grid *ngIf="pricesLoaded" style="text-align: center">
         <ion-row class="item-list-border">
           <ion-col size="1.5" style="border-right: solid">
-            Colonies
+            Solar Body
           </ion-col>
           <ion-col style="text-align: center;">
             Items
@@ -28,7 +33,7 @@
             <ion-grid (click)="sort('name', sortOrder= !sortOrder)" style="cursor: pointer; color: lightblue">
               <ion-row>
                 <ion-col>
-                  Colony
+                  Solar Body Name
                   <span *ngIf="sortField === 'name'">
                     <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                     <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
@@ -69,7 +74,7 @@
             <ion-grid>
               <ion-row>
                 <ion-col>
-                  <span (click)="viewColony(aColony)" style="color: lightblue;cursor: pointer">{{aColony.name}}</span>
+                  <span (click)="viewSolarBody(aColony)" style="color: lightblue;cursor: pointer">{{aColony.name}}</span>
                 </ion-col>
               </ion-row>
             </ion-grid>

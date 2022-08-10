@@ -10,6 +10,7 @@ import {ColonyService} from '../services/colony/colony.service';
 import {WarehouseService} from '../services/warehouse/warehouse.service';
 import {StationService} from '../services/station/station.service';
 import {PlatformService} from '../services/platform/platform.service';
+import {GlobalService} from "../services/global/global.service";
 
 @Component({
   selector: 'app-trade',
@@ -66,10 +67,11 @@ export class TradePage implements OnInit {
     private afs: AngularFirestore,
     private ionAlert: AlertController,
     public cs: CharacterService,
-    public us: UniverseService,
+    public uniS: UniverseService,
     public colonyS: ColonyService,
     public stationS: StationService,
-    public platform: PlatformService
+    public platform: PlatformService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -107,7 +109,8 @@ export class TradePage implements OnInit {
       case 'colony':
         this.marketInventorySub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories/',
           ref =>
-            ref.where('ownerID', '==', this.colonyS.aColony.id)
+            ref.where('ownerID', '==', this.uniS.aSolarBody.id)
+              .where('ownerType', '==', 'colony')
         )
           .valueChanges({idField: 'id'})
           .subscribe((aMarketInventory: any) => {
@@ -117,6 +120,10 @@ export class TradePage implements OnInit {
                 console.log(aMarketInventory);
               }
             }
+            aMarketInventory.forEach((aItem: any) => {
+              aItem.reference= this.ss.aaDefaultItems[aItem.name];
+            });
+            console.log(aMarketInventory);
             this.aMarketInventory= aMarketInventory;
             this.aFilteredMarketInventory= aMarketInventory;
             this.showTrade= true;
@@ -136,9 +143,13 @@ export class TradePage implements OnInit {
                 console.log(aInventory);
               }
             }
+            aInventory.forEach((aItem: any) => {
+              aItem.reference= this.ss.aaDefaultItems[aItem.name];
+            });
             this.aMarketInventory= aInventory;
             this.aFilteredMarketInventory= aInventory;
             this.showTrade= true;
+            this.filterMarketInventory();
           });
         break;
     }
@@ -339,7 +350,7 @@ export class TradePage implements OnInit {
         case 'buy':
           //Update Colony/Station Inventory
           item.quantity= +item.quantity - +amount;
-          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update({quantity: item.quantity});
 
           //update Ship/Warehouse Inventory
           const upSWInv= new Promise((resolve, reject) => {
@@ -392,9 +403,9 @@ export class TradePage implements OnInit {
             item.activeListing= false;
           }
           */
-          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update(Object.assign({}, item));
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(item.id).update({quantity: item.quantity});
 
-          //update Ship Inventory
+          //update Ship/Warehouse Inventory
           inventoriedItem.quantity= +inventoriedItem.quantity - +amount;
           inventoriedItem.cost= +inventoriedItem.cost - +total;
           if(inventoriedItem.quantity === 0){
@@ -480,7 +491,7 @@ export class TradePage implements OnInit {
 
   filterMarketInventory(){
     this.aFilteredMarketInventory= this.aMarketInventory.filter((aInventory) =>
-       aInventory.name.toLowerCase().indexOf(this.aMarketInventoryFilters.name.toLowerCase()) > -1
+       aInventory.reference.displayName.toLowerCase().indexOf(this.aMarketInventoryFilters.name.toLowerCase()) > -1
         && aInventory.quantity.toString().toLowerCase().indexOf(this.aMarketInventoryFilters.quantity.toLowerCase()) > -1
         //&& aInventory.demand.toString().toLowerCase().indexOf(this.aMarketInventoryFilters.demand.toLowerCase()) > -1
         && aInventory.type.toLowerCase().indexOf(this.aMarketInventoryFilters.type.toLowerCase()) > -1

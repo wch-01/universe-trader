@@ -5,6 +5,9 @@
     </ion-buttons>
     <ion-title>Station</ion-title>
     <ion-buttons slot="end" *ngIf="isModal">
+      <ion-button (click)="globalS.viewTutorial('station')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
       <ion-button color="danger" fill="solid" (click)="dismissModal()">Exit</ion-button>
     </ion-buttons>
     <ion-segment [(ngModel)]="nsTab">
@@ -45,14 +48,18 @@
     </ion-card-content>
   </ion-card>
 
+  <app-trade *ngSwitchCase="'market'" [market]="'station'" [trader]="trader" [traderID]="traderID"></app-trade>
+
+  <!--
   <ion-card *ngSwitchCase="'market'">
     <ion-card-header>
       <ion-title>Market</ion-title>
     </ion-card-header>
     <ion-card-content>
-      <app-trade [market]="'station'" [trader]="trader" [traderID]="traderID"></app-trade>
+      <app-trade *ngSwitchCase="'market'" [market]="'station'" [trader]="trader" [traderID]="traderID"></app-trade>
     </ion-card-content>
   </ion-card>
+  -->
 
   <ion-card *ngSwitchCase="'listedItems'">
     <ion-card-header>

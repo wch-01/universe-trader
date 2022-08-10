@@ -4,6 +4,11 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Universe</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('universe')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-segment [(ngModel)]="nsTab">
     <ion-segment-button value="solarSystems">
@@ -12,9 +17,11 @@
     <ion-segment-button value="solarBodies">
       <ion-label>Solar Bodies</ion-label>
     </ion-segment-button>
+    <!--
     <ion-segment-button value="colonies">
       <ion-label>Colonies</ion-label>
     </ion-segment-button>
+    -->
   </ion-segment>
 </ion-header>
 
@@ -62,8 +69,6 @@
         <ion-row *ngFor="let solarSystem of aFilteredUniverse">
           <!--<ion-col>{{solarSystem.id}}</ion-col>-->
           <ion-col>{{solarSystem.name}}</ion-col>
-          <ion-col>{{solarSystem.resourceOne}}</ion-col>
-          <ion-col>{{solarSystem.resourceTwo}}</ion-col>
           <ion-col>{{solarSystem.solarYield}}</ion-col>
           <ion-col>{{solarSystem.xCoordinate}}</ion-col>
           <ion-col>{{solarSystem.yCoordinate}}</ion-col>
@@ -163,7 +168,12 @@
         </ion-row>
         <ion-row *ngFor="let solarBody of aFilteredSolarBodies">
           <ion-col *ngFor="let col of aSolarBodiesTable">
-            {{solarBody[col.filter]}}
+            <span *ngIf="col.filter === 'solarBodyType' && solarBody[col.filter] === 'asteroidField'; else singleWord">
+              asteroid field
+            </span>
+            <ng-template #singleWord>
+              {{solarBody[col.filter]}}
+            </ng-template>
           </ion-col>
           <ion-col><ion-button (click)="viewSolarBody(solarBody)">View</ion-button></ion-col>
         </ion-row>

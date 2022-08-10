@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {ServerService} from '../server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {tap} from 'rxjs/operators';
+import {SolarBody} from '../../classes/universe';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,8 @@ export class WarehouseService {
   aaInventory= [];
   aMarketInventory= [];
   capacityAvailable= 0;
+
+  aSolarBody: SolarBody;
   //endregion
 
   //region Constructor
@@ -64,6 +67,9 @@ export class WarehouseService {
     });
   }
 
+  /**
+   * Name: Read Warehouse by ID
+   * */
   readWarehouse(id){
     if(this.ss.aRules.consoleLogging.mode >= 1){
       console.log('warehouseService: readWarehouse');
@@ -81,6 +87,9 @@ export class WarehouseService {
     });
   }
 
+  /**
+   * Name: Read Local Ships
+   * */
   rpLocalShips(){
     return new Promise((resolve, reject) => {
       this.afs.collection('servers/' + this.ss.activeServer + '/ships',
@@ -115,21 +124,44 @@ export class WarehouseService {
               console.log(aInventory);
             }
           }
-          this.aInventory= aInventory;
-
           this.aaInventory= [];
           aInventory.some((item: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 2){
               console.log(item);
             }
+            item.reference= Object.assign({}, this.ss.aaDefaultItems[item.name]);
             if(item.type === 'Prepared Module'){
+              item.reference.type= 'Prepared Module';
               this.aaInventory[item.name+'_pm']= item;
+              this.aaInventory[item.name+'_pm'].reference.type= 'Prepared Module';
             }
             else{
               this.aaInventory[item.name]= item;
             }
           });
+
+          this.aInventory= aInventory;
           resolve(true);
+        });
+    });
+  }
+
+  /**
+   * Name: Promise Read Local Solar System
+   * */
+  prLSS(){
+    return new Promise((resolve, reject) => {});
+  }
+
+  /**
+   * Name: Promise Read Local Solar Body
+   * */
+  prLSB(){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/'+this.ss.activeServer+'/universe')
+        .doc(this.aWarehouse.solarBody).valueChanges()
+        .subscribe((aSolarBody: SolarBody) => {
+          this.aSolarBody= aSolarBody;
         });
     });
   }
@@ -144,12 +176,16 @@ export class WarehouseService {
       console.log('warehouseService: setCargoCapacity');
     }
     return new Promise((resolve, reject) => {
-      const capacityTotal= +this.aWarehouse.size * 1000;
+      if(this.ss.aRules.consoleLogging.mode >= 2){
+        console.log(this.ss.aRules.storage.warehouse);
+      }
+      const capacityTotal= +this.aWarehouse.level * this.ss.aRules.storage.warehouse;
       let capacityUsed= 0;
       this.capacityAvailable= 0;
       this.aInventory.some(inventoryItem =>{
-        console.log('Cap');
-        console.log(inventoryItem);
+        if(this.ss.aRules.consoleLogging.mode >= 2){
+          console.log(inventoryItem);
+        }
         capacityUsed= +capacityUsed + +inventoryItem.quantity;
       });
       this.capacityAvailable= +capacityTotal - +capacityUsed;

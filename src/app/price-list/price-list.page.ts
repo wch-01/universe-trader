@@ -8,6 +8,8 @@ import {take} from 'rxjs/operators';
 import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
 import {ModalController} from '@ionic/angular';
 import {PlatformService} from '../services/platform/platform.service';
+import {SolarBodyModalPage} from '../modals/solar-body-modal/solar-body-modal.page';
+import {GlobalService} from "../services/global/global.service";
 const moment= require('moment');
 
 @Component({
@@ -36,7 +38,8 @@ export class PriceListPage implements OnInit, OnDestroy {
     private us: UniverseService,
     public router: Router,
     public modalController: ModalController,
-    public platform: PlatformService
+    public platform: PlatformService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -57,7 +60,7 @@ export class PriceListPage implements OnInit, OnDestroy {
 
     if(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies')
       &&
-      localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') < moment().add(7, 'days').unix()
+      localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') < moment().add(7, 'days').valueOf()
       &&
       localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') > this.ss.lastUpdate.universeUpdated
     ){
@@ -74,12 +77,12 @@ export class PriceListPage implements OnInit, OnDestroy {
         console.log('Local Storage is out of date');
         if(this.ss.aRules.consoleLogging.mode >= 2){
           console.log(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') + '' +
-            '< ' + moment().add(7, 'days').unix());
+            '< ' + moment().add(7, 'days').valueOf());
           console.log(localStorage.getItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time') + '' +
             '> ' + this.ss.lastUpdate.universeUpdated);
         }
       }
-      this.coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
+      this.coloniesSub= this.us.readSolarBodies().subscribe((aColonies: any) => {
         this.aColonies= aColonies;
         console.log(aColonies);
         this.aColonies.some((aColony: any) => {
@@ -97,7 +100,7 @@ export class PriceListPage implements OnInit, OnDestroy {
               aColony[aItem.name + '_bp']= aItem.buyPrice;
             });
             localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies', JSON.stringify(this.aColonies));
-            localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().valueOf());
             this.pricesLoaded= true;
             invSub.unsubscribe();
             //coloniesSub.unsubscribe();
@@ -114,7 +117,7 @@ export class PriceListPage implements OnInit, OnDestroy {
       const coloniesSub= this.us.readColonies().subscribe((aColonies: any) => {
         this.aColonies= aColonies;
         localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies', JSON.stringify(this.aColonies));
-        localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().unix());
+        localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().valueOf());
         this.aColonies.some((aColony: any) => {
           //aColony.aInventory;
           aColony.aaInventory= [];
@@ -186,6 +189,17 @@ export class PriceListPage implements OnInit, OnDestroy {
     });
 
     return await colonyModal.present();
+  }
+
+  async viewSolarBody(aSolarBody){
+    const solarBodyModal = await this.modalController.create({
+      component: SolarBodyModalPage,
+      componentProps: {id:aSolarBody.id},
+      cssClass: 'custom-modal',
+      showBackdrop: false
+    });
+
+    return await solarBodyModal.present();
   }
 
   ngOnDestroy() {

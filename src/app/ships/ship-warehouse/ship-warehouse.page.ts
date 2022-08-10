@@ -10,6 +10,7 @@ import {ColonyService} from '../../services/colony/colony.service';
 import {WarehouseService} from '../../services/warehouse/warehouse.service';
 import {take} from 'rxjs/operators';
 import {GlobalService} from '../../services/global/global.service';
+import {Warehouse} from '../../classes/warehouse';
 
 @Component({
   selector: 'app-ship-warehouse',
@@ -24,7 +25,7 @@ export class ShipWarehousePage implements OnInit {
 
   //region Constructor
   constructor(
-    private ss: ServerService,
+    public ss: ServerService,
     private afs: AngularFirestore,
     private ionAlert: AlertController,
     private cs: CharacterService,
@@ -36,33 +37,72 @@ export class ShipWarehousePage implements OnInit {
   //endregion
 
   ngOnInit() {
-    //this.getWarehouse();
+    if(this.shipS.aWarehouse){
+      this.shipS.rpLWI();
+    }
   }
 
-  getWarehouse(){
-    if(this.ss.aRules.consoleLogging.mode >= 1){
-      console.log('ship-warehouse: getWarehouse');
-    }
-    this.afs.collection('servers/' + this.ss.activeServer + '/warehouses',
-      ref =>
-        ref.where('solarBody', '==', this.shipS.aShip.solarBody).where('ownerID', '==', this.shipS.aShip.ownerID)
-    ).valueChanges({idField:'id'})
-      .pipe(take(1))
-      .subscribe((aWarehouse: any) => {
-        if(aWarehouse.length > 0){
-          if(this.ss.aRules.consoleLogging.mode >= 2){
-            console.log(aWarehouse);
+  //region Create
+  cWarehouse(){
+    let sufficient= 1;
+    //Does ship have 4 Cargo Modules in cargo?
+    this.ss.aaDStructures.warehouse.construction.some((aRequirement: any) => {
+      switch (aRequirement.name){
+        case 'labor':
+          if(aRequirement.amount > this.cs.aCharacter.pulsars){
+            sufficient= 0;
           }
-          this.ws.readWarehouse(aWarehouse[0].id).then((rwRes: any) => {
-            this.ws.rwiP().then((rwiPRes: any) => {
-              this.warehouseBoot= true;
-            });
-          });
-        }
-        else{
-          this.warehouseBoot= false;
+          break;
+        case 'cargo':
+          if(aRequirement.amount > this.shipS.aaInventory.cargo.quantity){
+            sufficient= 0;
+          }
+          break;
+      }
+    });
+
+    if(sufficient === 1){
+      //Proceed with Build
+      //Remove Cargo from Ship
+      this.ss.aaDStructures.warehouse.construction.some((aRequirement: any) => {
+        switch (aRequirement.name){
+          case 'labor':
+            this.cs.aCharacter.pulsars= +this.cs.aCharacter.pulsars - +aRequirement.amount;
+            this.afs.collection('servers/'+this.ss.activeServer+'/characters')
+              .doc(this.cs.aCharacter.id).update({pulsars: this.cs.aCharacter.pulsars});
+            break;
+          case 'cargo':
+            if(this.shipS.aaInventory.cargo.quantity === aRequirement.amount){
+              this.afs.collection('servers/'+this.ss.activeServer+'/inventories')
+                .doc(this.shipS.aaInventory.cargo.id).delete();
+            }
+            else{
+              this.afs.collection('servers/'+this.ss.activeServer+'/inventories')
+                .doc(this.shipS.aaInventory.cargo.id)
+                .update({quantity: +this.shipS.aaInventory.cargo.quantity - +aRequirement.amount});
+            }
+            break;
         }
       });
+      //Build Warehouse
+      const aWarehouse= new Warehouse();
+      aWarehouse.ownerID= this.cs.aCharacter.id;
+      aWarehouse.level= 1;
+      aWarehouse.name= 'warehouse';
+      aWarehouse.solarSystem= this.shipS.aShip.solarSystem;
+      aWarehouse.solarBody= this.shipS.aShip.solarBody;
+      this.afs.collection('servers/' + this.ss.activeServer + '/warehouses')
+        .add(Object.assign({}, aWarehouse)).then(() => {
+          this.shipS.rpShip().then(() => {
+            this.shipS.rpLWI();
+          });
+      });
+    }
+  }
+  //endregion
+
+  getWarehouse(){
+
   }
 
   async transferAlert(destination, aItem, amount){

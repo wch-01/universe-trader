@@ -31,15 +31,19 @@ export class ShipyardPage implements OnInit {
   //endregion
 
   ngOnInit() {
+    /*
     this.colonyS.readColony(this.charS.aCharacter.location).then((res: any) => {
       this.colonyS.rciP().then((res2: any) => {
         this.getShipyard();
       });
     });
+    */
   }
 
   setColony(){
+    /*
     this.colonyS.readColony(this.charS.aCharacter.location);
+    */
   }
 
   getShipyard(){

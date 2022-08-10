@@ -27,7 +27,7 @@ export class AfterLoginPage implements OnInit {
         bsRes => {
           this.cs.rcP().then(
             rcpRes => {
-              this.cs.readCharacterShips();
+              // this.cs.readCharacterShips();
               this.router.navigate(['/dashboard']);
             },
             rcpError =>{
@@ -46,7 +46,7 @@ export class AfterLoginPage implements OnInit {
       if(!this.cs.characterFound){
         this.cs.rcP().then(
           rcpRes => {
-            this.cs.readCharacterShips();
+            // this.cs.readCharacterShips();
             this.router.navigate(['/dashboard']);
           },
           rcpError =>{
@@ -56,7 +56,7 @@ export class AfterLoginPage implements OnInit {
         );
       }
       else{
-        this.cs.readCharacterShips();
+        // this.cs.readCharacterShips();
         this.router.navigate(['/dashboard']);
       }
     }

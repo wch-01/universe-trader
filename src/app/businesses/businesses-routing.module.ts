@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'business-creation',
     loadChildren: () => import('./business-creation/business-creation.module').then( m => m.BusinessCreationPageModule)
+  },
+  {
+    path: 'business',
+    loadChildren: () => import('./business/business.module').then( m => m.BusinessPageModule)
   }
 ];
 

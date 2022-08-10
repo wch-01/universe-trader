@@ -10,7 +10,7 @@ import {ServerService} from '../../services/server/server.service';
 import {take} from 'rxjs/operators';
 import {ColonyModalPage} from '../colony-modal/colony-modal.page';
 import {SolarBodyService} from '../../services/universe/solar-body.service';
-import {PlatformService} from "../../services/platform/platform.service";
+import {PlatformService} from '../../services/platform/platform.service';
 
 @Component({
   selector: 'app-solar-body-modal',
@@ -132,9 +132,22 @@ export class SolarBodyModalPage implements OnInit {
     this.sbs.readSolarBody().pipe(take(1)).subscribe((solarBody: SolarBody) => {
       this.aSolarBody= solarBody;
       //this.readSolarSystem(this.aSolarBody.solarSystemID);
+      this.readSolarSystem(this.aSolarBody.solarSystemID);
+      if(this.aSolarBody.colony === true){
+        this.sbs.readInventory().subscribe((inventory: any) => {
+          this.aInventory= inventory;
+        });
+      }
     });
-    this.readColony();
+    // this.readColony();
     this.readStations();
+  }
+
+  async readSolarSystem(id){
+    const aSolarSystem= await this.uniS.readSolarSystem(id);
+    aSolarSystem.pipe(take(1)).subscribe((solarSystem: SolarSystem) => {
+      this.aSolarSystem= solarSystem;
+    });
   }
 
   async readColony(){

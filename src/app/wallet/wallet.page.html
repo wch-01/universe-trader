@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Wallet</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('wallet')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>Balance</ion-card-header>
+    <ion-card-content>
+
+      <app-logs [entity]="'wallet'"></app-logs>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

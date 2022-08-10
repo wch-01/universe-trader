@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="colonyLoaded && platform.sizeTemplate === 'standard'">
+<ion-content *ngIf="platform.sizeTemplate === 'standard'">
   <ion-grid>
     <ion-row>
       <ion-col>
@@ -132,7 +132,7 @@
 
 </ion-content>
 
-<ion-content *ngIf="colonyLoaded && platform.sizeTemplate === 'small'">
+<ion-content *ngIf="platform.sizeTemplate === 'small'">
   <ion-grid>
     <ion-row>
       <ion-col>

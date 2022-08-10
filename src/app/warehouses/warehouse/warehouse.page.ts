@@ -6,6 +6,7 @@ import {take} from 'rxjs/operators';
 import {UniverseService} from '../../services/universe/universe.service';
 import {AlertController, ToastController} from '@ionic/angular';
 import {ShipService} from '../../services/ship/ship.service';
+import {PlatformService} from '../../services/platform/platform.service';
 
 @Component({
   selector: 'app-warehouse',
@@ -18,24 +19,35 @@ export class WarehousePage implements OnInit, OnDestroy {
 
   aShips;
   aShip;
+  capReady= false;
   //endregion
 
   //region Constructor
   constructor(
-    private ss: ServerService,
+    public ss: ServerService,
     private afs: AngularFirestore,
     public ws: WarehouseService,
     private unis: UniverseService,
     private ionAlert: AlertController,
     private toastController: ToastController,
-    private shipS: ShipService
+    private shipS: ShipService,
+    public platform: PlatformService
   ) { }
   //endregion
 
   ngOnInit() {
+    this.ws.rwiP().then((rwiPRes: any) => {
+      this.ws.setCargoCapacity().then(() => {
+        this.capReady= true;
+      });
+    });
+
+    /*
     this.ws.readWarehouse(this.warehouseID).then((res: any) => {
       this.ws.rwiP().then((rwiPRes: any) => {
-        this.ws.setCargoCapacity();
+        this.ws.setCargoCapacity().then(() => {
+          this.capReady= true;
+        });
       });
       this.ws.rpLocalShips().then(
         (aShips) => {
@@ -43,6 +55,7 @@ export class WarehousePage implements OnInit, OnDestroy {
         }
       );
     });
+    */
   }
 
   //c
@@ -211,18 +224,9 @@ export class WarehousePage implements OnInit, OnDestroy {
     const confirmTradeAlert = await this.ionAlert.create({
       cssClass: '',
       header: 'Upgrade Module',
-      subHeader: 'Consumes One ' + aItem.displayName + ' module per level',
-      message: 'Input desired level, max 10.',
-      inputs: [
-        {
-          name: 'level',
-          label: 'Desired Level',
-          type: 'number',
-          placeholder: '10',
-          min: minLevel,
-          max: 10
-        }
-      ],
+      subHeader: 'Upgrading ' + aItem.displayName + ' to level ' + minLevel,
+      message: 'Will consume ' + minLevel + ' ' + aItem.displayName + ' un-prepared modules',
+      inputs: [],
       buttons: [
         {
           text: 'Cancel',
@@ -235,7 +239,7 @@ export class WarehousePage implements OnInit, OnDestroy {
         {
           text: 'Confirm',
           handler: (data: any) => {
-            this.upgradeModule(data, aItem);
+            this.upgradeModule(minLevel, aItem);
           }
         }
       ]
@@ -244,8 +248,8 @@ export class WarehousePage implements OnInit, OnDestroy {
     await confirmTradeAlert.present();
   }
 
-  upgradeModule(data, aItem){
-    console.log(data);
+  upgradeModule(upgradeLevel, aItem){
+    console.log(upgradeLevel);
     console.log(aItem);
     this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
       ref =>
@@ -256,9 +260,9 @@ export class WarehousePage implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe((aItems: any) => {
         if(aItems.length > 0){
-          if(aItems[0].quantity >= data.level){
+          if(aItems[0].quantity >= upgradeLevel){
             const cog= +aItems[0].cost / +aItems[0].quantity;
-            aItems[0].quantity= +aItems[0].quantity - data.level;
+            aItems[0].quantity= +aItems[0].quantity - upgradeLevel;
             aItems[0].cost= +aItems[0].quantity * +cog;
 
             if(aItems[0].quantity === 0){
@@ -270,7 +274,7 @@ export class WarehousePage implements OnInit, OnDestroy {
             }
 
             this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aItem.id)
-              .update({level: data.level});
+              .update({level: upgradeLevel});
           }
           else{
             this.toastMessage('Not enough Spare Modules Available', 'danger');

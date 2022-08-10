@@ -19,6 +19,7 @@ import {HousekeepingService} from '../../services/housekeeping/housekeeping.serv
 import {PlatformService} from '../../services/platform/platform.service';
 import {WarehouseService} from '../../services/warehouse/warehouse.service';
 import {GlobalService} from '../../services/global/global.service';
+import {ShipOrdersModalPage} from '../ship-orders-modal/ship-orders-modal.page';
 
 const moment= require('moment');
 
@@ -49,12 +50,12 @@ export class ShipPage implements OnInit, OnDestroy {
     aSolarBody: new SolarBody()
   };
   /*
-  currentDate= moment().unix();
-  currentDateAdd= moment().add(600000).unix();
+  currentDate= moment().valueOf();
+  currentDateAdd= moment().add(600000).valueOf();
   timer= this.currentDateAdd - this.currentDate;
   duration= moment.utc(600000).format('HH:mm:ss.SSS');
-  date= moment.unix(this.currentDate).format();
-  dateTwo= moment.unix(this.currentDateAdd).format();
+  date= moment.valueOf(this.currentDate).format();
+  dateTwo= moment.valueOf(this.currentDateAdd).format();
   arrivalTime;
   */
   //currentDate= this.date.setDate(this.date.getDate() + 1*60000);
@@ -115,7 +116,8 @@ export class ShipPage implements OnInit, OnDestroy {
     private hks: HousekeepingService,
     public platform: PlatformService,
     public ws: WarehouseService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -285,13 +287,12 @@ export class ShipPage implements OnInit, OnDestroy {
       message: 'Loading Ship',
       //duration: 2000
     });
-    loading.present();
+    await loading.present();
 
     this.shipS.rpShip().then(
       (aShip) => {
+        /*
         this.aShip = aShip;
-        console.log(aShip);
-
         this.shipS.rpSM().then(
           (aModules) => {
             if (this.ss.aRules.consoleLogging.mode >= 1) {
@@ -326,9 +327,11 @@ export class ShipPage implements OnInit, OnDestroy {
           }
         );
 
-        if (this.shipS.aShip.status === 'Idle') {
+        this.shipS.rslP(this.aShip.solarSystem, this.aShip.solarBody);
+
+        if (this.shipS.aShip.status !== 'Traveling') {
           this.aUniverse = this.uniS.readUniverse();
-          this.shipS.rslP(this.aShip.solarSystem, this.aShip.solarBody);
+
 
           this.uniS.rpSB(this.shipS.aShip.solarBody).then(
             (aSolarBody) => {
@@ -373,7 +376,9 @@ export class ShipPage implements OnInit, OnDestroy {
         }
 
         this.shipBootDone = Promise.resolve(true);
+        */
 
+        this.shipBootDone = Promise.resolve(true);
         loading.dismiss();
       },
       async (rspError) => {
@@ -419,7 +424,7 @@ export class ShipPage implements OnInit, OnDestroy {
   }
   editName(data){
     this.hks.censorWords(data.name).then((result) => {
-      this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.aShip.id).update({name: result});
+      this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id).update({name: result});
     });
   }
 
@@ -448,6 +453,16 @@ export class ShipPage implements OnInit, OnDestroy {
             this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
               .doc(aShip.id).update({moduleJumpEngine: false});
              break;
+          case 'commandCenter':
+            aModule= this.ss.aaDefaultItems.commandCenter;
+            aModule.ownerID= this.ws.id;
+            aModule.type= 'Prepared Module';
+            aModule.quantity= 1;
+            aModule.level= aShip.moduleCommandCenterLevel;
+
+            this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+              .doc(aShip.id).update({moduleCommandCenter: false});
+            break;
           case 'miningLaser':
             aModule= this.ss.aaDefaultItems.miningLaser;
             aModule.ownerID= this.ws.id;
@@ -473,6 +488,14 @@ export class ShipPage implements OnInit, OnDestroy {
           .add(aModule).then(() => {
           this.gs.toastMessage('Module detached and moved to local warehouse', 'success');
         });
+
+        this.afs.collection('servers/' + this.ss.activeServer + '/ships')
+          .doc(aShip.id)
+          .update(
+            {
+              moduleCount: +this.shipS.aShip.moduleCount - 1
+            }
+          );
       },
     )
       .catch((noWarehouse) => {
@@ -507,6 +530,19 @@ export class ShipPage implements OnInit, OnDestroy {
           });
         }
         break;
+      case 'commandCenter':
+        if(this.shipS.aShip.moduleCommandCenter){
+          this.gs.toastMessage('Module is not stackable, and the ship has one already', 'danger');
+        }
+        else{
+          this.afs.collection('servers/' + this.ss.activeServer + '/ships/')
+            .doc(this.shipS.aShip.id)
+            .update({
+              moduleCommandCenter: true,
+              moduleCommandCenterLevel: aModule.level
+            });
+        }
+        break;
       case 'miningLaser':
         if(this.shipS.aShip.moduleMiningLaser){
           this.gs.toastMessage('Module is not stackable, and the ship has one already', 'danger');
@@ -538,6 +574,14 @@ export class ShipPage implements OnInit, OnDestroy {
         .update({quantity: aModule.quantity, cost: aModule.cost});
     }
     //endregion
+
+    this.afs.collection('servers/' + this.ss.activeServer + '/ships')
+      .doc(this.shipS.aShip.id)
+      .update(
+        {
+          moduleCount: +this.shipS.aShip.moduleCount + 1
+        }
+      );
   }
 
   beginMining(aItem, aItemYield){
@@ -545,7 +589,7 @@ export class ShipPage implements OnInit, OnDestroy {
     this.shipS.aShip.status= 'Mining';
     this.shipS.aShip.miningTarget= aItem;
     this.shipS.aShip.miningYield= aItemYield;
-    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').unix();
+    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').valueOf();
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
       .update(this.shipS.aShip);
@@ -560,12 +604,31 @@ export class ShipPage implements OnInit, OnDestroy {
     this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
       .update(this.shipS.aShip).then(() => {this.readShip();});
   }
+
+  cancelOrders(){
+    this.afs.collection('servers/' + this.ss.activeServer + '/ships')
+      .doc(this.shipS.aShip.id)
+      .update({orders: false});
+  }
   //endregion
 
   //D
 
   readSSSolarBodies(aSolarSystem){
-    this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
+    //this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
+    this.uniS.rpSSSolarBodies(aSolarSystem.id).then((aSolarBodies) => {
+      this.aSolarBodies= aSolarBodies;
+      this.aSolarBodies.sort((n1,n2) => {
+        if (n1.name > n2.name) {
+          return 1;
+        }
+        if (n1.name < n2.name) {
+          return -1;
+        }
+        return 0;
+        //this.aFilteredSolarBodies.sort
+      });
+    });
   }
 
   //region Travel
@@ -580,9 +643,9 @@ export class ShipPage implements OnInit, OnDestroy {
     console.log('Travel Details');
     console.log(distance);
     console.log(this.ss.aRules.travel.solarSystem);
-    console.log(this.shipS.aShip.jumpEngine);
+    console.log(this.shipS.aShip.moduleJumpEngineLevel);
     this.aTravel.ssTTms=
-      ((distance * this.ss.aRules.travel.solarSystem) / this.shipS.aShip.jumpEngine)
+      ((distance * this.ss.aRules.travel.solarSystem) / this.shipS.aShip.moduleJumpEngineLevel)
       *
       (this.shipS.aModules.length / 4);
     this.aTravel.solarSystemTime= moment.utc(this.aTravel.ssTTms).format('HH:mm:ss');
@@ -590,7 +653,7 @@ export class ShipPage implements OnInit, OnDestroy {
   calcSBTT(){//SolarBodyTravelTime
     let xStart: number;
     let yStart: number;
-    if(this.aLocation.aSolarSystem.id === this.aTravel.aSolarSystem.id){
+    if(this.shipS.aLocation.aSolarSystem.id === this.aTravel.aSolarSystem.id){
       xStart= this.shipS.aLocation.aSolarBody.xCoordinate;
       yStart= this.shipS.aLocation.aSolarBody.yCoordinate;
     }
@@ -598,6 +661,8 @@ export class ShipPage implements OnInit, OnDestroy {
       xStart= 0;
       yStart= 0;
     }
+    console.log('SB Start');
+    console.log(xStart +','+ yStart);
 
     if(this.ss.aRules.consoleLogging.mode >= 2){
       console.log(this.aLocation.aSolarSystem.id + '===' + this.aTravel.aSolarSystem.id);
@@ -611,7 +676,7 @@ export class ShipPage implements OnInit, OnDestroy {
     );
     //console.log(distance);//300000
     this.aTravel.sbTTms= (
-      (distance * this.ss.aRules.travel.solarBody) / this.shipS.aShip.jumpEngine)
+      (distance * this.ss.aRules.travel.solarBody) / this.shipS.aShip.moduleEngineLevel)
       *
       (this.shipS.aModules.length / 4)
     ;
@@ -622,10 +687,10 @@ export class ShipPage implements OnInit, OnDestroy {
     switch (mode){
       case 'arrivalTime':
         time=  moment
-          .unix(
+          .valueOf(
             moment()
               .add(this.aTravel.ssTTms + this.aTravel.sbTTms, 'milliseconds')
-              .unix()
+              .valueOf()
           )
           .format('HH:mm:ss');
         break;
@@ -640,11 +705,11 @@ export class ShipPage implements OnInit, OnDestroy {
     return time;
   }
   eta(timeStamp){
-    return moment.unix(timeStamp).format('HH:mm:ss');
+    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
   }
   travel(){
     const arrivalTime= moment().add( +this.aTravel.ssTTms + +this.aTravel.sbTTms, 'milliseconds')
-      .unix();
+      .valueOf();
     //console.log(arrivalTime);
     const aShip= {
       status: 'Traveling',
@@ -678,7 +743,7 @@ export class ShipPage implements OnInit, OnDestroy {
     const colonyModal = await this.modalController.create({
       component: ColonyModalPage,
       componentProps: {
-        id: this.aColony.id,
+        id: this.shipS.aShip.solarBodyID,
         trading: true,
         trader: 'ship',
         traderID: this.shipS.aShip.id
@@ -690,8 +755,21 @@ export class ShipPage implements OnInit, OnDestroy {
     return await colonyModal.present();
   }
 
-  async viewWarehouse(){
+  async viewOrders(){
     const colonyModal = await this.modalController.create({
+      component: ShipOrdersModalPage,
+      componentProps: {
+      },
+      cssClass: 'custom-modal',
+      showBackdrop: false
+    });
+
+    return await colonyModal.present();
+  }
+
+  //region Other
+  async viewWarehouse(){
+    const warehouseModal = await this.modalController.create({
       component: ModalPage,
       componentProps: {
         viewer:'ship',
@@ -703,15 +781,23 @@ export class ShipPage implements OnInit, OnDestroy {
       showBackdrop: false
     });
 
-    return await colonyModal.present();
+    return await warehouseModal.present();
   }
 
-  //region Other
   ngOnDestroy() {
+    this.shipS.aTravel= {
+      aSolarSystem: new SolarSystem(),
+      ssTTms: 0,
+      solarSystemTime: '00:00:00',
+      //currentDate: this.currentDate,
+      aSolarBody: new SolarBody(),
+      sbTTms: 0,
+      solarBodyTime: '00:00:00',
+      totalTravelTime: '00:00:00',
+    };
     this.shipS.subscriptions.some((subscription) => {
       subscription.unsubscribe();
     });
   }
-
   //endregion
 }

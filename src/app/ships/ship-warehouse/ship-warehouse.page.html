@@ -16,7 +16,7 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <ion-card *ngIf="shipS.aWInventory; else noWarehouse">
+        <ion-card *ngIf="shipS.aWarehouse; else noWarehouse">
           <ion-card-header>
             <ion-card-title>Local Warehouse</ion-card-title>
             <ion-card-subtitle>Available Capacity: {{shipS.wCapacityAvailable}}</ion-card-subtitle>
@@ -59,18 +59,67 @@
         </ion-card>
 
         <ng-template #noWarehouse>
-  <ion-card>
-    <ion-card-content>
-      No Warehouse Found
-      <h1>Planned Features</h1>
-      <ul>
-        <li>
-          Buy New  Warehouse
-        </li>
-      </ul>
-    </ion-card-content>
-  </ion-card>
-</ng-template>
+          <ion-card>
+            <ion-card-content>
+              No Warehouse Found
+              <h1>Planned Features</h1>
+              <ul>
+                <li>
+                  Buy New  Warehouse
+                </li>
+              </ul>
+
+              <ion-row>
+                <ion-col>
+                  <ion-card>
+                    <ion-card-header>
+                      <ion-card-title>Details</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                      <ion-grid>
+                        <ion-row>
+                          <ion-col>
+                            Type: Warehouse
+                          </ion-col>
+                          <ion-col>
+                            Upkeep: 0
+                          </ion-col>
+                        </ion-row>
+                      </ion-grid>
+                    </ion-card-content>
+                  </ion-card>
+                </ion-col>
+                <ion-col>
+                  <ion-card>
+                    <ion-card-header>
+                      <ion-card-title>Construction Requirements</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                      <ion-grid>
+                        <ion-row>
+                          <ion-col *ngFor="let aRequirement of ss.aaDStructures.warehouse.construction">
+                            <ion-item>
+                              <ion-note slot="helper">{{aRequirement.name}}</ion-note>
+                              <ion-label>{{aRequirement.amount | number}} <ion-icon *ngIf="aRequirement.name === 'labor'" src="assets/icon/PulsarCreditSymbol.svg"></ion-icon></ion-label>
+                            </ion-item>
+                          </ion-col>
+                        </ion-row>
+                        <ion-row>
+                          <ion-col>
+                            <ion-button *ngIf="shipS.aaInventory.cargo && shipS.aaInventory.cargo.quantity > 3" (click)="cWarehouse()">Construct Warehouse</ion-button>
+                          </ion-col>
+                        </ion-row>
+                      </ion-grid>
+                    </ion-card-content>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+
+
+              <button *ngIf="shipS.aaInventory.cargo && shipS.aaInventory.cargo.quantity > 3">Build</button>
+            </ion-card-content>
+          </ion-card>
+        </ng-template>
       </ion-col>
 
       <ion-col>
@@ -90,6 +139,7 @@
               <ion-row class="warehouseInventoryBorder">
                 <ion-col>Item</ion-col>
                 <ion-col>Quantity</ion-col>
+                <ion-col>Transfer</ion-col>
               </ion-row>
               <ion-row *ngFor="let aItem of shipS.aInventory" class="warehouseInventoryBorder">
                 <ion-col>

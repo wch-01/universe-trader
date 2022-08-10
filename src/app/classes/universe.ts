@@ -40,6 +40,7 @@ export class SolarBody {
   resourceTwo: string;
   resourceTwoYield: number;
   colony: any;
+  colonyPopulation: number;
 }
 
 export class Colony {

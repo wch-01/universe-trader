@@ -26,8 +26,11 @@ export class Ship {
   moduleEngineLevel: any;
   moduleJumpEngine: any;
   moduleJumpEngineLevel: any;
+  moduleCommandCenter: any;
+  moduleCommandCenterLevel: any;
   moduleMiningLaser: any;
   moduleMiningLaserLevel: any;
+  moduleCount: number;
 }
 
 /**
@@ -41,4 +44,19 @@ export class ShipModule {
   type: string; //Engine, Jump Engine, Weapon, Shield, Cargo, Passenger, Mining, Refinery
   level: number;
   installed: string;// Yes, No || ID of installed ship
+}
+
+export class Order {
+  id: string;
+  order: string;
+  type: string;
+  destSSID: string;
+  aDestSS: any;
+  destSSName: string;
+  destSBID: string;
+  aDestSB: any;
+  destSBName: string;
+  item: string;
+  quantity: number;
+  price: number;
 }

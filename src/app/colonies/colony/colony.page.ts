@@ -3,7 +3,8 @@ import {ServerService} from '../../services/server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ColonyService} from '../../services/colony/colony.service';
 import {ShipService} from '../../services/ship/ship.service';
-import {WarehouseService} from "../../services/warehouse/warehouse.service";
+import {WarehouseService} from '../../services/warehouse/warehouse.service';
+import {UniverseService} from '../../services/universe/universe.service';
 
 @Component({
   selector: 'app-colony',
@@ -30,6 +31,7 @@ export class ColonyPage implements OnInit {
     public colonyS: ColonyService,
     private shipS: ShipService,
     private warehouseS: WarehouseService,
+    public uniS: UniverseService
   ) { }
   //endregion
 
@@ -42,13 +44,15 @@ export class ColonyPage implements OnInit {
           this.colonyS.fcIDP(this.shipS.aShip.solarBody).then(
             (fcIDRes: any) => {
               this.foundColony= true;
-              this.colonyS.readColony(this.colonyS.colonyID);
-              this.colonyS.rCSS().then(() => {
+              // this.colonyS.readColony(this.colonyS.colonyID);
+              this.colonyS.rCSS(this.shipS.aShip.solarSystem).then(() => {
                 this.ssLoaded= Promise.resolve(true);
               });
+              /*
               this.colonyS.rCSB().then(() => {
                 this.sbLoaded= Promise.resolve(true);
               });
+              */
             },
             (fcIDErr: any) =>{
               this.foundColony= false;
@@ -57,11 +61,14 @@ export class ColonyPage implements OnInit {
         //}
         break;
       case 'warehouse':
+        if(this.uniS.aSolarBody.colony === true){
+        }
+        /*
         this.colonyS.fcIDP(this.warehouseS.aWarehouse.solarBody).then(
           (fcIDRes: any) => {
             this.foundColony= true;
-            this.colonyS.readColony(this.colonyS.colonyID);
-            this.colonyS.rCSS().then(() => {
+            // this.colonyS.readColony(this.colonyS.colonyID);
+            this.colonyS.rCSS(this.warehouseS.aWarehouse.solarSystem).then(() => {
               this.ssLoaded= Promise.resolve(true);
             });
             this.colonyS.rCSB().then(() => {
@@ -72,6 +79,7 @@ export class ColonyPage implements OnInit {
             this.foundColony= false;
           }
         );
+        */
         break;
     }
   }

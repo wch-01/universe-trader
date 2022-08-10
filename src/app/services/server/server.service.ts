@@ -32,7 +32,7 @@ export class ServerService {
   aDCMI;
   aRules= new Rules();
   aDStructures: any;
-  aaDStructures= new Structures();
+  aaDStructures: { [key: string]: Structures } = {};// { [key: string]: Item } = {};
   aActiveServers;
   //endregion
 
@@ -107,11 +107,11 @@ export class ServerService {
   async readRules(){
     return await new Promise((resolve, reject) => {
       //if(localStorage.getItem('ut_server_'+this.activeServer+'_rules') &&
-      // localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').unix()){
+      // localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').valueOf()){
       if(
         localStorage.getItem('ut_server_'+this.activeServer+'_'+this.activeServer+'_rules')
         &&
-        localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') < moment().add(7, 'days').valueOf()
         &&
         localStorage.getItem('ut_server_'+this.activeServer+'_rules_time') > this.lastUpdate.rulesUpdated
       ){
@@ -128,7 +128,7 @@ export class ServerService {
           .pipe(take(1))
           .subscribe((aRules: any) =>{
             localStorage.setItem('ut_server_'+this.activeServer+'_rules', JSON.stringify(aRules));
-            localStorage.setItem('ut_server_'+this.activeServer+'_rules_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_rules_time', moment().valueOf());
             aRules.some((aRule: any) => {
               this.aRules[aRule.name]= aRule;
             });
@@ -149,7 +149,7 @@ export class ServerService {
       if(
         localStorage.getItem('ut_server_'+this.activeServer+'_items')
         &&
-        localStorage.getItem('ut_server_'+this.activeServer+'_items_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_items_time') < moment().add(7, 'days').valueOf()
         &&
         localStorage.getItem('ut_server_'+this.activeServer+'_items_time') > this.lastUpdate.itemsUpdated
       ){
@@ -173,7 +173,7 @@ export class ServerService {
             }
             this.aDefaultItems= aDefaultItems;
             localStorage.setItem('ut_server_'+this.activeServer+'_items', JSON.stringify(this.aDefaultItems));
-            localStorage.setItem('ut_server_'+this.activeServer+'_items_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_items_time', moment().valueOf());
             aDefaultItems.some((aDefaultItem: any) => {
               if(this.aRules.consoleLogging >= 1){
                 console.log('Default Item');
@@ -194,25 +194,25 @@ export class ServerService {
       // eslint-disable-next-line max-len
       if(localStorage.getItem('ut_server_'+this.activeServer+'_structures')
         &&
-        localStorage.getItem('ut_server_'+this.activeServer+'_structures_time') < moment().add(7, 'days').unix()
+        localStorage.getItem('ut_server_'+this.activeServer+'_structures_time') < moment().add(7, 'days').valueOf()
         &&
         localStorage.getItem('ut_server_'+this.activeServer+'_structures_time') > this.lastUpdate.structuresUpdated
       ){
         //Stored Rules are good
         this.aDStructures= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_structures'));
-        this.aDStructures.some((aRule: any) => {
-          this.aaDStructures[aRule.name]= aRule;
+        this.aDStructures.some((aDStructure: any) => {
+          this.aaDStructures[aDStructure.name]= aDStructure;
         });
         resolve(true);
       }
       else{
-        this.afs.collection('servers/' + this.activeServer +'/z_structures')
+        this.afs.collection('servers/' + this.activeServer +'/zStructures')
           .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aDStructures: any) =>{
             this.aDStructures= aDStructures;
             localStorage.setItem('ut_server_'+this.activeServer+'_structures', JSON.stringify(this.aDStructures));
-            localStorage.setItem('ut_server_'+this.activeServer+'_structures_time', moment().unix());
+            localStorage.setItem('ut_server_'+this.activeServer+'_structures_time', moment().valueOf());
             aDStructures.some((aDStructure: any) => {
               this.aaDStructures[aDStructure.name]= aDStructure;
             });
@@ -303,7 +303,7 @@ export class ServerService {
     this.aDefaultItems= new DefaultItems();
     //this.aRules= new Rules();
     this.aDStructures= undefined;
-    this.aaDStructures= new Structures();
+    this.aaDStructures= undefined;
     this.serverBoot= undefined;
     this.aActiveServers= undefined;
   }

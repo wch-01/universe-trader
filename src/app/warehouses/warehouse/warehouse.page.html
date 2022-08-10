@@ -9,7 +9,108 @@
 </ion-header>
 -->
 
-<ion-content>
+<ion-content *ngIf="platform.sizeTemplate === 'standard'">
+  <!--
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Warehouse</ion-card-title>
+      <ion-card-subtitle>Planned Features</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ul>
+        <li>List Warehouse Inventory <ion-icon name="checkmark-outline"></ion-icon></li>
+        <li>If no Warehouse, build one </li>
+      </ul>
+    </ion-card-content>
+  </ion-card>
+  -->
+
+  <ion-card *ngIf="ws.aWarehouse">
+    <ion-card-header>
+      <ion-card-title>Details</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1">
+            <ion-item>
+              <ion-label position="stacked">name</ion-label>
+              <ion-item class="ion-no-padding" lines="none">
+                <ion-label>warehouse</ion-label>
+              </ion-item>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label position="stacked">capacity</ion-label>
+              {{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-grid>
+      <ion-row class="">
+        <ion-col>Item</ion-col>
+        <ion-col>Quantity</ion-col>
+        <ion-col title="Cost of Goods">COG</ion-col>
+        <ion-col>Total Value</ion-col>
+        <ion-col>Type</ion-col>
+        <ion-col>Level</ion-col>
+        <ion-col>Actions</ion-col>
+      </ion-row>
+      <ion-row *ngFor="let aItem of ws.aInventory; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+        <ion-col>
+          {{aItem.reference.displayName}}
+        </ion-col>
+        <ion-col>
+          {{aItem.quantity | number}}
+        </ion-col>
+        <ion-col>
+          {{aItem.cost / aItem.quantity | number}}
+        </ion-col>
+        <ion-col>
+          {{aItem.cost | number}}
+        </ion-col>
+        <ion-col>
+          {{aItem.reference.type}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="aItem.type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
+          <ng-template #levelNA>N/A</ng-template>
+        </ion-col>
+        <ion-col>
+          <span *ngIf="aItem.type === 'Ship Core'">
+            <ion-button (click)="assembleShip(aItem)" size="small">Launch Ship</ion-button>
+          </span>
+          <span *ngIf="aItem.type === 'Module'">
+            <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
+          </span>
+          <span *ngIf="aItem.type === 'Prepared Module'">
+            <ion-button *ngIf="aItem.level < 10" (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
+
+            <!--
+            <ion-item>
+              <ion-label position="floating">Attach to Ship</ion-label>
+              <ion-select name="selectedShip" [(ngModel)]="aShip">
+              <ion-select-option *ngFor="let aShip of aShips" [value]="aShip">
+                {{aShip.name}}
+              </ion-select-option>
+            </ion-select>
+            </ion-item>
+            -->
+            <ion-button *ngIf="aShip" (click)="attachModule(aShip, aItem)" size="small">Attach</ion-button>
+          </span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>
+
+<ion-content *ngIf="platform.sizeTemplate === 'small'">
   <!--
   <ion-card>
     <ion-card-header>
@@ -26,59 +127,77 @@
   -->
 
   <ion-card>
-    <ion-grid>
-      <ion-row class="">
-        <ion-col>Item</ion-col>
-        <ion-col>Quantity</ion-col>
-        <ion-col title="Cost of Goods">COG</ion-col>
-        <ion-col>Total Value</ion-col>
-        <ion-col>Type</ion-col>
-        <ion-col>Level</ion-col>
-        <ion-col>Actions</ion-col>
-      </ion-row>
-      <ion-row *ngFor="let aItem of ws.aInventory; let i = index" class="" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
-        <ion-col>
-          {{aItem.displayName}}
-        </ion-col>
-        <ion-col>
-          {{aItem.quantity | number}}
-        </ion-col>
-        <ion-col>
-          {{aItem.cost / aItem.quantity | number}}
-        </ion-col>
-        <ion-col>
-          {{aItem.cost | number}}
-        </ion-col>
-        <ion-col>
-          {{aItem.type}}
-        </ion-col>
-        <ion-col>
-          <span *ngIf="aItem.type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
-          <ng-template #levelNA>N/A</ng-template>
-        </ion-col>
-        <ion-col>
-          <span *ngIf="aItem.type === 'Ship Core'">
-            <ion-button (click)="assembleShip(aItem)" size="small">Launch Ship</ion-button>
-          </span>
-          <span *ngIf="aItem.type === 'Module'">
-            <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
-          </span>
-          <span *ngIf="aItem.type === 'Prepared Module'">
-            <ion-button (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
+    <ion-grid class="ut-item-background-color">
+      <ion-row *ngFor="let aItem of ws.aInventory; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
 
-            <!--
-            <ion-item>
-              <ion-label position="floating">Attach to Ship</ion-label>
-              <ion-select name="selectedShip" [(ngModel)]="aShip">
-              <ion-select-option *ngFor="let aShip of aShips" [value]="aShip">
-                {{aShip.name}}
-              </ion-select-option>
-            </ion-select>
-            </ion-item>
-            -->
-            <ion-button *ngIf="aShip" (click)="attachModule(aShip, aItem)" size="small">Attach</ion-button>
-          </span>
-        </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Item</ion-note>
+            <ion-label>{{aItem.displayName}}</ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Quantity</ion-note>
+            <ion-label>{{aItem.quantity | number}}</ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper" title="Cost of Goods">COG</ion-note>
+            <ion-label>{{aItem.cost / aItem.quantity | number}}</ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Total Value</ion-note>
+            <ion-label>{{aItem.cost | number}}</ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Type</ion-note>
+            <ion-label>{{aItem.type}}</ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Level</ion-note>
+            <ion-label>
+              <span *ngIf="aItem.type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
+              <ng-template #levelNA>N/A</ng-template>
+            </ion-label>
+          </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+            <ion-note slot="helper">Actions</ion-note>
+            <ion-label>
+              <span *ngIf="aItem.type === 'Ship Core'">
+              <ion-button (click)="assembleShip(aItem)" size="small">Launch Ship</ion-button>
+            </span>
+              <span *ngIf="aItem.type === 'Module'">
+              <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
+            </span>
+              <span *ngIf="aItem.type === 'Prepared Module'">
+              <ion-button (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
+
+                <!--
+                <ion-item>
+                  <ion-label position="floating">Attach to Ship</ion-label>
+                  <ion-select name="selectedShip" [(ngModel)]="aShip">
+                  <ion-select-option *ngFor="let aShip of aShips" [value]="aShip">
+                    {{aShip.name}}
+                  </ion-select-option>
+                </ion-select>
+                </ion-item>
+                -->
+              <ion-button *ngIf="aShip" (click)="attachModule(aShip, aItem)" size="small">Attach</ion-button>
+            </span>
+            </ion-label>
+          </ion-item>
+          </ion-col>
+
       </ion-row>
     </ion-grid>
   </ion-card>
