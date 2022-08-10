@@ -109,12 +109,12 @@ export class LoginRegisterPage implements OnInit {
               //console.log('Record Does not Exist');
               this.afs.collection('users/').doc(this.authService.user.uid)
                 .set({
-                  lastLogin: moment().unix(),
+                  lastLogin: moment().valueOf(),
                   email: this.authService.user.email
                 });
             }
             else{
-              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+              this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().valueOf()});
             }
             userSub.unsubscribe();
           });
@@ -134,7 +134,7 @@ export class LoginRegisterPage implements OnInit {
         res => {
           //console.log('E&P Result');
           //console.log(res);
-          this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().unix()});
+          this.afs.collection('users/').doc(this.authService.user.uid).update({lastLogin: moment().valueOf()});
           this.router.navigateByUrl('/after-login', { replaceUrl: true });
           this.showMessage('success', 'Successfully Logged In!');
           this.isUserLoggedIn();
@@ -235,7 +235,7 @@ export class LoginRegisterPage implements OnInit {
           console.log(registerUserResult.user.uid);
           this.afs.collection('users/').doc(registerUserResult.user.uid)
           .set({
-            lastLogin: moment().unix(),
+            lastLogin: moment().valueOf(),
             email: registerUserResult.user.email
             });
           //Send Verification link in email

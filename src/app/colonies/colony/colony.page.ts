@@ -4,7 +4,7 @@ import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ColonyService} from '../../services/colony/colony.service';
 import {ShipService} from '../../services/ship/ship.service';
 import {WarehouseService} from '../../services/warehouse/warehouse.service';
-import {UniverseService} from "../../services/universe/universe.service";
+import {UniverseService} from '../../services/universe/universe.service';
 
 @Component({
   selector: 'app-colony',

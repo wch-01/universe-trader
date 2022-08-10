@@ -50,12 +50,12 @@ export class ShipPage implements OnInit, OnDestroy {
     aSolarBody: new SolarBody()
   };
   /*
-  currentDate= moment().unix();
-  currentDateAdd= moment().add(600000).unix();
+  currentDate= moment().valueOf();
+  currentDateAdd= moment().add(600000).valueOf();
   timer= this.currentDateAdd - this.currentDate;
   duration= moment.utc(600000).format('HH:mm:ss.SSS');
-  date= moment.unix(this.currentDate).format();
-  dateTwo= moment.unix(this.currentDateAdd).format();
+  date= moment.valueOf(this.currentDate).format();
+  dateTwo= moment.valueOf(this.currentDateAdd).format();
   arrivalTime;
   */
   //currentDate= this.date.setDate(this.date.getDate() + 1*60000);
@@ -116,7 +116,8 @@ export class ShipPage implements OnInit, OnDestroy {
     private hks: HousekeepingService,
     public platform: PlatformService,
     public ws: WarehouseService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -588,7 +589,7 @@ export class ShipPage implements OnInit, OnDestroy {
     this.shipS.aShip.status= 'Mining';
     this.shipS.aShip.miningTarget= aItem;
     this.shipS.aShip.miningYield= aItemYield;
-    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').unix();
+    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').valueOf();
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
       .update(this.shipS.aShip);
@@ -614,7 +615,20 @@ export class ShipPage implements OnInit, OnDestroy {
   //D
 
   readSSSolarBodies(aSolarSystem){
-    this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
+    //this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
+    this.uniS.rpSSSolarBodies(aSolarSystem.id).then((aSolarBodies) => {
+      this.aSolarBodies= aSolarBodies;
+      this.aSolarBodies.sort((n1,n2) => {
+        if (n1.name > n2.name) {
+          return 1;
+        }
+        if (n1.name < n2.name) {
+          return -1;
+        }
+        return 0;
+        //this.aFilteredSolarBodies.sort
+      });
+    });
   }
 
   //region Travel
@@ -673,10 +687,10 @@ export class ShipPage implements OnInit, OnDestroy {
     switch (mode){
       case 'arrivalTime':
         time=  moment
-          .unix(
+          .valueOf(
             moment()
               .add(this.aTravel.ssTTms + this.aTravel.sbTTms, 'milliseconds')
-              .unix()
+              .valueOf()
           )
           .format('HH:mm:ss');
         break;
@@ -691,11 +705,11 @@ export class ShipPage implements OnInit, OnDestroy {
     return time;
   }
   eta(timeStamp){
-    return moment.unix(timeStamp).format('HH:mm:ss');
+    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
   }
   travel(){
     const arrivalTime= moment().add( +this.aTravel.ssTTms + +this.aTravel.sbTTms, 'milliseconds')
-      .unix();
+      .valueOf();
     //console.log(arrivalTime);
     const aShip= {
       status: 'Traveling',

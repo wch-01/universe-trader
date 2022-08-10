@@ -6,6 +6,7 @@ import {ModalController} from '@ionic/angular';
 import {BusinessCreationPage} from './business-creation/business-creation.page';
 import {BusinessPage} from './business/business.page';
 import {WarehouseService} from '../services/warehouse/warehouse.service';
+import {GlobalService} from "../services/global/global.service";
 
 @Component({
   selector: 'app-businesses',
@@ -24,7 +25,8 @@ export class BusinessesPage implements OnInit {
     private afs: AngularFirestore,
     public busS: BusinessesService,
     public modalController: ModalController,
-    public ws: WarehouseService
+    public ws: WarehouseService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 

@@ -9,6 +9,7 @@ import {SolarSystemModalPage} from '../modals/solar-system-modal/solar-system-mo
 import {SolarBodyModalPage} from '../modals/solar-body-modal/solar-body-modal.page';
 import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
 import {PlatformService} from '../services/platform/platform.service';
+import {GlobalService} from "../services/global/global.service";
 const moment= require('moment');
 
 @Component({
@@ -175,7 +176,8 @@ export class UniversePage implements OnInit, OnDestroy {
     public loadingController: LoadingController,
     private popoverController: PopoverController,
     private ionAlert: AlertController,
-    public platform: PlatformService
+    public platform: PlatformService,
+    public globalS: GlobalService,
   ) {}
   //endregion
 

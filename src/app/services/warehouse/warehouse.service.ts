@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {ServerService} from '../server/server.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {tap} from 'rxjs/operators';
-import {SolarBody} from "../../classes/universe";
+import {SolarBody} from '../../classes/universe';
 
 @Injectable({
   providedIn: 'root'

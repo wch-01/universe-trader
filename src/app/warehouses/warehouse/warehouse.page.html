@@ -43,9 +43,7 @@
           <ion-col>
             <ion-item>
               <ion-label position="stacked">capacity</ion-label>
-              <ion-item>
-                <ion-label *ngIf="capReady">{{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}</ion-label>
-              </ion-item>
+              {{ws.capacityAvailable | number}} / {{ws.aWarehouse.level * ss.aRules.storage.warehouse | number}}
             </ion-item>
           </ion-col>
         </ion-row>

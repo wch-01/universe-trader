@@ -94,8 +94,6 @@ export class ShipOrdersModalPage implements OnInit {
             aUOrder.id= ''+order+'';
           }
           break;
-        case 'transfer':
-          break;
         default:
           aUOrder= aOrder;
           // aUOrder.id= ''+aOrder.order+'';
@@ -107,7 +105,13 @@ export class ShipOrdersModalPage implements OnInit {
         .doc(aUOrder.id)
         .update(Object.assign({}, aUOrder))
         .catch( (error) => {
-          console.log(error.message);
+          if(this.ss.aRules.consoleLogging.mode >= 1){
+            console.log('Error Updating Orders');
+            if(this.ss.aRules.consoleLogging.mode >= 2){
+              console.log(error.message);
+              console.log(aUOrder);
+            }
+          }
           this.gs.toastMessage('Please Double check your orders.', 'danger');
         });
       order++;

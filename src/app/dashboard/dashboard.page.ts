@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from '../services/authentication/authentication.service';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../services/server/server.service';
@@ -11,7 +11,8 @@ import {Router} from '@angular/router';
 import {HousekeepingService} from '../services/housekeeping/housekeeping.service';
 import {take} from 'rxjs/operators';
 import {PlatformService} from '../services/platform/platform.service';
-import {TutorialModalPage} from "../modals/tutorial-modal/tutorial-modal.page";
+import {TutorialModalPage} from '../modals/tutorial-modal/tutorial-modal.page';
+import {GlobalService} from '../services/global/global.service';
 
 
 @Component({
@@ -19,7 +20,7 @@ import {TutorialModalPage} from "../modals/tutorial-modal/tutorial-modal.page";
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements OnInit, OnDestroy {
   //region Variables
   aCharacter;
   user= null;
@@ -38,7 +39,8 @@ export class DashboardPage implements OnInit {
     private shipS: ShipService,
     public router: Router,
     private hks: HousekeepingService,
-    public platform: PlatformService
+    public platform: PlatformService,
+    public globalS: GlobalService,
   ) {
     /*
     if(this.ss.aRules.consoleLogging.mode >= 1){
@@ -91,8 +93,8 @@ export class DashboardPage implements OnInit {
     }
   }
 
+  /*
   readCharacterShips(){
-    //return this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.user.uid).valueChanges({idField:'id'});
     const shipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/ships/ships',
         ref => ref.where('ownerUID','==', this.authService.user.uid))
       .valueChanges({idField:'id'})
@@ -104,15 +106,13 @@ export class DashboardPage implements OnInit {
             .pipe(take(1))
             .subscribe((solarSystem: any)=>{
             aShip.location= solarSystem.name;
-            //console.log(solarSystem.get('id'));
-            //console.log(solarSystem.data());
-            //console.log(location);
           });
           this.characterShips.push(aShip);
       });
         this.hks.subscriptions.push(shipsSub);
     });
   }
+  */
 
   getSolarSystem(solarSystemID){
     const aSolarSystem= this.afs.collection('servers/' + this.ss.activeServer + '/solar_systems/solar_systems')
@@ -154,14 +154,10 @@ export class DashboardPage implements OnInit {
   }
 
   //region Other
-  async viewTutorial(){
-    const shipModal= await this.modalController.create({
-      component: TutorialModalPage,
-      componentProps: {id: 'dashboard'},
-      cssClass: 'ship_modal',
-      showBackdrop: true
+  ngOnDestroy() {
+    this.cs.subscriptions.some((subscription) => {
+      subscription.unsubscribe();
     });
-    return await shipModal.present();
   }
   //endregion
 }

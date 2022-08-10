@@ -7,6 +7,8 @@ import {WarehouseService} from '../services/warehouse/warehouse.service';
 import {ColonyService} from '../services/colony/colony.service';
 import {Router} from '@angular/router';
 import {ControlRoomService} from '../services/control-room/control-room.service';
+import {LoadingController} from '@ionic/angular';
+import {GlobalService} from "../services/global/global.service";
 
 @Component({
   selector: 'app-control-room',
@@ -15,37 +17,48 @@ import {ControlRoomService} from '../services/control-room/control-room.service'
 })
 export class ControlRoomPage implements OnInit {
   //region Variables
-  nsTab= 'warehouse';
+  controlRoomLoading;
+  controlRoomLoaded= false;
+  controlRoomTab= 'overview';
   warehouseBoot= false;
   warehouseID;
   //endregion
 
   //region Constructor
   constructor(
-    private ss: ServerService,
+    public ss: ServerService,
     private afs: AngularFirestore,
     public charS: CharacterService,
     public warehouseS: WarehouseService,
     public colonyS: ColonyService,
-    public us: UniverseService,
+    public uniS: UniverseService,
     private router: Router,
-    private crS: ControlRoomService
+    private crS: ControlRoomService,
+    private loadingController: LoadingController,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
-  ngOnInit() {
-    if(!this.charS.aCharacter){
+  async ngOnInit() {
+    this.controlRoomLoading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Loading Control Room',
+      //duration: 2000
+    });
+    await this.controlRoomLoading.present();
+
+    if (!this.charS.aCharacter) {
       this.charS.rcP().then(
         rcpRes => {
           this.rControlRoom();
         },
-        rcpError =>{
+        rcpError => {
           console.log('No character found.');
           this.router.navigate(['/character']);
         }
       );
     }
-    else{
+    else {
       this.rControlRoom();
     }
   }
@@ -55,12 +68,17 @@ export class ControlRoomPage implements OnInit {
    * */
   rControlRoom(){
     Promise.all([
-      this.us.rpSS(this.charS.aCharacter.solarSystemID),
-      this.us.rpSB(this.charS.aCharacter.solarBodyID),
+      this.uniS.rpSS(this.charS.aCharacter.solarSystemID),
+      this.uniS.rpSB(this.charS.aCharacter.solarBodyID),
       this.crS.fwIDP(this.charS.aCharacter.solarBodyID, this.charS.id)
     ])
       .then(() => {
-        this.warehouseID= this.crS.warehouseID;
+        this.warehouseS.readWarehouse(this.crS.warehouseID).then(() => {
+          this.warehouseS.setCargoCapacity().then(() => {
+            this.controlRoomLoaded= true;
+            this.controlRoomLoading.dismiss();
+          });
+        });
         this.warehouseBoot= true;
       });
     /*

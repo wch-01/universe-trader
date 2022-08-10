@@ -2,6 +2,9 @@
   <ion-toolbar>
     <ion-title>business <ion-icon (click)="helpMessageAlert()" name="help-circle-outline" style="cursor: pointer"></ion-icon></ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('business')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
       <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>

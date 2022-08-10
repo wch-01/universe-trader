@@ -3,11 +3,12 @@ import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {ServerService} from '../server/server.service';
 import {AuthenticationService} from '../authentication/authentication.service';
 import {first, take, tap} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {Ship} from '../../classes/ship';
 import {UniverseService} from '../universe/universe.service';
 import {SolarBody, SolarSystem} from '../../classes/universe';
 import {ShipService} from '../ship/ship.service';
+import {HousekeepingService} from '../housekeeping/housekeeping.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,7 @@ export class CharacterService {
     aSolarBody: new SolarBody()
   };
   aAllItems;
+  subscriptions: Subscription[] = [];
   //endregion
 
   //region Constructor
@@ -36,7 +38,8 @@ export class CharacterService {
     private authService: AuthenticationService,
     private afs: AngularFirestore,
     private ss: ServerService,
-    private shipS: ShipService
+    private shipS: ShipService,
+    private hks: HousekeepingService,
   ) {}
   //endregion
 
@@ -291,12 +294,13 @@ export class CharacterService {
    * */
   rcP(){
     return new Promise((resolve, reject) => {
-      this.characterSub= this.afs.collection('servers/' + this.ss.activeServer + '/characters',
+      const characterSub= this.afs.collection('servers/' + this.ss.activeServer + '/characters',
         ref => ref.where('uid', '==', this.authService.user.uid)
       ).valueChanges({idField:'id'})
         .subscribe((aCharacter: any) => {
+          this.hks.subscriptions.push(characterSub);
             if(this.ss.aRules.consoleLogging.mode >= 1){
-              console.log('Character Service');
+              console.log('Character Service: rcP sub');
               if(this.ss.aRules.consoleLogging.mode >= 2){
                 console.log(aCharacter);
               }
@@ -307,6 +311,7 @@ export class CharacterService {
               this.id= aCharacter[0].id;
               this.aCharacter= aCharacter[0];
               this.readLocation();
+              this.subscriptions.push(characterSub);
               resolve(true);
             }
             else{
@@ -357,40 +362,50 @@ export class CharacterService {
    * Name: Read Character Ships
    * */
   readCharacterShips(){
-    return this.characterShipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/ships',
+    const characterShipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/ships',
         ref => ref
           .where('ownerID', '==', this.id))
       .valueChanges({idField:'id'})
       .subscribe(aShips=>{
+        if(this.ss.aRules.consoleLogging.mode >= 1){
+          console.log('Character Service: readCharacterShips Sub');
+        }
         this.aCharacterShips= [];//Reset the Character ship list each time the DB has changes.
         aShips.some((aShip: Ship)=> {
-          const aSolarSystem= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+          const aSolarSystemSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
             ref =>
               ref.where('type', '==', 'solarSystem')
           )
             .doc(aShip.solarSystem).valueChanges({idField:'id'})
             .subscribe((solarSystem: any)=>{
+              this.subscriptions.push(aSolarSystemSub);
               const solarSystemName= solarSystem.name;
               aShip.solarSystemName= solarSystemName;
               if(this.ss.aRules.consoleLogging.mode >= 1){
-                console.log('Character Service: readCharacterShips');
-              }
-              if(this.ss.aRules.consoleLogging.mode >= 2){
-                console.log(solarSystemName);
+                console.log('Character Service: readCharacterShips - Solar System');
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(solarSystemName);
+                }
               }
             });
 
-          const aSolarBodyQuery= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+          const aSolarBodyQuerySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
             ref =>
               ref.where('type', '==', 'solarBody')
           )
             .doc(aShip.solarBody).valueChanges({idField:'id'})
             .subscribe((aSolarBody: any)=>{
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('Character Service: readCharacterShips - Solar Body');
+              }
+              this.subscriptions.push(aSolarBodyQuerySub);
               aShip.solarBodyName= aSolarBody.name;
             });
 
           this.aCharacterShips.push(aShip);
         });
+        this.subscriptions.push(characterShipsSub);
+        //this.characterShipsSub.unsubscribe();
       });
   }
 
@@ -398,23 +413,25 @@ export class CharacterService {
    * Name: Read Character Warehouses
    * */
   rCharacterWarehouses(){
-    return this.characterShipsSub= this.afs.collection('servers/' + this.ss.activeServer + '/warehouses',
+    const characterWarehousesSub= this.afs.collection('servers/' + this.ss.activeServer + '/warehouses',
       ref => ref
         .where('ownerID', '==', this.id))
       .valueChanges({idField:'id'})
       .subscribe(aWarehouses=>{
+        this.subscriptions.push(characterWarehousesSub);
         this.aCharacterWarehouses= [];//Reset the Character ship list each time the DB has changes.
         aWarehouses.some((aWarehouse: any)=> {
           const aSolarSystem= this.afs.collection('servers/' + this.ss.activeServer + '/universe')
             .doc(aWarehouse.solarSystem).valueChanges({idField:'id'})
             .subscribe((solarSystem: any)=>{
+              this.subscriptions.push(aSolarSystem);
               const solarSystemName= solarSystem.name;
               aWarehouse.solarSystemName= solarSystemName;
               if(this.ss.aRules.consoleLogging.mode >= 1){
-                console.log('Character Service: readCharacterShips');
-              }
-              if(this.ss.aRules.consoleLogging.mode >= 2){
-                console.log(solarSystemName);
+                console.log('Character Service: readCharacterWarehouse');
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(solarSystemName);
+                }
               }
             });
 

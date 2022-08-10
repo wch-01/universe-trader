@@ -22,7 +22,7 @@ export class ChatRoomsPage implements OnInit {
   messages: Observable<any[]>;
   newMsg = '';
   unixTimeStamp= moment().valueOf();
-  currentTime= moment.unix(this.unixTimeStamp);
+  currentTime= moment.valueOf(this.unixTimeStamp);
 
   aChatrooms;
   chatTab= 'universe';

@@ -10,6 +10,12 @@
     </ion-title>
 
     <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('ship')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
       <!--This page was being used as modal. <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>-->
     </ion-buttons>
   </ion-toolbar>
@@ -317,12 +323,12 @@
                 </ion-button>
               </ion-col>
 
-              <ion-col *ngIf="uniS.aSolarBody.resourceOne === 'ore' && shipS.aShip.moduleMiningLaser || uniS.aSolarBody.resourceOne === 'silicone' && shipS.aShip.moduleMiningLaser">
+              <ion-col *ngIf="uniS.aSolarBody.solarBodyType === 'asteroidField' && uniS.aSolarBody.resourceOne === 'ore' && shipS.aShip.moduleMiningLaser || uniS.aSolarBody.solarBodyType === 'asteroidField' && uniS.aSolarBody.resourceOne === 'silicone' && shipS.aShip.moduleMiningLaser">
                 <ion-button (click)="beginMining(uniS.aSolarBody.resourceOne, uniS.aSolarBody.resourceOneYield)">
                   Begin Mining {{uniS.aSolarBody.resourceOne}}
                 </ion-button>
               </ion-col>
-              <ion-col *ngIf="uniS.aSolarBody.resourceTwo === 'ore' && shipS.aShip.moduleMiningLaser || uniS.aSolarBody.resourceTwo === 'silicone' && shipS.aShip.moduleMiningLaser">
+              <ion-col *ngIf="uniS.aSolarBody.solarBodyType === 'asteroidField' && uniS.aSolarBody.resourceTwo === 'ore' && shipS.aShip.moduleMiningLaser || uniS.aSolarBody.solarBodyType === 'asteroidField' && uniS.aSolarBody.resourceTwo === 'silicone' && shipS.aShip.moduleMiningLaser">
                 <ion-button (click)="beginMining(uniS.aSolarBody.resourceTwo, uniS.aSolarBody.resourceTwoYield)">
                   Begin Mining {{uniS.aSolarBody.resourceTwo}}
                 </ion-button>
@@ -654,7 +660,7 @@
                         class="solar-system-select"
                         [interfaceOptions]="{'cssClass':'wider-popover'}"
                       >
-                        <ion-select-option *ngFor="let solarSystem of shipS.aUniverse | async" [value]="solarSystem">
+                        <ion-select-option *ngFor="let solarSystem of shipS.aUniverse" [value]="solarSystem">
                           {{solarSystem.name}}: {{solarSystem.xCoordinate}}, {{solarSystem.yCoordinate}}
                         </ion-select-option>
                       </ion-select>
@@ -673,7 +679,8 @@
                     <ion-item fill="solid" class="ion-margin-bottom">
                       <ion-label>Solar Body</ion-label>
                       <ion-select name="solar_body" [(ngModel)]="shipS.aTravel.aSolarBody" (ngModelChange)="shipS.calcSBTT()" class="solar-system-select" [interfaceOptions]="{'cssClass':'wider-popover'}">
-                        <ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody">
+                        <!--<ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody"> todo this worked likes its own Subscription-->
+                        <ion-select-option *ngFor="let solarBody of aSolarBodies" [value]="solarBody">
                           {{solarBody.name}}: {{solarBody.xCoordinate}}, {{solarBody.yCoordinate}}
                         </ion-select-option>
                       </ion-select>
@@ -756,12 +763,16 @@
 
               <ion-row>
                 <ion-col>
-                  <ion-label position="stacked">Started</ion-label>
-                  {{shipS.eta(shipS.aShip.travelStartTime)}}
+                  <ion-item>
+                    <ion-label position="stacked">Started</ion-label>
+                    {{shipS.eta(shipS.aShip.travelStartTime)}}
+                  </ion-item>
                 </ion-col>
                 <ion-col>
-                  <ion-label position="stacked">ETA</ion-label>
-                  {{shipS.eta(shipS.aShip.travelAT)}} +(-) 1 Minute
+                  <ion-item>
+                    <ion-label position="stacked">ETA</ion-label>
+                    {{shipS.eta(shipS.aShip.travelAT)}} +(-) 1 Minute
+                  </ion-item>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -974,6 +985,6 @@
   </span>
 
   <span id="logs" *ngSwitchCase="'logs'">
-    <app-logs></app-logs>
+    <app-logs [entity]="'ship'"></app-logs>
   </span>
 </ion-content>

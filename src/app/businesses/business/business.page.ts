@@ -6,6 +6,7 @@ import {ServerService} from '../../services/server/server.service';
 import {AlertController, LoadingController} from '@ionic/angular';
 import {BusinessesService} from '../../services/businesses/businesses.service';
 import {UniverseService} from '../../services/universe/universe.service';
+import {GlobalService} from "../../services/global/global.service";
 
 const moment= require('moment');
 
@@ -38,6 +39,7 @@ export class BusinessPage implements OnInit {
     public bs: BusinessesService,
     public uniS: UniverseService,
     private loadingController: LoadingController,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -138,7 +140,7 @@ export class BusinessPage implements OnInit {
     this.bs.aBusiness.status= 'Mining';
     this.bs.aBusiness.miningTarget= aItem;
     this.bs.aBusiness.miningYield= aItemYield;
-    this.bs.aBusiness.miningEndTime= moment().add(15, 'minutes').unix();
+    this.bs.aBusiness.miningEndTime= moment().add(15, 'minutes').valueOf();
 
     this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
       .update(this.bs.aBusiness);
@@ -165,7 +167,7 @@ export class BusinessPage implements OnInit {
     this.bs.aBusiness.command= 'produce';
     this.bs.aBusiness.status= 'Producing';
     this.bs.aBusiness.productionTarget= item;
-    this.bs.aBusiness.productionEndTime= moment().add(15, 'minutes').unix();
+    this.bs.aBusiness.productionEndTime= moment().add(15, 'minutes').valueOf();
 
     this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
       .update(this.bs.aBusiness);
@@ -187,7 +189,7 @@ export class BusinessPage implements OnInit {
 
   //region Other
   eta(timeStamp){
-    return moment.unix(timeStamp).format('HH:mm:ss');
+    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
   }
 
   async helpMessageAlert() {

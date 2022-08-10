@@ -10,6 +10,7 @@ import {ColonyService} from '../services/colony/colony.service';
 import {WarehouseService} from '../services/warehouse/warehouse.service';
 import {StationService} from '../services/station/station.service';
 import {PlatformService} from '../services/platform/platform.service';
+import {GlobalService} from "../services/global/global.service";
 
 @Component({
   selector: 'app-trade',
@@ -70,6 +71,7 @@ export class TradePage implements OnInit {
     public colonyS: ColonyService,
     public stationS: StationService,
     public platform: PlatformService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 
@@ -147,6 +149,7 @@ export class TradePage implements OnInit {
             this.aMarketInventory= aInventory;
             this.aFilteredMarketInventory= aInventory;
             this.showTrade= true;
+            this.filterMarketInventory();
           });
         break;
     }

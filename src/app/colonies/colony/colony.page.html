@@ -5,16 +5,14 @@
     <ion-col>
       <ion-card>
         <ion-card-header>
-          <ion-card-title>Solar Body Details</ion-card-title>
+          <ion-card-title>Details</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-grid>
             <ion-row>
-              <ion-col *ngFor="let col of uniS.aSBTableColumns">
+              <ion-col *ngFor="let col of uniS.aCTableColumns">
                 <ion-item>
                   <ion-label position="stacked">{{col.label}}</ion-label>
-                  <ion-item class="ion-no-padding" lines="none">
-                    <ion-label>
                     <span *ngIf="col.filter === 'coordinates'">
                       {{uniS.aSolarBody.xCoordinate}}, {{uniS.aSolarBody.yCoordinate}}
                     </span>
@@ -24,8 +22,6 @@
                       <span *ngIf="col.filter !== 'resourceOne' && col.filter !== 'resourceTwo' && col.filter !== 'coordinates'">
                       {{uniS.aSolarBody[col.filter]}}
                     </span>
-                    </ion-label>
-                  </ion-item>
                 </ion-item>
               </ion-col>
             </ion-row>
@@ -34,6 +30,7 @@
       </ion-card>
     </ion-col>
 
+    <!--
     <ion-col>
       <ion-card>
         <ion-card-header>
@@ -62,6 +59,7 @@
         </ion-card-content>
       </ion-card>
     </ion-col>
+    -->
   </ion-row>
 
   <ion-row>

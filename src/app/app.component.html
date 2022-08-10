@@ -162,7 +162,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}} | {{projectName}}</p>
+                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}<span *ngIf="projectName === 'development'"> | {{projectName}}</span></p>
                 </ion-col>
               </ion-row>
             </ion-grid>

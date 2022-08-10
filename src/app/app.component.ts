@@ -35,8 +35,9 @@ export class AppComponent {
   bootDone: Promise<boolean> | undefined;
   public appPages = [
     /*{ title: 'Login', url: '/login', icon: '', role: 'admin' },*/
-    { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true, subTitle: 'Ships: Travel & Trade' },
-    { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true, subTitle: 'Warehouse: Trade' },
+    { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true },
+    { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true },
+    { title: 'Wallet', url: '/wallet', icon: '', role: 'any', auth: true },
     /*{ title: 'Character', url: '/character', icon: '', role: 'any', auth: true },*/
     /*{ title: 'Shipyard', url: '/shipyard', icon: '', auth: true },*/
     /*{ title: 'Ships', url: '/ships', icon: '', role: 'any', auth: true },*/
@@ -105,7 +106,7 @@ export class AppComponent {
           if(!this.cs.characterFound){
             this.cs.rcP().then(
               rcpRes => {
-                this.cs.readCharacterShips();
+                // this.cs.readCharacterShips();
                 this.bootDone= Promise.resolve(true);
               },
               rcpError =>{
@@ -116,7 +117,7 @@ export class AppComponent {
             );
           }
           else{
-            this.cs.readCharacterShips();
+            // this.cs.readCharacterShips();
             this.bootDone= Promise.resolve(true);
           }
         }
@@ -144,13 +145,18 @@ export class AppComponent {
     //Always update this version number
     this.afs.collection('app').doc('version').valueChanges()
       .pipe(take(1))
-      .subscribe((aAppMessage: any) => {
-        this.aAM= aAppMessage;
+      .subscribe((aAppVersion: any) => {
+        const version= aAppVersion.version;
+        this.afs.collection('app').doc(version).valueChanges()
+          .pipe(take(1))
+          .subscribe((aAppMessage: any) => {
+            this.aAM= aAppMessage;
+          });
       });
   }
 
   globalMessages(){
-    const rightNow= moment().unix();
+    const rightNow= moment().valueOf();
     this.afs.collection('globalAlerts',
       ref =>
         ref.where('time', '>', rightNow)

@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {StationService} from '../../services/station/station.service';
 import {ModalController} from '@ionic/angular';
 import {Components} from '@ionic/core';
+import {GlobalService} from "../../services/global/global.service";
 
 @Component({
   selector: 'app-station',
@@ -30,6 +31,7 @@ export class StationPage implements OnInit {
     private router: Router,
     public stationS: StationService,
     private modalController: ModalController,
+    public globalS: GlobalService,
   ) {}
   //endregion
 

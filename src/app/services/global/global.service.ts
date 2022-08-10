@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import {ToastController} from '@ionic/angular';
+import {ModalController, ToastController} from '@ionic/angular';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {AuthenticationService} from '../authentication/authentication.service';
+import {TutorialModalPage} from "../../modals/tutorial-modal/tutorial-modal.page";
 
 // @ts-ignore
 const moment= require('moment');
@@ -18,6 +19,7 @@ export class GlobalService {
     private toastController: ToastController,
     private afs: AngularFirestore,
     public authService: AuthenticationService,
+    public modalController: ModalController,
   ) {
     // this.globalMessages();
   }
@@ -39,7 +41,7 @@ export class GlobalService {
   }
 
   globalMessages(){
-    const rightNow= moment().unix();
+    const rightNow= moment().valueOf();
     this.afs.collection('globalAlerts',
       ref =>
         ref.where('time', '>', rightNow)
@@ -59,7 +61,17 @@ export class GlobalService {
   }
 
   formatTimeStamp(timeStamp){
-    return moment.unix(timeStamp).format('HH:mm:ss');
+    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
+  }
+
+  async viewTutorial(pageName){
+    const shipModal= await this.modalController.create({
+      component: TutorialModalPage,
+      componentProps: {id: pageName},
+      cssClass: 'ship_modal',
+      showBackdrop: true
+    });
+    return await shipModal.present();
   }
   //endregion
 }

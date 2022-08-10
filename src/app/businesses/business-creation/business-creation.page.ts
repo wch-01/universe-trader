@@ -26,7 +26,8 @@ export class BusinessCreationPage implements OnInit {
     private us: UniverseService,
     public ws: WarehouseService,
     private gs: GlobalService,
-    private cs: CharacterService
+    private cs: CharacterService,
+    public globalS: GlobalService,
   ) { }
   //endregion
 

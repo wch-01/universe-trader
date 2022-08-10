@@ -36,6 +36,13 @@ export class WarehousePage implements OnInit, OnDestroy {
   //endregion
 
   ngOnInit() {
+    this.ws.rwiP().then((rwiPRes: any) => {
+      this.ws.setCargoCapacity().then(() => {
+        this.capReady= true;
+      });
+    });
+
+    /*
     this.ws.readWarehouse(this.warehouseID).then((res: any) => {
       this.ws.rwiP().then((rwiPRes: any) => {
         this.ws.setCargoCapacity().then(() => {
@@ -48,6 +55,7 @@ export class WarehousePage implements OnInit, OnDestroy {
         }
       );
     });
+    */
   }
 
   //c

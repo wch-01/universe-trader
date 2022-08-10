@@ -55,7 +55,8 @@ export class ShipService {
     totalTravelTime: '00:00:00',
   };
 
-  aUniverse;
+  aUniverse: any;
+  aFilteredUniverse: any;
   //endregion
 
   //region Constructor
@@ -95,11 +96,24 @@ export class ShipService {
             .then(() => {});
 
           if (this.aShip.status !== 'Traveling') {
-            this.aUniverse = this.uniS.readUniverse();
             Promise.all([
+              this.uniS.rpSolarSystems(),
               this.uniS.rpSB(this.aShip.solarBody),
               this.uniS.rpSS(this.aShip.solarSystem)
-            ]);
+            ])
+              .then(() => {
+                this.aUniverse= this.uniS.aSolarSystems;
+                this.aUniverse.sort((n1,n2) => {
+                  if (n1.name > n2.name) {
+                    return 1;
+                  }
+                  if (n1.name < n2.name) {
+                    return -1;
+                  }
+                  return 0;
+                  //this.aFilteredSolarBodies.sort
+                });
+              });
 
             this.uniS.rsbCP(this.aShip.solarBody).then(
               (aColony) => {
@@ -534,13 +548,7 @@ export class ShipService {
     let time: any;
     switch (mode){
       case 'arrivalTime':
-        time=  moment
-          .unix(
-            moment()
-              .add(this.aTravel.ssTTms + this.aTravel.sbTTms, 'milliseconds')
-              .unix()
-          )
-          .format('HH:mm:ss');
+        time=  moment(moment().add(this.aTravel.ssTTms + this.aTravel.sbTTms, 'milliseconds').valueOf()).format('MMM-DD-yyyy, HH:mm:ss');
         break;
       default:
         this.aTravel.totalTravelTime= moment.utc(
@@ -553,14 +561,15 @@ export class ShipService {
     return time;
   }
   eta(timeStamp){
-    return moment.unix(timeStamp).format('HH:mm:ss');
+    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
   }
   travel(){
     const arrivalTime= moment().add( +this.aTravel.ssTTms + +this.aTravel.sbTTms, 'milliseconds')
-      .unix();
+      .valueOf();
     //console.log(arrivalTime);
     const aShip= {
       status: 'Traveling',
+      travelStartTime: moment().valueOf(),
       travelSS: this.aTravel.aSolarSystem.name,
       travelSB: this.aTravel.aSolarBody.name,
       travelSSID: this.aTravel.aSolarSystem.id,

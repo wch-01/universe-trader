@@ -6,6 +6,11 @@
       <ion-card-title>
         Businesses
       </ion-card-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="globalS.viewTutorial('businesses')">
+          <ion-icon name="bulb-outline"></ion-icon>Tutorial
+        </ion-button>
+      </ion-buttons>
       <ion-card-subtitle>
         <span *ngIf="busS.aBusinesses">{{busS.aBusinesses.length}}</span> of 10 allowed
       </ion-card-subtitle>

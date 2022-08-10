@@ -147,6 +147,10 @@ const routes: Routes = [
     path: 'tutorial-modal',
     loadChildren: () => import('./modals/tutorial-modal/tutorial-modal.module').then( m => m.TutorialModalPageModule)
   },
+  {
+    path: 'wallet',
+    loadChildren: () => import('./wallet/wallet.module').then( m => m.WalletPageModule)
+  },
 
 
 

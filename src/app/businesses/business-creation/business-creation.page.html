@@ -5,6 +5,9 @@
     </ion-buttons>
     <ion-title>business-creation</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('businessCreation')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
       <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>

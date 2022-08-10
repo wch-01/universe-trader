@@ -3,9 +3,17 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Control Room at {{us.aSolarBody.name}}</ion-title>
+    <ion-title>Control Room at {{uniS.aSolarBody.name}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="globalS.viewTutorial('controlRoom')">
+        <ion-icon name="bulb-outline"></ion-icon>Tutorial
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
-  <ion-segment [(ngModel)]="nsTab">
+  <ion-segment [(ngModel)]="controlRoomTab">
+    <ion-segment-button value="overview">
+      <ion-label>Overview</ion-label>
+    </ion-segment-button>
     <ion-segment-button value="warehouse">
       <ion-label>Warehouse</ion-label>
     </ion-segment-button>
@@ -26,7 +34,87 @@
   </ion-segment>
 </ion-header>
 
-<ion-content [ngSwitch]="nsTab">
+<ion-content [ngSwitch]="controlRoomTab" *ngIf="controlRoomLoaded">
+  <span *ngSwitchCase="'overview'">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Solar System Details</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col *ngFor="let col of uniS.aSSTableColumns">
+                    <ion-item>
+                      <ion-label position="stacked">{{col.label}}</ion-label>
+                      <span *ngIf="col.filter === 'coordinates'; else normalSS">
+                        {{uniS.aSolarSystem.xCoordinate}}, {{uniS.aSolarSystem.yCoordinate}}
+                      </span>
+                      <ng-template #normalSS>
+                        {{uniS.aSolarSystem[col.filter]}}
+                      </ng-template>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Solar Body Details</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col *ngFor="let col of uniS.aSBTableColumns">
+                    <ion-item>
+                      <ion-label position="stacked">{{col.label}}</ion-label>
+                        <span *ngIf="col.filter === 'coordinates'">
+                          {{uniS.aSolarBody.xCoordinate}}, {{uniS.aSolarBody.yCoordinate}}
+                        </span>
+                        <span *ngIf="col.filter === 'resourceOne' || col.filter === 'resourceTwo'">
+                          {{uniS.aSolarBody[col.filter]}}
+                          <span *ngIf="uniS.aSolarBody[col.filter] === 'ore' || uniS.aSolarBody[col.filter] === 'silicone' || uniS.aSolarBody[col.filter] === 'power'">
+                            - {{uniS.aSolarBody[col.filter+'Yield']}}% Yield
+                          </span>
+                        </span>
+                        <span *ngIf="col.filter !== 'resourceOne' && col.filter !== 'resourceTwo' && col.filter !== 'coordinates'">
+                          {{uniS.aSolarBody[col.filter]}}
+                        </span>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Warehouse</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label position="stacked">capacity</ion-label>
+                      {{warehouseS.capacityAvailable | number}} / {{warehouseS.aWarehouse.level * ss.aRules.storage.warehouse | number}}
+                  </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </span>
+
   <span *ngSwitchCase="'warehouse'">
     <app-warehouse *ngIf="warehouseBoot" [warehouseID]="warehouseID"></app-warehouse>
   </span>

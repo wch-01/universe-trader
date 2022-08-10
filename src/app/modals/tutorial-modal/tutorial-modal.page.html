@@ -7,15 +7,26 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="id === 'dashboard'">
+<ion-content *ngIf="aTutorial; else noTutorial">
   <ion-card>
     <ion-card-header>
-      <ion-card-header>Dashboard Tutorial</ion-card-header>
+      <ion-card-header>{{id | uppercase}} Tutorial</ion-card-header>
     </ion-card-header>
     <ion-card-content>
-      This is your dashboard page. Here you can see a full list of all your ships and warehouses.
-      By clicking on the ship's name you will gain access to that ships details and give it specific instructions.
-      On the warehouse tab, you can transfer your clone to any other warehouse you own, allowing you to perform actions in that area.
+      {{aTutorial.desc}}
     </ion-card-content>
   </ion-card>
 </ion-content>
+
+<ng-template #noTutorial>
+  <ion-content>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-header>{{id | uppercase}} Tutorial</ion-card-header>
+      </ion-card-header>
+      <ion-card-content>
+        Looks like you found a tutorial that is still being worked on. Sorry for the inconvenience, check back soon for new tutorials.
+      </ion-card-content>
+    </ion-card>
+  </ion-content>
+</ng-template>
