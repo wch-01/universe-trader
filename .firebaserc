@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "universe-trader-6f8f2",
-    "development": "universe-trader-dev"
+    "development": "universe-trader-dev",
+    "production": "universe-trader-6f8f2"
   },
   "targets": {},
   "etags": {}

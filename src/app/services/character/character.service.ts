@@ -9,6 +9,7 @@ import {UniverseService} from '../universe/universe.service';
 import {SolarBody, SolarSystem} from '../../classes/universe';
 import {ShipService} from '../ship/ship.service';
 import {HousekeepingService} from '../housekeeping/housekeeping.service';
+import {Character} from '../../classes/character';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,7 @@ export class CharacterService {
   aUserShips: any;
   characterShipsSub;
   aCharacterShips: any;
+  aCharacterStations: any;
   aCharacterWarehouses: any;
   aWarehouses: any;
   aLocation= {
@@ -46,18 +48,32 @@ export class CharacterService {
   //region Create
   createCharacter(characterName){
     return new Promise((resolve, reject) => {
-      const newCharacter= {
-        name: characterName,
-        uid: this.authService.user.uid
-      };
-      this.afs.collection('servers/' + this.ss.activeServer + '/characters')
-        .add(Object.assign({}, newCharacter))
-        .then((createCharacterResult: any) => {
-          this.id= createCharacterResult.id;
-          this.addStartingGearBoot(createCharacterResult.id).then((result: any) => {
-            resolve(true);
-          });
-        });
+      this.afs.firestore.collection('servers/' + this.ss.activeServer + '/zCharacters').doc('starting character')
+        .get().then((oNewCharacter) => {
+          const aNewCharacter= oNewCharacter.data() as Character;
+          aNewCharacter.name= characterName;
+          aNewCharacter.uid= this.authService.user.uid;
+          /*
+          const newCharacter= {
+            name: characterName,
+            uid: this.authService.user.uid,
+            skills: {
+              engine: 1,
+              jumpEngine: 1,
+              equipment: 1,
+              station: 0
+            }
+          };
+          */
+          this.afs.collection('servers/' + this.ss.activeServer + '/characters')
+            .add(Object.assign({}, aNewCharacter))
+            .then((createCharacterResult: any) => {
+              this.id= createCharacterResult.id;
+              this.addStartingGearBoot(createCharacterResult.id).then((result: any) => {
+                resolve(true);
+              });
+            });
+      });
     });
   }
 
@@ -460,7 +476,55 @@ export class CharacterService {
     });
   }
 
-  readCharacterStations(uid){}
+  /**
+   * Name: Read Character Ships
+   * */
+  readCharacterStations(){
+    const characterStationsSub= this.afs.collection('servers/' + this.ss.activeServer + '/stations',
+      ref => ref
+        .where('ownerID', '==', this.id))
+      .valueChanges({idField:'id'})
+      .subscribe(aStations=>{
+        if(this.ss.aRules.consoleLogging.mode >= 1){
+          console.log('Character Service: readCharacterShips Sub');
+        }
+        this.aCharacterStations= [];//Reset the Character ship list each time the DB has changes.
+        aStations.some((aStation: Ship)=> {
+          const aSolarSystemSub= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+            ref =>
+              ref.where('type', '==', 'solarSystem')
+          )
+            .doc(aStation.solarSystem).valueChanges({idField:'id'})
+            .subscribe((solarSystem: any)=>{
+              this.subscriptions.push(aSolarSystemSub);
+              const solarSystemName= solarSystem.name;
+              aStation.solarSystemName= solarSystemName;
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('Character Service: readCharacterShips - Solar System');
+                if(this.ss.aRules.consoleLogging.mode >= 2){
+                  console.log(solarSystemName);
+                }
+              }
+            });
+
+          const aSolarBodyQuerySub= this.afs.collection('servers/' + this.ss.activeServer + '/universe',
+            ref =>
+              ref.where('type', '==', 'solarBody')
+          )
+            .doc(aStation.solarBody).valueChanges({idField:'id'})
+            .subscribe((aSolarBody: any)=>{
+              if(this.ss.aRules.consoleLogging.mode >= 1){
+                console.log('Character Service: readCharacterShips - Solar Body');
+              }
+              this.subscriptions.push(aSolarBodyQuerySub);
+              aStation.solarBodyName= aSolarBody.name;
+            });
+
+          this.aCharacterStations.push(aStation);
+        });
+        this.subscriptions.push(characterStationsSub);
+      });
+  }
 
   readCharacterColonies(uid){}
 

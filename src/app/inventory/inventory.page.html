@@ -1,0 +1,53 @@
+<ion-card *ngIf="aEntityInventory">
+  <ion-grid>
+    <ion-row>
+      <ion-col>Item</ion-col>
+      <ion-col>Quantity</ion-col>
+      <ion-col title="Cost of Goods">COG</ion-col>
+      <ion-col>Total Value</ion-col>
+      <ion-col>Type</ion-col>
+      <ion-col>Level</ion-col>
+      <ion-col>Actions</ion-col>
+    </ion-row>
+    <ion-row *ngFor="let aItem of aEntityInventory; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+      <ion-col>
+        {{ss.aaDefaultItems[aItem.itemID].displayName}}
+      </ion-col>
+      <ion-col>
+        {{aItem.quantity | number}}
+      </ion-col>
+      <ion-col>
+        {{aItem.cost / aItem.quantity | number}}
+      </ion-col>
+      <ion-col>
+        {{aItem.cost | number}}
+      </ion-col>
+      <ion-col>
+        {{ss.aaDefaultItems[aItem.itemID].type}}
+      </ion-col>
+      <ion-col>
+        <span *ngIf="ss.aaDefaultItems[aItem.itemID].type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
+        <ng-template #levelNA>N/A</ng-template>
+      </ion-col>
+      <ion-col>
+        <span *ngIf="ss.aaDefaultItems[aItem.itemID].type === 'Ship Core' && entity === 'warehouse' && charS.aCharacterShips">
+          <ion-button (click)="assembleShip(aItem)" size="small" *ngIf="charS.aCharacter.skills.leadership > charS.aCharacterShips.length; else skill">Launch Ship</ion-button>
+          <ng-template #skill>Your skill needs to increase</ng-template>
+        </span>
+
+        <span *ngIf="ss.aaDefaultItems[aItem.itemID].type === 'Station Kit' && charS.aCharacterStations">
+          <ion-button (click)="deployStation(aItem)" size="small" *ngIf="charS.aCharacter.skills.station > charS.aCharacterStations.length; else skill">Launch Station</ion-button>
+          <ng-template #skill>Your skill needs to increase</ng-template>
+        </span>
+
+        <span *ngIf="ss.aaDefaultItems[aItem.itemID].type === 'Packaged Ship Module' || ss.aaDefaultItems[aItem.itemID].type === 'Packaged Station Module'">
+          <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
+        </span>
+
+        <span *ngIf="ss.aaDefaultItems[aItem.itemID].type === 'Prepared Ship Module' || ss.aaDefaultItems[aItem.itemID].type === 'Prepared Station Module'">
+          <ion-button *ngIf="aItem.level < 10" (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
+        </span>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-card>

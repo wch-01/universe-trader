@@ -10,11 +10,10 @@
 <ion-content>
   <ion-card *ngIf="ordersLoaded">
     <ion-card-header>
-      <ion-card-title>Level: {{shipS.aShip.moduleCommandCenterLevel}}</ion-card-title>
-      <ion-card-subtitle>Max Orders: {{shipS.aShip.moduleCommandCenterLevel * 5}}</ion-card-subtitle>
+      <ion-card-title>Level: {{shipS.aaModules['preparedCommandCenterModule'].level}}</ion-card-title>
+      <ion-card-subtitle>Max Orders: {{shipS.aaModules['preparedCommandCenterModule'].level * 5}}</ion-card-subtitle>
       <ion-card-subtitle>
-        Current: {{aOrders.length}} / {{shipS.aShip.moduleCommandCenterLevel * 5}}
-
+        Current: {{aOrders.length}} / {{shipS.aaModules['preparedCommandCenterModule'].level * 5}}
       </ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
@@ -93,22 +92,19 @@
                     <ion-col>
                       <ion-item>
                         <ion-label position="floating">Item</ion-label>
-                        <ion-select
-                          name="solar_system"
-                          [(ngModel)]="aOrder.item"
-                        >
-                        <!--
-                          <ion-select-option *ngFor="let aItem of aUniverse | async" [value]="aItem.name">
-                            {{aItem.displayName}}
-                          </ion-select-option>
-                        -->
-                        <ion-select-option value="power">Power</ion-select-option>
-                        <ion-select-option value="mre">MRE</ion-select-option>
-                        <ion-select-option value="ore">Ore</ion-select-option>
-                        <ion-select-option value="silicone">Silicone</ion-select-option>
-                        <ion-select-option value="metal">Metal</ion-select-option>
-                        <ion-select-option value="electronics">Electronics</ion-select-option>
-                      </ion-select>
+                        <ion-select name="solar_system" [(ngModel)]="aOrder.item" class="" style="max-width: 100% !important;">
+                          <!--
+                          <ion-select-option value="power">Power</ion-select-option>
+                          <ion-select-option value="mre">MRE</ion-select-option>
+                          <ion-select-option value="ore">Ore</ion-select-option>
+                          <ion-select-option value="silicone">Silicone</ion-select-option>
+                          <ion-select-option value="metal">Metal</ion-select-option>
+                          <ion-select-option value="electronics">Electronics</ion-select-option>
+                          -->
+
+                          <ion-select-option *ngFor="let aItem of ss.aDefaultItems" [value]="aItem.name">{{aItem.displayName}}</ion-select-option>
+
+                        </ion-select>
                       </ion-item>
                     </ion-col>
                     <ion-col>
@@ -183,14 +179,12 @@
         </ion-reorder-group>
       </ion-grid>
 
-      <ion-button *ngIf="aOrders.length < (shipS.aShip.moduleCommandCenterLevel * 5)" (click)="addOrder()">
+      <ion-button *ngIf="aOrders.length < (shipS.aaModules['preparedCommandCenterModule'].level * 5)" (click)="addOrder()">
         Add Order
       </ion-button>
-
       <ion-button (click)="updateOrders()">
         update orders
       </ion-button>
-
       <ion-button (click)="activateOrders()" *ngIf="this.shipS.aShip.orders === false || this.shipS.aShip.orders === undefined">
         activate orders
       </ion-button>

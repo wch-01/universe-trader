@@ -110,7 +110,7 @@ export class ShipPage implements OnInit, OnDestroy {
     private ionAlert: AlertController,
     private route: ActivatedRoute,
     public router: Router,
-    private cs: CharacterService,
+    public cs: CharacterService,
     private modalController: ModalController,
     private loadingController: LoadingController,
     private hks: HousekeepingService,
@@ -429,6 +429,9 @@ export class ShipPage implements OnInit, OnDestroy {
   }
 
   detachModule(aModule, aShip: Ship){
+    if(aModule.name === 'moduleStorage' || aModule.name === 'cargo'){
+      //todo check for storage being used
+    }
     //Check for Local Warehouse
     this.ws.fwIDP(aShip.solarBody, aShip.ownerID).then(
       (foundWarehouse) => {
@@ -584,15 +587,24 @@ export class ShipPage implements OnInit, OnDestroy {
       );
   }
 
-  beginMining(aItem, aItemYield){
-    this.shipS.aShip.command= 'mine';
+  beginMining(item, itemYield){
+    //this.shipS.aShip.command= 'mine';
     this.shipS.aShip.status= 'Mining';
-    this.shipS.aShip.miningTarget= aItem;
-    this.shipS.aShip.miningYield= aItemYield;
+    this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').valueOf();//Had to be here for the cloud function find
+    this.shipS.aShip.miningSettings= {
+      target: item,
+      yield: itemYield,
+      laserLevel: this.shipS.aaModules.preparedMiningLaserModule.level
+      /*endTime: moment().add(15, 'minutes').valueOf()*/
+    };
+    /*
+    this.shipS.aShip.miningTarget= item;
+    this.shipS.aShip.miningYield= itemYield;
     this.shipS.aShip.miningEndTime= moment().add(15, 'minutes').valueOf();
+    */
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships').doc(this.shipS.aShip.id)
-      .update(this.shipS.aShip);
+      .update(this.shipS.aShip).then(() => {});
   }
 
   cancelMining(){

@@ -8,7 +8,7 @@ import {ColonyService} from '../services/colony/colony.service';
 import {Router} from '@angular/router';
 import {ControlRoomService} from '../services/control-room/control-room.service';
 import {LoadingController} from '@ionic/angular';
-import {GlobalService} from "../services/global/global.service";
+import {GlobalService} from '../services/global/global.service';
 
 @Component({
   selector: 'app-control-room',
@@ -74,9 +74,11 @@ export class ControlRoomPage implements OnInit {
     ])
       .then(() => {
         this.warehouseS.readWarehouse(this.crS.warehouseID).then(() => {
-          this.warehouseS.setCargoCapacity().then(() => {
-            this.controlRoomLoaded= true;
-            this.controlRoomLoading.dismiss();
+          this.warehouseS.rpWI().then(() => {
+            this.warehouseS.setCargoCapacity().then(() => {
+              this.controlRoomLoaded= true;
+              this.controlRoomLoading.dismiss();
+            });
           });
         });
         this.warehouseBoot= true;

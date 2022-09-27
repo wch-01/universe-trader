@@ -1,0 +1,130 @@
+<ion-grid>
+  <ion-row>
+    <ion-col>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{entity | uppercase}}</ion-card-title>
+          <ion-card-subtitle>Available Capacity: {{eCapacity}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row class="warehouseInventoryBorder">
+              <ion-col>
+                <ion-item fill="solid" class="ion-margin-bottom">
+                  <ion-label position="floating">
+                    Item
+                    <!--<span *ngIf="sortField === 'name'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>-->
+                  </ion-label>
+                  <ion-input type="text" name="filterName" [(ngModel)]="aEntityInventoryFilters.name" (ngModelChange)="filterEntityInventory()" clearInput=""></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item fill="solid" class="ion-margin-bottom">
+                  <ion-label position="floating">
+                    Type
+                    <!--<span *ngIf="sortField === 'type'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>-->
+                  </ion-label>
+                  <ion-input type="text" name="filterType" [(ngModel)]="aEntityInventoryFilters.type" (ngModelChange)="filterEntityInventory()" clearInput=""></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                Quantity
+              </ion-col>
+              <ion-col>Transfer</ion-col>
+            </ion-row>
+            <ion-row *ngFor="let aItem of aFilteredEntityInventory" class="warehouseInventoryBorder">
+              <ion-col>
+                {{ss.aaDefaultItems[aItem.itemID].displayName}}
+              </ion-col>
+              <ion-col>
+                {{aItem.type}}
+                {{ss.aaDefaultItems[aItem.itemID].type}}
+              </ion-col>
+              <ion-col>
+                {{aItem.quantity | number}}
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">Amount</ion-label>
+                  <ion-input type="number" [max]="aItem.quantity" #toEVAmount></ion-input>
+                </ion-item>
+                <ion-button (click)="transferAlert(entityViewed, aItem, toEVAmount.value)">
+                  Transfer
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <ion-col>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{entityViewed | uppercase}}</ion-card-title>
+          <ion-card-subtitle>Available Capacity: {{evCapacity}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row class="warehouseInventoryBorder">
+              <ion-col>
+                <ion-item fill="solid" class="ion-margin-bottom">
+                  <ion-label position="floating">
+                    Item
+                    <!--<span *ngIf="sortField === 'name'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>-->
+                  </ion-label>
+                  <ion-input type="text" name="filterName" [(ngModel)]="aEntityVInventoryFilters.name" (ngModelChange)="filterEntityVInventory()" clearInput=""></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item fill="solid" class="ion-margin-bottom">
+                  <ion-label position="floating">
+                    Type
+                    <!--<span *ngIf="sortField === 'type'">
+                      <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
+                      <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
+                    </span>-->
+                  </ion-label>
+                  <ion-input type="text" name="filterType" [(ngModel)]="aEntityVInventoryFilters.type" (ngModelChange)="filterEntityVInventory()" clearInput=""></ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col>Quantity</ion-col>
+              <ion-col>Transfer</ion-col>
+            </ion-row>
+
+            <ion-row *ngFor="let aItem of aFilteredEntityVInventory" class="warehouseInventoryBorder">
+              <ion-col>
+                {{ss.aaDefaultItems[aItem.itemID].displayName}}
+              </ion-col>
+              <ion-col>
+                {{ss.aaDefaultItems[aItem.itemID].type}}
+              </ion-col>
+              <ion-col>
+                {{aItem.quantity | number}}
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="floating">Amount</ion-label>
+                  <ion-input type="number" [max]="aItem.quantity" #toEAmount></ion-input>
+                </ion-item>
+
+                <ion-button (click)="transferAlert(entity, aItem, toEAmount.value)">
+                  Transfer
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

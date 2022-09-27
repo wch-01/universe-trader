@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {ModalController, ToastController} from '@ionic/angular';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {AuthenticationService} from '../authentication/authentication.service';
-import {TutorialModalPage} from "../../modals/tutorial-modal/tutorial-modal.page";
+import {TutorialModalPage} from '../../modals/tutorial-modal/tutorial-modal.page';
 
 // @ts-ignore
 const moment= require('moment');
@@ -37,7 +37,7 @@ export class GlobalService {
       duration: 2000,
       color: type
     });
-    toast.present();
+    await toast.present();
   }
 
   globalMessages(){
@@ -60,8 +60,17 @@ export class GlobalService {
       });
   }
 
-  formatTimeStamp(timeStamp){
-    return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
+  formatTimeStamp(timeStamp, format?){
+    switch (format){
+      case 'timer':
+        const timerDuration= moment.duration(timeStamp);
+        const timerHours = Math.floor(timerDuration.asHours());
+        const timerMinutes  = Math.floor(timerDuration.asMinutes()) - timerHours * 60;
+        const timerSeconds   = Math.floor(timerDuration.asSeconds()) - timerHours * 60 * 60 - timerMinutes * 60;
+        return ((timerHours > 9) ? timerHours : ('0'+timerHours))+':'+((timerMinutes > 9) ? timerMinutes : ('0'+timerMinutes))+':'+((timerSeconds > 9) ? timerSeconds : ('0'+timerSeconds));
+      default:
+        return moment(timeStamp).format('MMM-DD-yyyy, HH:mm:ss');
+    }
   }
 
   async viewTutorial(pageName){

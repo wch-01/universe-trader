@@ -5,6 +5,9 @@ export class Rules {
   storage: any;
   production: any;
   miningShip: any;
+  skills: any;
+  station: any;
+  ship: any;
 }
 
 export class DefaultItems {
@@ -17,4 +20,7 @@ export class DefaultItems {
 
 export class Structures {
   construction: any;
+  type: any;
+  power: number;
+  upkeep: number;
 }

@@ -82,24 +82,29 @@ export class ServerService {
       console.log('Server Booting: ' + this.activeServer);
       this.afs.collection('servers/').doc(this.activeServer).valueChanges().pipe(take(1))
         .subscribe((aActiveServer: any) => {
-          //this.lastUpdate= aActiveServer.lastUpdate.seconds;
-          this.lastUpdate.rulesUpdated= aActiveServer.rules_updated;
-          this.lastUpdate.universeUpdated= aActiveServer.universe_updated;
-          this.lastUpdate.itemsUpdated= aActiveServer.items_updated;
-          this.lastUpdate.structuresUpdated= aActiveServer.structures_updated;
-          Promise
-            .all([
-            this.readRules(),
-            this.readItems(),
-            this.readStructures(),
-            this.rDCMI()
-          ])
-            .then((result: any) => {
-              this.serverBoot= Promise.resolve(true);
-              this.serverBooted= true;
-              //this.obsServerBooted= true as unknown as Observable<boolean>;
-              resolve(true);
-            });
+          if(aActiveServer){
+            //this.lastUpdate= aActiveServer.lastUpdate.seconds;
+            this.lastUpdate.rulesUpdated= aActiveServer.rulesUpdated;
+            this.lastUpdate.universeUpdated= aActiveServer.universeUpdated;
+            this.lastUpdate.itemsUpdated= aActiveServer.itemsUpdated;
+            this.lastUpdate.structuresUpdated= aActiveServer.structuresUpdated;
+            Promise
+              .all([
+                this.readRules(),
+                this.readItems(),
+                this.readStructures(),
+                this.rDCMI()
+              ])
+              .then((result: any) => {
+                this.serverBoot= Promise.resolve(true);
+                this.serverBooted= true;
+                //this.obsServerBooted= true as unknown as Observable<boolean>;
+                resolve(true);
+              });
+          }
+          else{
+            reject('Server Missing');
+          }
         });
     });
   }
@@ -156,13 +161,13 @@ export class ServerService {
         //Stored Rules are good
         this.aDefaultItems= JSON.parse(localStorage.getItem('ut_server_'+this.activeServer+'_items'));
         this.aDefaultItems.some((aRule: any) => {
-          this.aaDefaultItems[aRule.name]= aRule;
+          this.aaDefaultItems[aRule.id]= aRule;
         });
         resolve(true);
       }
       else{
         this.afs.collection('servers/' + this.activeServer + '/zItems')
-          .valueChanges()
+          .valueChanges({idField: 'id'})
           .pipe(take(1))
           .subscribe((aDefaultItems: any) => {
             if(this.aRules.consoleLogging >= 1){
@@ -181,7 +186,7 @@ export class ServerService {
                   console.log(aDefaultItem);
                 }
               }
-              this.aaDefaultItems[aDefaultItem.name]= aDefaultItem;
+              this.aaDefaultItems[aDefaultItem.id]= aDefaultItem;
             });
             resolve(true);
           });

@@ -41,6 +41,7 @@ export class SolarBody {
   resourceTwoYield: number;
   colony: any;
   colonyPopulation: number;
+  resources: any;
 }
 
 export class Colony {

@@ -119,7 +119,7 @@ export class ShipOrdersModalPage implements OnInit {
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships')
       .doc(this.shipS.aShip.id)
-      .update({ordersTotal: this.aOrders.length, ordersError: 0});
+      .update({ordersTotal: this.aOrders.length, ordersError: 0}).then(() => {});
   }
 
   async activateOrders() {

@@ -3,7 +3,7 @@ import { AuthenticationService } from '../services/authentication/authentication
 import {Router} from '@angular/router';
 import {AngularFirestore} from '@angular/fire/compat/firestore';
 import {AlertController, LoadingController, ToastController} from '@ionic/angular';
-import {take} from "rxjs/operators";
+import {take} from 'rxjs/operators';
 const moment= require('moment');
 
 @Component({

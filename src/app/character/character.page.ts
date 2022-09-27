@@ -6,6 +6,7 @@ import {UniverseService} from '../services/universe/universe.service';
 import {take} from 'rxjs/operators';
 import {LoadingController, ToastController} from '@ionic/angular';
 import {Router} from '@angular/router';
+import {GlobalService} from '../services/global/global.service';
 
 @Component({
   selector: 'app-character',
@@ -14,7 +15,7 @@ import {Router} from '@angular/router';
 })
 export class CharacterPage implements OnInit {
   //region Variables
-  nsTab= 'main';
+  characterTab= 'skills';
   responseMessageType = '';
   responseMessage = '';
   //endregion
@@ -22,8 +23,9 @@ export class CharacterPage implements OnInit {
   //region Constructor
   constructor(
     private afs: AngularFirestore,
-    private ss: ServerService,
+    public ss: ServerService,
     public charS: CharacterService,
+    private globalS: GlobalService,
     public us: UniverseService,
     public toastController: ToastController,
     private router: Router,
@@ -36,26 +38,11 @@ export class CharacterPage implements OnInit {
     console.log('Character Init');
     //this.us.readSolarSystem(this.charS.aCharacter.solarSystemID);
     //this.us.readSolarBody(this.charS.aCharacter.solarBodyID);
+    if(this.charS.characterFound){
+    }
   }
 
-  // Common Method to Show Message and Hide after 2 seconds
-  showMessage(type, msg) {
-    this.responseMessageType = type;
-    this.responseMessage = msg;
-    setTimeout(() => {
-      this.responseMessage = '';
-    }, 2000);
-  }
-
-  async presentToast(msg, type?) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 2000,
-      color: type
-    });
-    toast.present();
-  }
-
+  //region Creation
   async createCharacter(characterName){
     const loading = await this.loadingController.create({
       //cssClass: 'my-custom-class',
@@ -72,7 +59,7 @@ export class CharacterPage implements OnInit {
       .subscribe((aCharacter: any) => {
         if(aCharacter.length > 0){
           loading.dismiss();
-          this.presentToast('Character name exists already', 'danger');
+          this.globalS.toastMessage('Character name exists already', 'danger');
         }
         else{
           this.charS.createCharacter(characterName).then(r => {
@@ -85,4 +72,24 @@ export class CharacterPage implements OnInit {
         }
       });
   }
+  //endregion
+
+  //region Read
+  //endregion
+
+  //region Update
+  levelUpSkill(skillName){
+    //determine the xp needed
+    if(this.charS.aCharacter.skills[skillName]){
+      this.charS.aCharacter.skills[skillName]= +this.charS.aCharacter.skills[skillName] + 1;
+    }
+    else{
+      this.charS.aCharacter.skills[skillName]= 1;
+    }
+
+    this.charS.aCharacter.xpSpent= +this.charS.aCharacter.xpSpent + (+this.ss.aRules.skills.incrementCost * this.charS.aCharacter.skills[skillName]);
+    this.afs.collection('servers/' + this.ss.activeServer + '/characters').doc(this.charS.aCharacter.id)
+      .update(Object.assign({}, this.charS.aCharacter)).then(() => {});
+  }
+  //endregion
 }

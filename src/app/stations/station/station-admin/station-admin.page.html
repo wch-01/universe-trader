@@ -1,0 +1,62 @@
+<ion-segment [(ngModel)]="adminTab">
+  <ion-segment-button value="details">
+    <ion-label>Details</ion-label>
+  </ion-segment-button>
+
+  <ion-segment-button value="modules">
+    <ion-label>Modules</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="operations">
+    <ion-label>Operations</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="storage">
+    <ion-label>Storage</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="warehouse" *ngIf="stationS.aWarehouse">
+    <ion-label>Warehouse</ion-label>
+  </ion-segment-button>
+</ion-segment>
+
+<span [ngSwitch]="adminTab">
+  <ion-card id="details" *ngSwitchCase="'details'">
+    <ion-card-header>
+      <ion-card-title>Title</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col id="sdName">
+            <ion-item>
+              <ion-label position="stacked">Name</ion-label>
+              {{stationS.aStation.name}} <ion-icon name="pencil-outline" (click)="stationS.editNameAlert()" style="cursor: pointer"></ion-icon>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col id="sdWarehouse">
+            <ion-item>
+              <ion-label position="stacked" style="padding-bottom:6px">Warehouse</ion-label>
+              <ion-button *ngIf="stationS.aWarehouse; else noWarehouse" type="submit" color="primary" (click)="adminTab= 'warehouse'">
+                View
+              </ion-button>
+              <ng-template #noWarehouse>
+                No Warehouse at Location
+                <ion-button type="submit" color="primary" (click)="adminTab= 'warehouse'">
+                  Build
+                </ion-button>
+              </ng-template>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <app-modules *ngSwitchCase="'modules'" [viewer]="'station'"></app-modules>
+
+  <app-station-operations id="operations" *ngSwitchCase="'operations'"></app-station-operations>
+
+  <app-station-warehouse *ngSwitchCase="'warehouse'" [trader]="trader"></app-station-warehouse>
+  <!--<app-inventory-transfer [entity]="'station'" [entityViewed]="'warehouse'"></app-inventory-transfer>-->
+
+</span>

@@ -1,0 +1,323 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Module Hard Points</ion-card-title>
+    <ion-card-subtitle></ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-grid>
+      <ion-row>
+        <ion-col>Module Slot</ion-col>
+        <ion-col>Installed?</ion-col>
+        <ion-col>Level</ion-col>
+        <ion-col>Actions</ion-col>
+      </ion-row>
+
+      <!--
+      <ion-row id="stationStorageModule" class="odd-row">
+        <ion-col>Storage</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleStorage}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleStorage; else noStorage">
+            {{stationS.aStation.moduleStorageLevel}}
+          </span>
+          <ng-template #noStorage>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationStorageModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleStorage">Detach</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationSolarFarmModule">
+        <ion-col>Solar Farm</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleSolarFarm}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleSolarFarm; else noSolarFarm">
+            {{stationS.aStation.moduleSolarFarmLevel}}
+          </span>
+          <ng-template #noSolarFarm>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationSolarFarmModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleSolarFarm">
+            Detach
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationMiningLaserModule" class="odd-row">
+        <ion-col>Mining Laser</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleMiningLaser}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleMiningLaser; else noCommandCenter">
+            {{stationS.aStation.moduleMiningLaserLevel}}
+          </span>
+          <ng-template #noCommandCenter>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationMiningLaserModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleMiningLaser">
+            Detach
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationMREPlantModule">
+        <ion-col>MRE Plant</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleMREPlant}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleMREPlant; else noMiningLaser">
+            {{stationS.aStation.moduleMREPlantLevel}}
+          </span>
+          <ng-template #noMiningLaser>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationMREPlantModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleMREPlant">Detach</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationRefineryModule" class="odd-row">
+        <ion-col>Refinery</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleRefinery}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleRefinery; else noMiningLaser">
+            {{stationS.aStation.moduleRefineryLevel}}
+          </span>
+          <ng-template #noMiningLaser>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationRefineryModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleRefinery">Detach</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationPartFactoryModule">
+        <ion-col>Part Factory</ion-col>
+        <ion-col>
+          {{stationS.aStation.modulePartFactory}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.modulePartFactory; else noMiningLaser">
+            {{stationS.aStation.modulePartFactoryLevel}}
+          </span>
+          <ng-template #noMiningLaser>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationPartFactoryModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.modulePartFactory">Detach</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row id="stationAssemblyPlantModule" class="odd-row">
+        <ion-col>Assembly Plant</ion-col>
+        <ion-col>
+          {{stationS.aStation.moduleAssemblyPlant}}
+        </ion-col>
+        <ion-col>
+          <span *ngIf="stationS.aStation.moduleAssemblyPlant; else noMiningLaser">
+            {{stationS.aStation.moduleAssemblyPlantLevel}}
+          </span>
+          <ng-template #noMiningLaser>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button size="small" (click)="detachModule('stationAssemblyPlantModule', stationS.aStation)" *ngIf="stationS.aWarehouse && stationS.aStation.moduleAssemblyPlant">Detach</ion-button>
+        </ion-col>
+      </ion-row>
+      -->
+
+      <ion-row *ngFor="let aModuleSlot of moduleSlots; let i= index;" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+        <ion-col>{{aModuleSlot.displayName}}</ion-col>
+        <ion-col>
+          <span *ngIf="aaModules[aModuleSlot.itemID]; else notInstalled">TRUE</span>
+          <ng-template #notInstalled>FALSE</ng-template>
+        </ion-col>
+        <ion-col>
+          <span *ngIf="aaModules[aModuleSlot.itemID]; else noModule">
+            {{aaModules[aModuleSlot.itemID].level}}
+          </span>
+          <ng-template #noModule>
+            NA
+          </ng-template>
+        </ion-col>
+        <ion-col>
+          <ion-button
+            size="small" (click)="detachModuleCheck(aaModules[aModuleSlot.itemID], stationS.aStation, 'station'); " *ngIf="aaModules[aModuleSlot.itemID] && stationS.aStation"
+          >
+            Detach to Station
+          </ion-button>
+
+          <ion-button
+            size="small" (click)="detachModuleCheck(aaModules[aModuleSlot.itemID], warehouseS.aWarehouse, 'warehouse')" *ngIf="aaModules[aModuleSlot.itemID] && warehouseS.aWarehouse"
+          >
+            Detach to Warehouse
+          </ion-button>
+
+          <ion-button
+            size="small" (click)="detachModuleCheck(aaModules[aModuleSlot.itemID], shipS.aShip, 'ship')" *ngIf="aaModules[aModuleSlot.itemID] && shipS.aShip"
+          >
+            Detach to Ship
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>
+
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Dynamic Modules</ion-card-title>
+    <!--<ion-card-subtitle>{{shipS.aModules.length}} Modules(s)</ion-card-subtitle>-->
+  </ion-card-header>
+  <ion-card-content>
+    <ion-grid>
+      <ion-row>
+        <ion-col>Module</ion-col>
+        <ion-col>Level</ion-col>
+        <ion-col>Actions</ion-col>
+      </ion-row>
+
+      <span *ngFor="let aModule of aModules | async; let i = index">
+          <ion-row *ngIf="ss.aaDefaultItems[aModule.itemID].slot === 'dynamic'" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+            <ion-col>{{ss.aaDefaultItems[aModule.itemID].displayName}}</ion-col>
+            <ion-col>{{aModule.level}}</ion-col>
+            <ion-col>
+                <ion-button
+                  size="small" (click)="detachModuleCheck(aModule, stationS.aStation, 'station'); " *ngIf="stationS.aStation"
+                >
+                  Detach to Station
+                </ion-button>
+
+                <ion-button
+                  size="small" (click)="detachModuleCheck(aModule, warehouseS.aWarehouse, 'warehouse')" *ngIf="warehouseS.aWarehouse"
+                >
+                  Detach to Warehouse
+                </ion-button>
+
+                <ion-button
+                  size="small" (click)="detachModuleCheck(aModule, shipS.aShip, 'ship')" *ngIf="shipS.aShip"
+                >
+                  Detach to Ship
+                </ion-button>
+              <!--</span>-->
+            </ion-col>
+          </ion-row>
+        </span>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>
+
+<ion-grid>
+  <ion-row>
+    <ion-col id="station" *ngIf="stationS.aStation">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Prepared Modules in Station</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>Module</ion-col>
+              <ion-col>Level</ion-col>
+              <ion-col>Actions</ion-col>
+            </ion-row>
+
+            <span *ngFor="let aModule of stationS.aInventory">
+                <ion-row *ngIf="viewer === 'ship' && aModule.type === 'Prepared Module' || viewer === 'station' && aModule.type === 'Prepared Station Module'">
+                <ion-col>{{aModule.displayName}}</ion-col>
+                <ion-col>{{aModule.level}}</ion-col>
+                <ion-col>
+                  <ion-button
+                    size="small"
+                    (click)="attachModule(aModule)"
+                    [disabled]="!charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill] || aModule.level > charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill]"
+                  >
+                    Attach
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </span>
+
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col id="warehouse" *ngIf="warehouseS.aWarehouse">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Prepared Modules in Warehouse</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>Module</ion-col>
+              <ion-col>Level</ion-col>
+              <ion-col>Actions</ion-col>
+            </ion-row>
+
+            <span *ngFor="let aModule of warehouseS.aInventory">
+              <ion-row *ngIf="viewer === 'ship' && aModule.reference.type === 'Prepared Ship Module' || viewer === 'station' && aModule.reference.type === 'Prepared Station Module'">
+                <ion-col>{{aModule.reference.displayName}}</ion-col>
+                <ion-col>{{aModule.level}}</ion-col>
+                <ion-col>
+                  <ion-button
+                    size="small"
+                    (click)="attachModule(aModule)"
+                    [disabled]="!charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill] || aModule.level > charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill]"
+                  >
+                    Attach
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </span>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col id="ship" *ngIf="shipS.aShip">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Prepared Modules in Ship</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>Module</ion-col>
+              <ion-col>Level</ion-col>
+              <ion-col>Actions</ion-col>
+            </ion-row>
+
+            <span *ngFor="let aModule of shipS.aInventory">
+                  <ion-row *ngIf="viewer === 'ship' && aModule.type === 'Prepared Module' || viewer === 'station' && aModule.type === 'Prepared Station Module'">
+                    <ion-col>{{aModule.displayName}}</ion-col>
+                    <ion-col>{{aModule.level}}</ion-col>
+                    <ion-col>
+                      <ion-button
+                        size="small"
+                        (click)="attachModule(aModule)"
+                        [disabled]="!charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill] || aModule.level > charS.aCharacter.skills[ss.aaDefaultItems[aModule.itemID].skill]"
+                      >
+                        Attach
+                      </ion-button>
+                    </ion-col>
+                  </ion-row>
+                </span>
+
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

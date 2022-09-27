@@ -14,16 +14,8 @@ const routes: Routes = [
   },
   {
     path: 'station-trade',
-    loadChildren: () => import('./station-trade/station-trade.module').then( m => m.StationTradePageModule)
+    loadChildren: () => import('./station/station-trade/station-trade.module').then(m => m.StationTradePageModule)
   },
-  {
-    path: 'list-items',
-    loadChildren: () => import('./list-items/list-items.module').then( m => m.ListItemsPageModule)
-  },
-  {
-    path: 'listed-items',
-    loadChildren: () => import('./listed-items/listed-items.module').then( m => m.ListedItemsPageModule)
-  }
 ];
 
 @NgModule({

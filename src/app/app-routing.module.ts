@@ -57,11 +57,6 @@ const routes: Routes = [
     path: 'modal',
     loadChildren: () => import('./modal/modal.module').then( m => m.ModalPageModule)
   },
-  {
-    path: 'shipyard',
-    loadChildren: () => import('./shipyard/shipyard.module').then( m => m.ShipyardPageModule),
-    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
-  },
   /*{//todo this needs to be last all the time. Freaking dont forget this!!!!
     path: '**',
     redirectTo: 'dashboard',
@@ -135,7 +130,8 @@ const routes: Routes = [
     path: 'price-list',
     loadChildren: () => import('./price-list/price-list.module').then( m => m.PriceListPageModule),
     canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }
-  },  {
+  },
+  {
     path: 'profile',
     loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   },
@@ -151,6 +147,31 @@ const routes: Routes = [
     path: 'wallet',
     loadChildren: () => import('./wallet/wallet.module').then( m => m.WalletPageModule)
   },
+  {
+    path: 'game-rules-mechanics',
+    loadChildren: () => import('./game-rules-mechanics/game-rules-mechanics.module').then( m => m.GameRulesMechanicsPageModule)
+  },
+  {
+    path: 'transaction-modal',
+    loadChildren: () => import('./modals/transaction-modal/transaction-modal.module').then( m => m.TransactionModalPageModule)
+  },
+  {
+    path: 'inventory',
+    loadChildren: () => import('./inventory/inventory.module').then( m => m.InventoryPageModule)
+  },
+  {
+    path: 'inventory-transfer-modal',
+    loadChildren: () => import('./modals/inventory-transfer-modal/inventory-transfer-modal.module').then( m => m.InventoryTransferModalPageModule)
+  },  {
+    path: 'inventory-transfer',
+    loadChildren: () => import('./inventory-transfer/inventory-transfer.module').then( m => m.InventoryTransferPageModule)
+  },
+  {
+    path: 'modules',
+    loadChildren: () => import('./modules/modules.module').then( m => m.ModulesPageModule)
+  },
+
+
 
 
 

@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Rule</ion-title>
+    <ion-buttons slot="end" *ngIf="isModal">
+      <ion-button (click)="dismissModal()" color="danger" fill="solid">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>
+        Please bare with me while I make these detail pages look better.
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content *ngIf="aRule.name === 'travel'">
+
+    </ion-card-content>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label position="stacked">
+                Name
+              </ion-label>
+              {{aRule.name}}
+            </ion-item>
+          </ion-col>
+
+          <ion-col *ngFor="let key of this.aKeys">
+            <ion-item *ngIf="key !== 'id' && key !== 'name'">
+              <ion-label position="stacked">
+                {{key}}
+              </ion-label>
+              {{aRule[key]}}
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -8,7 +8,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content id="characterCreation" *ngIf="!charS.characterFound">
   <ion-card>
     <ion-card-header>
       <ion-card-title>Create</ion-card-title>
@@ -24,4 +24,113 @@
       {{responseMessage}}
     </div>
   </ion-card>
+</ion-content>
+
+<ion-content id="characterSheet" *ngIf="charS.characterFound">
+  <ion-segment [(ngModel)]="characterTab">
+    <ion-segment-button value="skills">
+      <ion-label>Skills</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <span [ngSwitch]="characterTab">
+    <span *ngSwitchCase="'skills'">
+      <ion-card>
+        <ion-card-header></ion-card-header>
+
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Total XP</ion-label>
+                  {{charS.aCharacter.xpTotal | number}}
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Available XP</ion-label>
+                  {{charS.aCharacter.xpTotal - charS.aCharacter.xpSpent | number}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+      <ion-card>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Skill</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Level</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Cost for Next Level</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Description</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>Upgrade</ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let skill of ss.aRules.skills.skills; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+              <ion-col>
+                <ion-label position="stacked">{{skill.displayName}}</ion-label>
+              </ion-col>
+              <ion-col>
+                <span *ngIf="charS.aCharacter.skills[skill.name]; else noLevel">
+                  {{charS.aCharacter.skills[skill.name] | number}}
+                </span>
+                <ng-template #noLevel>
+                  0
+                </ng-template>
+              </ion-col>
+              <ion-col>
+                <span *ngIf="charS.aCharacter.skills[skill.name]; else firstCost">
+                  {{(charS.aCharacter.skills[skill.name] + 1) * ss.aRules.skills.incrementCost | number}}
+                </span>
+                <ng-template #firstCost>
+                  {{ss.aRules.skills.incrementCost | number}}
+                </ng-template>
+              </ion-col>
+              <ion-col>
+                <!--<ion-item>-->
+                  {{skill.desc}}
+                <!--</ion-item>-->
+              </ion-col>
+              <ion-col>
+                <ion-button *ngIf="charS.aCharacter.skills[skill.name]"
+                  (click)="levelUpSkill(skill.name)"
+                  [disabled]="((charS.aCharacter.skills[skill.name] + 1) * ss.aRules.skills.incrementCost) > (charS.aCharacter.xpTotal - charS.aCharacter.xpSpent)"
+                >
+                  Level Up
+                </ion-button>
+
+                <ion-button *ngIf="!charS.aCharacter.skills[skill.name]"
+                            (click)="levelUpSkill(skill.name)"
+                            [disabled]="ss.aRules.skills.incrementCost > (charS.aCharacter.xpTotal - charS.aCharacter.xpSpent)"
+                >
+                  Level Up
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </span>
+  </span>
 </ion-content>

@@ -38,12 +38,13 @@ export class AppComponent {
     { title: 'Dashboard', url: '/dashboard', icon: '', role: 'any', auth: true },
     { title: 'Control Room', url: '/control-room', icon: '', role: 'any', auth: true },
     { title: 'Wallet', url: '/wallet', icon: '', role: 'any', auth: true },
-    /*{ title: 'Character', url: '/character', icon: '', role: 'any', auth: true },*/
+    { title: 'Character', url: '/character', icon: '', role: 'any', auth: true },
     /*{ title: 'Shipyard', url: '/shipyard', icon: '', auth: true },*/
     /*{ title: 'Ships', url: '/ships', icon: '', role: 'any', auth: true },*/
     { title: 'Chatroom', url: '/chat-rooms', icon: '', auth: true },
     { title: 'Universe', url: '/universe', icon: '', auth: true },
     { title: 'Price List', url: '/price-list', icon: '', auth: true },
+    { title: 'Rules & Mechanics', url: '/game-rules-mechanics', icon: '', auth: true },
     { title: 'Servers', url: '/servers', icon: '', auth: true },
     /*{ title: 'Favorites', url: '/folder/Favorites', icon: 'heart' },
     { title: 'Archived', url: '/folder/Archived', icon: 'archive' },

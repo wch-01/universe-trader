@@ -10,6 +10,7 @@
 -->
 
 <ion-content *ngIf="platform.sizeTemplate === 'standard'">
+  <!--{{charS.aCharacter.skills.leadership}} - {{charS.aCharacterShips.length}}-->
   <!--
   <ion-card>
     <ion-card-header>
@@ -51,9 +52,11 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-card>
+  <app-inventory [entity]="'warehouse'"></app-inventory>
+  <!--
+  <ion-card *ngIf="ws.aWarehouse">
     <ion-grid>
-      <ion-row class="">
+      <ion-row>
         <ion-col>Item</ion-col>
         <ion-col>Quantity</ion-col>
         <ion-col title="Cost of Goods">COG</ion-col>
@@ -84,30 +87,26 @@
         </ion-col>
         <ion-col>
           <span *ngIf="aItem.type === 'Ship Core'">
-            <ion-button (click)="assembleShip(aItem)" size="small">Launch Ship</ion-button>
+            <ion-button (click)="assembleShip(aItem)" size="small" *ngIf="charS.aCharacter.skills.leadership > charS.aCharacterShips.length; else skill">Launch Ship</ion-button>
+            <ng-template #skill>Your skill needs to increase</ng-template>
           </span>
+
+          <span *ngIf="aItem.type === 'Station Kit'">
+            <ion-button (click)="deployStation(aItem)" size="small" *ngIf="charS.aCharacter.skills.station > charS.aCharacterStations.length; else skill">Launch Station</ion-button>
+            <ng-template #skill>Your skill needs to increase</ng-template>
+          </span>
+
           <span *ngIf="aItem.type === 'Module'">
             <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
           </span>
           <span *ngIf="aItem.type === 'Prepared Module'">
             <ion-button *ngIf="aItem.level < 10" (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
-
-            <!--
-            <ion-item>
-              <ion-label position="floating">Attach to Ship</ion-label>
-              <ion-select name="selectedShip" [(ngModel)]="aShip">
-              <ion-select-option *ngFor="let aShip of aShips" [value]="aShip">
-                {{aShip.name}}
-              </ion-select-option>
-            </ion-select>
-            </ion-item>
-            -->
-            <ion-button *ngIf="aShip" (click)="attachModule(aShip, aItem)" size="small">Attach</ion-button>
           </span>
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-card>
+  -->
 </ion-content>
 
 <ion-content *ngIf="platform.sizeTemplate === 'small'">
@@ -126,59 +125,63 @@
   </ion-card>
   -->
 
-  <ion-card>
+  <ion-card *ngIf="ws.aWarehouse">
     <ion-grid class="ut-item-background-color">
       <ion-row *ngFor="let aItem of ws.aInventory; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
-
-          <ion-col>
-            <ion-item lines="none">
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Item</ion-note>
             <ion-label>{{aItem.displayName}}</ion-label>
           </ion-item>
           </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Quantity</ion-note>
             <ion-label>{{aItem.quantity | number}}</ion-label>
           </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        </ion-col>
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper" title="Cost of Goods">COG</ion-note>
             <ion-label>{{aItem.cost / aItem.quantity | number}}</ion-label>
           </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        </ion-col>
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Total Value</ion-note>
             <ion-label>{{aItem.cost | number}}</ion-label>
           </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        </ion-col>
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Type</ion-note>
             <ion-label>{{aItem.type}}</ion-label>
           </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        </ion-col>
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Level</ion-note>
             <ion-label>
               <span *ngIf="aItem.type === 'Prepared Module'; else levelNA">{{aItem.level}}</span>
               <ng-template #levelNA>N/A</ng-template>
             </ion-label>
           </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-item lines="none">
+        </ion-col>
+        <ion-col>
+          <ion-item lines="none">
             <ion-note slot="helper">Actions</ion-note>
             <ion-label>
               <span *ngIf="aItem.type === 'Ship Core'">
-              <ion-button (click)="assembleShip(aItem)" size="small">Launch Ship</ion-button>
-            </span>
+                <ion-button (click)="assembleShip(aItem)" *ngIf="charS.aCharacter.skills.leadership > charS.aCharacterShips.length; else skill" size="small">Launch Ship</ion-button>
+                <ng-template #skill>Your skill needs to increase</ng-template>
+              </span>
+              <span *ngIf="aItem.type === 'Station Kit'">
+                <ion-button (click)="deployStation(aItem)" size="small" *ngIf="charS.aCharacter.skills.station > charS.aCharacterStations.length; else skill">Launch Station</ion-button>
+                <ng-template #skill>Your skill needs to increase</ng-template>
+              </span>
               <span *ngIf="aItem.type === 'Module'">
-              <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
-            </span>
+                <ion-button (click)="prepareModule(aItem)" size="small">Prepare Module</ion-button>
+              </span>
               <span *ngIf="aItem.type === 'Prepared Module'">
               <ion-button (click)="upgradeModuleBoot(aItem)" size="small">Upgrade</ion-button>
 
@@ -196,8 +199,7 @@
             </span>
             </ion-label>
           </ion-item>
-          </ion-col>
-
+        </ion-col>
       </ion-row>
     </ion-grid>
   </ion-card>

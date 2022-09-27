@@ -1,4 +1,5 @@
 export class Item {
+  itemID: string;
   id: string;
   ownerID: string;
   name: string;
@@ -16,4 +17,8 @@ export class Item {
   quantity: number;
   marketFee: number;
   activeListing: boolean;
+  cog: number;
+  level: number;
+  reference: any;
+
 }

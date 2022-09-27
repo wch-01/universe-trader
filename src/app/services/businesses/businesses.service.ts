@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {ServerService} from '../server/server.service';
-import {AngularFirestore} from '@angular/fire/compat/firestore';
+import {AngularFirestore, QuerySnapshot} from '@angular/fire/compat/firestore';
 import {UniverseService} from '../universe/universe.service';
 import {CharacterService} from '../character/character.service';
 
@@ -11,6 +11,7 @@ export class BusinessesService {
   //region Variables
   aBusinesses;
   aBusiness;
+  aProducts;
 
   //region Solar System
   aSolarSystem;
@@ -40,6 +41,26 @@ export class BusinessesService {
   //endregion
 
   //region Read
+  /**
+   * Name: Businesses Total
+   *
+   * @return Promise
+   **/
+  rpBT(){
+    if(this.ss.aRules.consoleLogging.mode >= 1){
+      console.log('businessesService');
+    }
+
+    return new Promise((resolve, reject) => {
+      this.afs.firestore.collection('servers/' + this.ss.activeServer + '/businesses')
+        .where('ownerID', '==', this.charS.aCharacter.id)
+        .get()
+        .then((oBusinesses: QuerySnapshot<object>) => {
+          resolve(oBusinesses.size);
+        });
+    });
+  }
+
   /**
    * Name: Read Businesses Promise
    *
@@ -93,6 +114,24 @@ export class BusinessesService {
   }
 
   /**
+   * Name: Read Promise Station Business
+   **/
+  rpSB(id){
+    return new Promise((resolve, reject) => {
+      this.afs.collection('servers/' + this.ss.activeServer + '/stationOperations')
+        .doc(id)
+        .valueChanges({idField: 'id'})
+        .subscribe((aBusiness: any) => {
+          if(this.ss.aRules.consoleLogging.mode >= 2){
+            console.log(aBusiness);
+          }
+          this.aBusiness= aBusiness;
+          resolve(aBusiness);
+        });
+    });
+  }
+
+  /**
    * Name: Read Business Solar Body
    **/
   rBSB(){
@@ -117,6 +156,19 @@ export class BusinessesService {
           this.aSubscriptions.push(this.rBSSSub);
           resolve(true);
         });
+    });
+  }
+
+  /**
+   * Name: Read Promise Business Products
+   * */
+  rpBProducts(){
+    return new Promise((resolve, reject) => {
+      this.afs.firestore.collection('servers/'+this.ss.activeServer+'/zItems')
+        .where('producedAt', '==', this.aBusiness.name).get().then((oProducts: QuerySnapshot<object[]>) => {
+          this.aProducts= oProducts.docs;
+          resolve(true);
+      });
     });
   }
   //endregion

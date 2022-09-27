@@ -1,0 +1,253 @@
+<ion-card>
+  <!--
+  <ion-card-header>
+    <ion-card-title>Colonies at {{us.aSolarBody.name}}</ion-card-title>
+    <ion-item *ngIf="coloniesLoaded">
+      <ion-label position="floating">Select Colony for Trading</ion-label>
+      <ion-select name="colony" [(ngModel)]="colonyS.aColony.id" (ngModelChange)="getColonyInventory(aColony)">
+        <ion-select-option *ngFor="let colony of us.aColonies" [value]="colony.id">{{colony.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card-header>
+  -->
+  <ion-card-content>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-card>
+            <ion-card-content>
+              <ion-item>
+                <ion-label position="stacked"><ion-icon name="wallet-outline"></ion-icon> Pulsars</ion-label>
+                <ion-item class="ion-no-padding" lines="none">
+                  <ion-label>{{charS.aCharacter.pulsars | number}} <ion-icon src="assets/icon/PulsarCreditSymbol.svg"></ion-icon></ion-label>
+                </ion-item>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card>
+            <ion-card-content>
+              <ion-item *ngIf="trader === 'ship'">
+                <ion-label position="stacked">Ship Capacity</ion-label>
+                {{capacityAvailable}}
+              </ion-item>
+              <ion-item *ngIf="trader === 'warehouse'">
+                <ion-label position="stacked">Warehouse Capacity</ion-label>
+                {{capacityAvailable}}
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>
+<ion-grid>
+  <ion-row>
+    <ion-col>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            {{trader}} Inventory
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row class="item-list-border">
+              <ion-col>Item</ion-col>
+              <ion-col>Quantity Available</ion-col>
+              <ion-col>COG</ion-col>
+              <ion-col>Sell</ion-col>
+            </ion-row>
+            <ion-row *ngFor="let item of aInventoryLevels" class="item-list-border">
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.name}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.quantity | number}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.cost / item.quantity | number}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-button (click)="listItemModal(item)" color="danger" fill="solid">List</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <ion-modal [isOpen]="listItemModalDisplay" (willDismiss)="listItemModalClosing($event)" [backdropDismiss]="false">
+            <ng-template>
+              <ion-header>
+                <ion-toolbar>
+                  <ion-title>Listing {{aListingItem.displayName}}</ion-title>
+                  <ion-buttons slot="end">
+                    <ion-button (click)="listItemModalClose()">Close</ion-button>
+                  </ion-buttons>
+                </ion-toolbar>
+              </ion-header>
+              <ion-content class="ion-padding">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">Item</ion-label>
+                        {{aListingItem.displayName}}
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">Quantity Available</ion-label>
+                        {{aListingItem.quantity}}
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">Your Cog</ion-label>
+                        {{aListingItem.cost / aListingItem.quantity | number}}
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">Amount</ion-label>
+                        <ion-input [(ngModel)]="aListingItem.amount" type="number" max="{{aaInventoryLevels[aListingItem.name].quantity}}"></ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">Price</ion-label>
+                        <ion-input [(ngModel)]="aListingItem.price" type="number"></ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Total Price
+                        </ion-label>
+                        {{aListingItem.amount * aListingItem.price | number}}
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <!--
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Exchange Fees:
+                        </ion-label>
+                      </ion-item>
+                    </ion-col>
+                    -->
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Listing Fee
+                        </ion-label>
+                        {{stationS.aStation.listFee | number}}
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Sales Fee (Collected as items sell)
+                        </ion-label>
+                        {{stationS.aStation.marketFee}}% = {{(aListingItem.amount * aListingItem.price) * (stationS.aStation.marketFee / 100) | number}}
+                      </ion-item>
+                    </ion-col>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Total Fees
+                        </ion-label>
+                        {{stationS.aStation.listFee + (aListingItem.amount * aListingItem.price) * (stationS.aStation.marketFee / 100) | number}}
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col>
+                      <ion-item>
+                        <ion-label position="stacked">
+                          Potential Profit
+                        </ion-label>
+                        <span [ngClass]="((aListingItem.amount * aListingItem.price) -
+                      (stationS.aStation.listFee + (aListingItem.amount * aListingItem.price) * (stationS.aStation.marketFee / 100)) -
+                      ((+aListingItem.cost / +aListingItem.quantity) * +aListingItem.amount)>= 0) ? 'transactionInflow' : 'transactionOutflow'">
+                    {{
+                          (aListingItem.amount * aListingItem.price) -
+                          (stationS.aStation.listFee + (aListingItem.amount * aListingItem.price) * (stationS.aStation.marketFee / 100)) -
+                          ((+aListingItem.cost / +aListingItem.quantity) * +aListingItem.amount)
+                            | number
+                          }}
+                  </span>
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-content>
+              <ion-footer>
+                <ion-toolbar>
+                  <ion-buttons slot="end">
+                    <ion-button (click)="performListing()">Confirm</ion-button>
+                  </ion-buttons>
+                </ion-toolbar>
+              </ion-footer>
+            </ng-template>
+          </ion-modal>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+    <ion-col>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Listed Items</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row class="item-list-border">
+              <ion-col>Item</ion-col>
+              <ion-col>Quantity Listed</ion-col>
+              <ion-col>COG</ion-col>
+              <ion-col>List Price</ion-col>
+              <ion-col></ion-col>
+            </ion-row>
+            <ion-row *ngFor="let item of aListedItems" class="item-list-border">
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.name}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.quantity | number}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.cog | number}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label>{{item.listPrice | number}}</ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-button (click)="removeListing(item)" color="danger">Remove Listing</ion-button>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { ShipWarehousePageRoutingModule } from './ship-warehouse-routing.module';
 
 import { ShipWarehousePage } from './ship-warehouse.page';
+import {InventoryTransferPageModule} from '../../inventory-transfer/inventory-transfer.module';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        ShipWarehousePageRoutingModule
+        ShipWarehousePageRoutingModule,
+        InventoryTransferPageModule
     ],
     exports: [
         ShipWarehousePage

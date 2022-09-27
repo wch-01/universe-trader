@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Game Rules and Mechanics</ion-title>
+  </ion-toolbar>
+
+  <ion-segment [(ngModel)]="tab">
+    <ion-segment-button value="rules">
+      <ion-label>Rules</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="items">
+      <ion-label>Items</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-header>
+
+<ion-content [ngSwitch]="tab">
+  <app-rules *ngSwitchCase="'rules'"></app-rules>
+
+  <app-items *ngSwitchCase="'items'"></app-items>
+</ion-content>

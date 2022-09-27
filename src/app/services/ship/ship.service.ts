@@ -8,6 +8,7 @@ import {Ship} from '../../classes/ship';
 import {Subscription} from 'rxjs';
 import {take} from 'rxjs/operators';
 import {Item} from '../../classes/item';
+import {WarehouseService} from '../warehouse/warehouse.service';
 
 // @ts-ignore
 const moment= require('moment');
@@ -33,7 +34,7 @@ export class ShipService {
   capacityAvailable= 0;
 
   aModules;
-  aaModules= [];
+  aaModules: { [key: string]: Item } = {};
 
   //region Warehouse
   aWarehouse;
@@ -66,6 +67,7 @@ export class ShipService {
     private us: UniverseService,
     public colonyS: ColonyService,
     public uniS: UniverseService,
+    private warehouseS: WarehouseService
   ) { }
   //endregion
 
@@ -91,52 +93,55 @@ export class ShipService {
           Promise.all([
             this.rslP(this.aShip.solarSystem, this.aShip.solarBody),
             this.rpSM(),
-            this.rpSI()
+            this.rpSI(),
+            this.warehouseS.fwIDP(this.aShip.solarBody, this.aShip.ownerID)
           ])
-            .then(() => {});
+            .then(() => {
+              this.warehouseS.rpWI().then(() => {
+                if (this.aShip.status !== 'Traveling') {
+                  Promise.all([
+                    this.uniS.rpSolarSystems(),
+                    this.uniS.rpSB(this.aShip.solarBody),
+                    this.uniS.rpSS(this.aShip.solarSystem)
+                  ])
+                    .then(() => {
+                      this.aUniverse= this.uniS.aSolarSystems;
+                      this.aUniverse.sort((n1,n2) => {
+                        if (n1.name > n2.name) {
+                          return 1;
+                        }
+                        if (n1.name < n2.name) {
+                          return -1;
+                        }
+                        return 0;
+                        //this.aFilteredSolarBodies.sort
+                      });
+                    });
 
-          if (this.aShip.status !== 'Traveling') {
-            Promise.all([
-              this.uniS.rpSolarSystems(),
-              this.uniS.rpSB(this.aShip.solarBody),
-              this.uniS.rpSS(this.aShip.solarSystem)
-            ])
-              .then(() => {
-                this.aUniverse= this.uniS.aSolarSystems;
-                this.aUniverse.sort((n1,n2) => {
-                  if (n1.name > n2.name) {
-                    return 1;
-                  }
-                  if (n1.name < n2.name) {
-                    return -1;
-                  }
-                  return 0;
-                  //this.aFilteredSolarBodies.sort
-                });
+                  this.uniS.rsbCP(this.aShip.solarBody).then(
+                    (aColony) => {
+                      this.aColony = aColony;
+                    },
+                    (noColony) => {
+                      this.aColony= undefined;
+                    }
+                  );
+
+                  this.rpLW().then(
+                    (aWarehouse) => {
+                      this.aWarehouse= aWarehouse;
+                      this.rpLWI();
+                    },
+                    (noWarehouse) => {
+                      this.aWarehouse= undefined;
+                    }
+                  );
+                }
+                this.subscriptions.push(shipSub);
+                //this.shipBootDone = Promise.resolve(true);
+                resolve(aShip);
               });
-
-            this.uniS.rsbCP(this.aShip.solarBody).then(
-              (aColony) => {
-                this.aColony = aColony;
-              },
-              (noColony) => {
-                this.aColony= undefined;
-              }
-            );
-
-            this.rpLW().then(
-              (aWarehouse) => {
-                this.aWarehouse= aWarehouse;
-                this.rpLWI();
-              },
-              (noWarehouse) => {
-                this.aWarehouse= undefined;
-              }
-            );
-          }
-          this.subscriptions.push(shipSub);
-          //this.shipBootDone = Promise.resolve(true);
-          resolve(aShip);
+            });
         });
     });
   }
@@ -158,18 +163,27 @@ export class ShipService {
           this.aModules= aModules;
           this.setCargoCapacity();
           aModules.some((aModule: any) => {
+            /*
             if(aModule.name === 'jumpEngine'){
               this.aShip.jumpEngine= aModule.level;
             }
             if(aModule.name === 'engine'){
               this.aShip.engine= aModule.level;
             }
-            this.aaModules[aModule.name]= aModule;
+            */
+            this.aaModules[aModule.itemID]= aModule;
           });
           this.subscriptions.push(moduleSub);
           resolve(aModules);
         });
     });
+  }
+
+  /**
+   * Read Subscription Ship Modules
+   * */
+  rsSM(){
+    return this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.id + '/installedModules').valueChanges({idField:'id'});
   }
 
   /**
@@ -328,7 +342,7 @@ export class ShipService {
     return new Promise((resolve, reject) => {
       const rpSISub= this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
         ref =>
-          ref.where('ownerID', '==', this.aShip.id)//.where('market', '==', true)
+          ref.where('ownerID', '==', this.aShip.id)
       ).valueChanges({idField: 'id'})
         .subscribe((aInventory: any) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
@@ -338,19 +352,40 @@ export class ShipService {
             }
           }
           this.aInventory= aInventory;
-          this.setCargoCapacity();
           // this.aaInventory= [];
           this.aaInventory= {};
           aInventory.some((item: any) => {
             if(this.ss.aRules.consoleLogging.mode >= 2){
               console.log(item);
             }
-            this.aaInventory[item.name]= item;
+            //this.aaInventory[item.itemID]= item;
+
+            if(item.type === 'Prepared Module'){
+              item.reference.type= 'Prepared Module';
+              this.aaInventory[item.itemID+'_pm']= item;
+              this.aaInventory[item.itemID+'_pm'].reference.type= 'Prepared Module';
+            }
+            else{
+              this.aaInventory[item.itemID]= item;
+            }
           });
           this.subscriptions.push(rpSISub);
-          resolve(aInventory);
+          this.setCargoCapacity().then(() => {
+            resolve(aInventory);
+          });
         });
     });
+  }
+
+  /**
+   * Name: Read Subscription Ship Inventory
+   * */
+  rsSI(){
+    //todo convert to promise
+    return this.afs.collection('servers/' + this.ss.activeServer + '/inventories',
+      ref =>
+        ref.where('ownerID', '==', this.aShip.id)
+    ).valueChanges({idField:'id'});
   }
 
   async readShip(id?){
@@ -412,7 +447,7 @@ export class ShipService {
             */
 
             for(const module of this.aModules){
-              if(module.name === 'cargo'){
+              if(module.itemID === 'preparedCargoModule'){
                 capacityTotal= +capacityTotal + (module.level * this.ss.aRules.storage.cargoModule);
               }
             }
@@ -471,9 +506,9 @@ export class ShipService {
          Math.floor(Math.pow((this.aTravel.aSolarSystem.yCoordinate - this.aLocation.aSolarSystem.yCoordinate),2))
     ));
     this.aTravel.ssTTms=
-      ((distance * this.ss.aRules.travel.solarSystem) / this.aShip.moduleJumpEngineLevel)
+      ((distance * this.ss.aRules.travel.solarSystem) / this.aaModules.preparedJumpEngineModule.level)
       *
-      (this.aShip.moduleCount / 4);
+      (this.aModules.length / 4);
     this.aTravel.solarSystemTime= moment.utc(this.aTravel.ssTTms).format('HH:mm:ss');
 
     if(this.ss.aRules.consoleLogging.mode >= 1){
@@ -523,9 +558,9 @@ export class ShipService {
     ));
     //console.log(distance);//300000
     this.aTravel.sbTTms= (
-        (distance * this.ss.aRules.travel.solarBody) / this.aShip.moduleEngineLevel)
+        (distance * this.ss.aRules.travel.solarBody) / this.aaModules.preparedEngineModule.level)
       *
-      (this.aShip.moduleCount / 4)
+      (this.aModules.length / 4)
     ;
     this.aTravel.solarBodyTime= moment.utc(this.aTravel.sbTTms).format('HH:mm:ss');
 
@@ -580,13 +615,6 @@ export class ShipService {
     this.afs.collection('servers/' + this.ss.activeServer + '/ships')
       .doc(this.aShip.id)
       .update(Object.assign({}, aShip));
-    //this.traveling.emit(null);
-    //this.colonyS.colonySub.unsubscribe();
-    //this.colonyS.aColony= '';
-    //this.colonyS.aSolarSystem= '';
-    //this.colonyS.aSolarBody= '';
-    //this.colonyS.rCSSSub.unsubscribe();
-    //this.colonyS.rCSBSub.unsubscribe();
   }
   //endregion
   //endregion

@@ -7,6 +7,7 @@ import {UniverseService} from '../../services/universe/universe.service';
 import {AlertController, ToastController} from '@ionic/angular';
 import {ShipService} from '../../services/ship/ship.service';
 import {PlatformService} from '../../services/platform/platform.service';
+import {CharacterService} from '../../services/character/character.service';
 
 @Component({
   selector: 'app-warehouse',
@@ -31,16 +32,19 @@ export class WarehousePage implements OnInit, OnDestroy {
     private ionAlert: AlertController,
     private toastController: ToastController,
     private shipS: ShipService,
-    public platform: PlatformService
+    public platform: PlatformService,
+    public charS: CharacterService
   ) { }
   //endregion
 
   ngOnInit() {
-    this.ws.rwiP().then((rwiPRes: any) => {
+    this.ws.rpWI().then((rwiPRes: any) => {
       this.ws.setCargoCapacity().then(() => {
         this.capReady= true;
       });
     });
+    this.charS.readCharacterShips();
+    this.charS.readCharacterStations();
 
     /*
     this.ws.readWarehouse(this.warehouseID).then((res: any) => {
@@ -181,6 +185,40 @@ export class WarehousePage implements OnInit, OnDestroy {
     //endregion
 
     pBuildShip.then((success) => {
+      const cog= +aItem.cost / +aItem.quantity;
+      aItem.quantity= +aItem.quantity - 1;
+      aItem.cost= +aItem.quantity * +cog;
+
+      if(aItem.quantity === 0){
+        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aItem.id).delete();
+      }
+      else{
+        this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aItem.id)
+          .update({quantity: aItem.quantity, cost: aItem.cost});
+      }
+    });
+  }
+
+  deployStation(aItem) {
+    //region Get Default Ship
+    const pDeployStation= new Promise((resolve, reject) => {
+      this.shipS.rpDS(aItem.name).then((aStation: any) => {
+        aStation.name = 'Assembled Ship';
+        aStation.ownerID = this.ws.aWarehouse.ownerID;
+        aStation.solarBody = this.ws.aWarehouse.solarBody;
+        aStation.solarSystem = this.ws.aWarehouse.solarSystem;
+
+        this.afs.collection('servers/' + this.ss.activeServer + '/ships').add(Object.assign({}, aStation))
+          .then((createShipResult: any) => {
+
+            resolve(true);
+            //todo handle errors
+          });
+      });
+    });
+    //endregion
+
+    pDeployStation.then((success) => {
       const cog= +aItem.cost / +aItem.quantity;
       aItem.quantity= +aItem.quantity - 1;
       aItem.cost= +aItem.quantity * +cog;

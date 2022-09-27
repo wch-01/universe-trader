@@ -29,23 +29,66 @@
       </ion-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-list>
-        <ion-item>
-          <ion-label>Name</ion-label>
-          <ion-label>Owner</ion-label>
-          <ion-label>Market</ion-label>
-          <ion-label>Access</ion-label>
-          <ion-item>View</ion-item>
-        </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label>Name</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label>Owner</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label>Market</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-label>Access</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item>
+              <ion-item>View</ion-item>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-        <ion-item *ngFor="let station of stationS.aStations">
-          <ion-label>{{station.name}}</ion-label>
-          <ion-label>{{station.ownerID}}</ion-label>
-          <ion-label>{{station.market}}</ion-label>
-          <ion-label>{{station.access}}</ion-label>
-          <ion-item><ion-button *ngIf="station.access === 'Public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button></ion-item>
-        </ion-item>
-      </ion-list>
+        <ion-row *ngFor="let station of stationS.aStations; let i = index" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            <ion-item lines="none">
+              <ion-label>{{station.name}}</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+              <ion-label *ngIf="station.ownerID === 'npc'; else pos">{{station.ownerID}}</ion-label>
+              <ng-template #pos>
+                <ion-label>Player Station</ion-label>
+              </ng-template>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+              <ion-label>{{station.market}}</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+              <ion-label>{{station.access}}</ion-label>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-item lines="none">
+              <ion-button *ngIf="station.access === 'Public' || checkAccess(station)" (click)="viewStationModal(station)" color="primary">Enter</ion-button>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-card-content>
   </ion-card>
 </ion-content>

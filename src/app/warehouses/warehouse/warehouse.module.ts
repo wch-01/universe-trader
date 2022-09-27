@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { WarehousePageRoutingModule } from './warehouse-routing.module';
 
 import { WarehousePage } from './warehouse.page';
+import {InventoryPageModule} from '../../inventory/inventory.module';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        WarehousePageRoutingModule
+        WarehousePageRoutingModule,
+        InventoryPageModule
     ],
     exports: [
         WarehousePage

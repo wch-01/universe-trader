@@ -6,7 +6,7 @@ import {ServerService} from '../../services/server/server.service';
 import {AlertController, LoadingController} from '@ionic/angular';
 import {BusinessesService} from '../../services/businesses/businesses.service';
 import {UniverseService} from '../../services/universe/universe.service';
-import {GlobalService} from "../../services/global/global.service";
+import {GlobalService} from '../../services/global/global.service';
 
 const moment= require('moment');
 
@@ -19,6 +19,7 @@ export class BusinessPage implements OnInit {
   //region Variables
   @Input() modal: Components.IonModal;
   isModal;
+  type;
   id;
   aBusiness;
 
@@ -44,7 +45,14 @@ export class BusinessPage implements OnInit {
   //endregion
 
   ngOnInit() {
-    this.readBusiness();
+    switch (this.type){
+      case 'stationOperation':
+        this.readStationBusiness().then(() => {});
+        break;
+      default:
+        this.readBusiness().then(() => {});
+        break;
+    }
     /*
     this.bs.rsbP(this.id).then((aBusiness: any) => {
       this.bs.rBSS().then(() => {
@@ -66,13 +74,37 @@ export class BusinessPage implements OnInit {
       message: 'Loading Business',
       //duration: 2000
     });
-    loading.present();
+    await loading.present();
 
     this.bs.rsbP(this.id).then((aBusiness: any) => {
-      this.bs.rBSS().then(() => {
-        this.bs.rBSB().then(() => {
-          this.businessFound = true;
-          loading.dismiss();
+      this.bs.rpBProducts().then(() => {
+        this.bs.rBSS().then(() => {
+          this.bs.rBSB().then(() => {
+            this.businessFound = true;
+            console.log(this.bs.aProducts);
+            loading.dismiss();
+          });
+        });
+      });
+    });
+  }
+
+  async readStationBusiness() {
+    const loading = await this.loadingController.create({
+      //cssClass: 'my-custom-class',
+      message: 'Loading Business',
+      //duration: 2000
+    });
+    await loading.present();
+
+    this.bs.rpSB(this.id).then((aBusiness: any) => {
+      this.bs.rpBProducts().then(() => {
+        this.bs.rBSS().then(() => {
+          this.bs.rBSB().then(() => {
+            this.businessFound = true;
+            console.log(this.bs.aProducts);
+            loading.dismiss();
+          });
         });
       });
     });
@@ -114,9 +146,18 @@ export class BusinessPage implements OnInit {
     await editNameAlert.present();
   }
   editName(data){
-    this.hks.censorWords(data.name).then((result) => {
-      this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id).update({displayName: result});
-    });
+    switch (this.type){
+      case 'stationOperation':
+        this.hks.censorWords(data.name).then((result) => {
+          this.afs.collection('servers/' + this.ss.activeServer + '/stationOperations').doc(this.bs.aBusiness.id).update({displayName: result});
+        });
+        break;
+      default:
+        this.hks.censorWords(data.name).then((result) => {
+          this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id).update({displayName: result});
+        });
+        break;
+    }
   }
 
   beginMining(aItem, aItemYield, once?){
@@ -169,8 +210,16 @@ export class BusinessPage implements OnInit {
     this.bs.aBusiness.productionTarget= item;
     this.bs.aBusiness.productionEndTime= moment().add(15, 'minutes').valueOf();
 
-    this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
-      .update(this.bs.aBusiness);
+    switch (this.type){
+      case 'stationOperation':
+        this.afs.collection('servers/' + this.ss.activeServer + '/stationOperations').doc(this.bs.aBusiness.id)
+          .update(this.bs.aBusiness).then(() => {});
+        break;
+      default:
+        this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
+          .update(this.bs.aBusiness).then(() => {});
+        break;
+    }
   }
 
   cancelOperations(){
@@ -179,8 +228,16 @@ export class BusinessPage implements OnInit {
     //this.shipS.aShip.miningTarget= 'none';
     //this.shipS.aShip.miningYield= aItemYield;
 
-    this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
-      .update(this.bs.aBusiness).then(() => {this.readBusiness();});
+    switch (this.type){
+      case 'stationOperation':
+        this.afs.collection('servers/' + this.ss.activeServer + '/stationOperations').doc(this.bs.aBusiness.id)
+          .update(this.bs.aBusiness).then(() => {this.readBusiness();});
+        break;
+      default:
+        this.afs.collection('servers/' + this.ss.activeServer + '/businesses').doc(this.bs.aBusiness.id)
+          .update(this.bs.aBusiness).then(() => {this.readBusiness();});
+        break;
+    }
   }
   //endregion
 

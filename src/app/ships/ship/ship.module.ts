@@ -13,6 +13,8 @@ import {ShipWarehousePageModule} from "../ship-warehouse/ship-warehouse.module";
 import {StationsPageModule} from "../../stations/stations.module";
 import {ColonyPageModule} from "../../colonies/colony/colony.module";
 import {LogsPageModule} from "../../logs/logs.module";
+import {InventoryPageModule} from '../../inventory/inventory.module';
+import {ModulesPageModule} from '../../modules/modules.module';
 
 @NgModule({
     imports: [
@@ -25,7 +27,9 @@ import {LogsPageModule} from "../../logs/logs.module";
         ShipWarehousePageModule,
         StationsPageModule,
         ColonyPageModule,
-        LogsPageModule
+        LogsPageModule,
+        InventoryPageModule,
+        ModulesPageModule
     ],
     exports: [
         ShipPage

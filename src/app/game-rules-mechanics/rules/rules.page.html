@@ -1,0 +1,253 @@
+<!--
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Game Rules and Mechanics</ion-title>
+  </ion-toolbar>
+</ion-header>
+-->
+
+<!--<ion-content>-->
+  <ion-card id="rules">
+    <ion-card-header>
+      <ion-card-subtitle>
+        Please bare with me while I make these detail pages look better.
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <!--
+      <ion-grid>
+        <ion-row *ngFor="let aRule of aRules; let i = index" class="" [ngClass]="(i % 2 === 0) ? 'odd-row' : 'even-row'">
+          <ion-col>
+            {{aRule.name}}
+          </ion-col>
+          <ion-col>
+          <span *ngIf="aRule.id === 'refiningBusiness'">
+            {{aRule['mrePlant']['mre'].amount}}
+          </span>
+          </ion-col>
+          <ion-col>
+            <ion-button (click)="view(aRule)" size="small">View</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      -->
+
+      <!--
+      <ion-accordion-group>
+        <ion-accordion  value="first">
+          <ion-item slot="header" color="light">
+            <ion-label>First Accordion</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            First Content
+          </div>
+        </ion-accordion>
+        <ion-accordion value="second">
+          <ion-item slot="header" color="light">
+            <ion-label>Second Accordion</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            Second Content
+          </div>
+        </ion-accordion>
+        <ion-accordion value="third">
+          <ion-item slot="header" color="light">
+            <ion-label>Third Accordion</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            Third Content
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+      -->
+
+      <ion-accordion-group>
+        <ion-accordion *ngFor="let aRule of aRules; let i = index">
+          <ion-item slot="header">
+            <ion-label>{{aRule.displayName}}</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">
+                    Description
+                  </ion-label>
+                  {{aRule.desc}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            <ion-row id="colonyConsumption" *ngIf="aRule.name === 'colonyConsumption'">
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">
+                    Consumption Formula
+                  </ion-label>
+                  {{aRule.consumeFormula}}
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">
+                    Production Formula
+                  </ion-label>
+                  {{aRule.produceFormula}}
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Desired Supply in Days</ion-label>
+                  {{aRule.daysSupply | number}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <!--
+            <ion-row>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            -->
+
+            <!--
+            <ion-row>
+              <ion-col *ngFor="let rule of aRule | keyvalue">
+                <ion-item *ngIf="rule.key !== 'id' && rule.key !== 'name'">
+                  <ion-label position="stacked">
+                    {{rule.key}}
+                  </ion-label>
+                  {{rule.value}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+            -->
+            <ion-row id="storage" *ngIf="aRule.name === 'storage'">
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Warehouse</ion-label>
+                  {{aRule.warehouse | number}}
+                </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Cargo Module</ion-label>
+                  {{aRule.cargoModule | number}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <span id="travel" *ngIf="aRule.name === 'travel'">
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Distance Formula</ion-label>
+                    {{aRule.distance}}
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Time Formula</ion-label>
+                    {{aRule.time}}
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Solar System Travel Time</ion-label>
+                    {{globalS.formatTimeStamp(aRule.solarSystem, 'timer')}}
+                    <label slot="helper">hh:mm:ss</label>
+                  </ion-item>
+                </ion-col>
+                <ion-col>
+                  <ion-item>
+                    <ion-label position="stacked">Solar Body Travel Time</ion-label>
+                    {{globalS.formatTimeStamp(aRule.solarBody, 'timer')}}
+                    <label slot="helper">hh:mm:ss</label>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </span>
+
+            <ion-title *ngIf="aRule.resourceNumbers">Resource Numbers</ion-title>
+            <ion-row *ngIf="aRule.resourceNumbers">
+              <ion-col *ngFor="let rule of aRule.resourceNumbers | keyvalue">
+                <ion-item>
+                  <ion-label position="stacked">
+                    {{rule.key}}
+                  </ion-label>
+                  {{rule.value}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-title *ngIf="aRule.productionNumbers">Production Numbers</ion-title>
+            <ion-row *ngIf="aRule.productionNumbers">
+              <ion-col *ngFor="let aProductionItem of aRule.productionNumbers | keyvalue">
+                <ion-item>
+                  <ion-label position="stacked">
+                    {{aProductionItem.value.displayName}}
+                    <!--{{aProductionItem.name}}-->
+                  </ion-label>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col>
+                        <ion-item>
+                          <ion-label position="stacked">
+                            Amount Produced
+                          </ion-label>
+                          {{aProductionItem.value.amount}}
+                        </ion-item>
+                      </ion-col>
+                    </ion-row>
+                    <ion-row>
+                      <ion-col>
+                        <ion-item>
+                          <ion-label position="stacked">Required Resources</ion-label>
+                          <ion-grid>
+                            <ion-row>
+                              <ion-col *ngFor="let aItem of aProductionItem.value.requiredResources">
+                                <ion-item>
+                                  <ion-label position="stacked">
+                                    {{aItem.name}}
+                                  </ion-label>
+                                  {{aItem.amount}}
+                                </ion-item>
+                              </ion-col>
+                            </ion-row>
+                          </ion-grid>
+                        </ion-item>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <!--Skills-->
+            <ion-row *ngIf="aRule.skills">
+              <ion-col>
+                <ion-item>
+                  <ion-label position="stacked">Increment Cost</ion-label>
+                  {{aRule.incrementCost | number}}
+                </ion-item>
+              </ion-col>
+              <ion-col *ngFor="let skill of aRule.skills">
+                <ion-item>
+                  <ion-label position="stacked">
+                    {{skill.displayName}}
+                  </ion-label>
+                  {{skill.desc}}
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+    </ion-card-content>
+  </ion-card>
+<!--</ion-content>-->

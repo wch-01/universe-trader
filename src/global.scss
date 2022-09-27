@@ -64,3 +64,14 @@
   --ion-item-background: transparent;
 }
 
+.transactionInflow{
+  color: green;
+}
+.transactionOutflow{
+  color: red;
+}
+
+.alert-wrapper{
+  /*max-width: unset !important;*/
+  min-width: 25% !important;
+}

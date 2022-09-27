@@ -7,15 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { TradePageRoutingModule } from './trade-routing.module';
 
 import { TradePage } from './trade.page';
-import {ShipyardPageModule} from "../shipyard/shipyard.module";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         IonicModule,
-        TradePageRoutingModule,
-        ShipyardPageModule
+        TradePageRoutingModule
     ],
     exports: [
         TradePage

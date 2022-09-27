@@ -1,0 +1,41 @@
+<!--This page should always be included in another page.-->
+
+<ion-card>
+  <ion-card-header>
+    <ion-toolbar>
+      <ion-card-title>Businesses</ion-card-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="globalS.viewTutorial('businesses')">
+          <ion-icon name="bulb-outline"></ion-icon>Tutorial
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-card-header>
+
+  <ion-card-content>
+    <ion-grid>
+      <ion-row>
+        <ion-col *ngFor="let aOperation of aStationOperations" style="border-style: dashed;text-align: center" size="2">
+          <ion-grid>
+            <ion-col>
+              <ion-item>
+                <ion-note slot="start">Type</ion-note>
+                <ion-label>{{aOperation.name}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-item>
+                <ion-note slot="start">status</ion-note>
+                <ion-label>{{aOperation.status}}</ion-label>
+              </ion-item>
+            </ion-col>
+            <ion-col>
+              <ion-button (click)="viewOperationModal(aOperation)">Enter</ion-button>
+              <ion-button (click)="viewOperationModalTwo(aOperation)">Enter Two</ion-button>
+            </ion-col>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+</ion-card>

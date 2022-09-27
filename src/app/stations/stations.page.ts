@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import {ModalController} from '@ionic/angular';
 import {StationPage} from './station/station.page';
 import {PlatformService} from '../services/platform/platform.service';
+import {CharacterService} from '../services/character/character.service';
 
 @Component({
   selector: 'app-stations',
@@ -28,7 +29,8 @@ export class StationsPage implements OnInit {
     private router: Router,
     public stationS: StationService,
     private modalController: ModalController,
-    public platform: PlatformService
+    public platform: PlatformService,
+    private charS: CharacterService,
   ) { }
   //endregion
 
@@ -39,7 +41,10 @@ export class StationsPage implements OnInit {
   async viewStationModal(aStation){
     //this.shipS.shipID= aShip.id;
     //this.shipS.isModal= true;
-    this.stationS.rsP(aStation.id).then((rsPRes: any) => {});
+    this.stationS.rpS(aStation.id).then((rsPRes: any) => {
+      this.stationS.rpSI();
+    });
+    this.stationS.viewer= this.trader;
 
     const stationModal= await this.modalController.create({
       component: StationPage,
@@ -55,5 +60,7 @@ export class StationsPage implements OnInit {
     return await stationModal.present();
   }
 
-  checkAccess(aStation){}
+  checkAccess(aStation){
+    return aStation.ownerID === this.charS.aCharacter.id;
+  }
 }
