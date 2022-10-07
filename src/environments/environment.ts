@@ -8,7 +8,7 @@ export const environment = {
     appId: '1:384755449464:web:869aba43a3092dac3c378d'
   },
   production: false,
-  name: 'development'
+  name: 'localhost'
 };
 
 // This file can be replaced during build by using the `fileReplacements` array.

@@ -3,6 +3,24 @@
     "development": "universe-trader-dev",
     "production": "universe-trader-6f8f2"
   },
-  "targets": {},
+  "targets": {
+    "universe-trader-dev": {
+      "hosting": {
+        "dev": [
+          "universe-trader-dev"
+        ],
+        "app": [
+          "universe-trader-6f8f2"
+        ]
+      }
+    },
+    "universe-trader-6f8f2": {
+      "hosting": {
+        "app": [
+          "universe-trader-6f8f2"
+        ]
+      }
+    }
+  },
   "etags": {}
 }

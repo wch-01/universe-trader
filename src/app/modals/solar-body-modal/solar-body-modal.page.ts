@@ -121,7 +121,7 @@ export class SolarBodyModalPage implements OnInit {
     public stationS: StationService,
     public modalController: ModalController,
     private afs: AngularFirestore,
-    private ss: ServerService,
+    public ss: ServerService,
     public platform: PlatformService
   ) { }
   //endregion

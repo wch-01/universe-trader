@@ -100,8 +100,11 @@ export class ModulesPage implements OnInit {
             status: 'Idle',
             solarBodyID: this.stationS.aStation.solarBodyID,
             solarSystemID: this.stationS.aStation.solarSystemID,
-            power: this.ss.aaDStructures[this.ss.aaDefaultItems[aModule.itemID].slot].power,
+            power: 0
           };
+          if(this.ss.aaDStructures[this.ss.aaDefaultItems[aModule.itemID].slot].power){
+            aStructure.power= this.ss.aaDStructures[this.ss.aaDefaultItems[aModule.itemID].slot].power;
+          }
 
           this.afs.collection('servers/'+this.ss.activeServer+'/stationOperations').add(Object.assign({}, aStructure)).then((addedStructure) => {
             aModule.businessID= addedStructure.id;

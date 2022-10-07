@@ -12,11 +12,14 @@
         </ion-button>
       </ion-buttons>
       <ion-card-subtitle>
-        <span *ngIf="!bt && bt !== 0">0</span>{{bt}} of <span *ngIf="!charS.aCharacter.skills.manager && charS.aCharacter.skills.manager !== 0">0</span>{{charS.aCharacter.skills.manager}} allowed
+        <span *ngIf="busS.aBusinesses">{{busS.aBusinesses.length}}</span>
+        of <span *ngIf="!charS.aCharacter.skills.manager && charS.aCharacter.skills.manager !== 0">0</span>{{charS.aCharacter.skills.manager}} allowed
       </ion-card-subtitle>
-      <ion-button *ngIf="newBAllowed; else skillLevel" size="small" (click)="businessCreationModal()">
-        Start a new business
-      </ion-button>
+      <span *ngIf="busS.aBusinesses">
+        <ion-button *ngIf="busS.aBusinesses.length < charS.aCharacter.skills.manager; else skillLevel" size="small" (click)="businessCreationModal()">
+          Start a new business
+        </ion-button>
+      </span>
       <ng-template #skillLevel>
         Your skill level needs to be increased to build more businesses.
       </ng-template>

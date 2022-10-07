@@ -162,14 +162,15 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <p>Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}<span *ngIf="projectName === 'development'"> | {{projectName}}</span></p>
+                  <p>
+                    Copyright &#169; 2022 Universe Trader | Space Sim Game | Game Version {{aAM.version}}<span *ngIf="projectName === 'development'"> | {{projectName}}</span>
+                  </p>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </ion-card-content>
         </ion-card>
       </ion-footer>
-
     </ion-menu>
 
     <ion-router-outlet id="main-content" class="custom-background" *ngIf="bootDone | async"></ion-router-outlet>

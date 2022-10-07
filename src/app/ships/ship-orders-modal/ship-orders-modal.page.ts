@@ -36,7 +36,23 @@ export class ShipOrdersModalPage implements OnInit {
   //endregion
 
   ngOnInit() {
-    this.aUniverse = this.uniS.readUniverse();
+    Promise.all([
+      this.uniS.rpSolarSystems()
+    ])
+      .then(() => {
+        this.aUniverse= this.uniS.aSolarSystems;
+        this.aUniverse.sort((n1,n2) => {
+          if (n1.name > n2.name) {
+            return 1;
+          }
+          if (n1.name < n2.name) {
+            return -1;
+          }
+          return 0;
+          //this.aFilteredSolarBodies.sort
+        });
+      });
+
     //Get existing Orders
     this.afs.collection('servers/'+this.ss.activeServer+'/ships/'+this.shipS.aShip.id+'/orders')
       .valueChanges({idField: 'id'})
@@ -64,15 +80,27 @@ export class ShipOrdersModalPage implements OnInit {
 
   //region Read
   readSSSolarBodies(aSolarSystem){
-    this.aSolarBodies= this.uniS.readSSSolarBodies(aSolarSystem.id);
+    this.uniS.rpSSSolarBodies(aSolarSystem.id).then((aSolarBodies) => {
+      this.aSolarBodies= aSolarBodies;
+      this.aSolarBodies.sort((n1,n2) => {
+        if (n1.name > n2.name) {
+          return 1;
+        }
+        if (n1.name < n2.name) {
+          return -1;
+        }
+        return 0;
+        //this.aFilteredSolarBodies.sort
+      });
+    });
   }
   //endregion
 
   //region Update
-  updateOrders(){
+  updateOrders(deleteCall?){
     console.log(this.aOrders);
     let order= 1;
-    this.aOrders.some((aOrder: any) => {
+    for (const aOrder of this.aOrders) {
       let aUOrder= new Order();
       switch (aOrder.type){
         case 'travel':
@@ -103,7 +131,7 @@ export class ShipOrdersModalPage implements OnInit {
       console.log(aUOrder);
       this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.shipS.aShip.id + '/orders')
         .doc(aUOrder.id)
-        .update(Object.assign({}, aUOrder))
+        .set(Object.assign({}, aUOrder))
         .catch( (error) => {
           if(this.ss.aRules.consoleLogging.mode >= 1){
             console.log('Error Updating Orders');
@@ -115,7 +143,17 @@ export class ShipOrdersModalPage implements OnInit {
           this.gs.toastMessage('Please Double check your orders.', 'danger');
         });
       order++;
-    });
+    }
+    if(deleteCall){
+      console.log('Deleting:' + order);
+      this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.shipS.aShip.id + '/orders')
+        .doc('' + order + '')
+        .delete()
+        .catch( (error) => {
+          console.log(error.message);
+          this.gs.toastMessage('Please Double check your orders.', 'danger');
+        });
+    }
 
     this.afs.collection('servers/' + this.ss.activeServer + '/ships')
       .doc(this.shipS.aShip.id)
@@ -192,6 +230,9 @@ export class ShipOrdersModalPage implements OnInit {
     this.afs.collection('servers/' + this.ss.activeServer + '/ships/' + this.shipS.aShip.id + '/orders')
       .doc(orderID)
       .delete()
+      .then(() => {
+        this.updateOrders(true);
+      })
       .catch( (error) => {
         console.log(error.message);
         this.gs.toastMessage('Please Double check your orders.', 'danger');

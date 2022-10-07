@@ -38,49 +38,54 @@ export class BusinessCreationPage implements OnInit {
   async beginConstruction(aStructure){
     //Check that user has required items
     let goodToGo= 0;
-    aStructure.construction.forEach((aItem: any) => {
-      switch (aItem.name){
+    for (const aItem of aStructure.construction){
+      console.log(this.ws.aaInventory);
+      switch (aItem.itemID){
         case 'labor':
           if(this.cs.aCharacter.pulsars >= aItem.amount){
             //Good to Go
             goodToGo= 1;
           }
           else{
-            this.gs.toastMessage('Not enough Pulsars.', 'danger');
+            await this.gs.toastMessage('Not enough Pulsars.', 'danger');
+            goodToGo= 0;
+            break;
           }
           break;
         default:
-          if(this.ws.aaInventory[aItem.name] && this.ws.aaInventory[aItem.name].quantity >= aItem.amount){
+          if(this.ws.aaInventory[aItem.itemID] && this.ws.aaInventory[aItem.itemID].quantity >= aItem.amount){
             //good to go
             goodToGo= 1;
           }
           else{
-            this.gs.toastMessage('Not enough ' + aItem.name + ' in warehouse.', 'danger');
+            await this.gs.toastMessage('Not enough ' + this.ss.aaDefaultItems[aItem.itemID].displayName + ' in warehouse.', 'danger');
+            goodToGo= 0;
+            break;
           }
           break;
       }
-    });
+    }
 
     if(goodToGo === 1){
       //Build Structure
       //Remove items form Warehouse
       aStructure.construction.forEach((aItem: any) => {
-        switch (aItem.name){
+        switch (aItem.itemID){
           case 'labor':
             const newBalance= +this.cs.aCharacter.pulsars - +aItem.amount;
             this.afs.collection('servers/'+this.ss.activeServer+'/characters').doc(this.cs.aCharacter.id)
               .update({pulsars: newBalance});
             break;
           default:
-            const newQuantity= +this.ws.aaInventory[aItem.name].quantity - +aItem.amount;
+            const newQuantity= +this.ws.aaInventory[aItem.itemID].quantity - +aItem.amount;
 
             if(newQuantity === 0){
-              this.afs.collection('servers/'+this.ss.activeServer+'/inventories').doc(this.ws.aaInventory[aItem.name].id).delete();
+              this.afs.collection('servers/'+this.ss.activeServer+'/inventories').doc(this.ws.aaInventory[aItem.itemID].id).delete();
             }
             else{
-              const cog= +this.ws.aaInventory[aItem.name].quantity * +this.ws.aaInventory[aItem.name].cost;
+              const cog= +this.ws.aaInventory[aItem.itemID].quantity * +this.ws.aaInventory[aItem.itemID].cost;
               const newCost= +newQuantity * +cog;
-              this.afs.collection('servers/'+this.ss.activeServer+'/inventories').doc(this.ws.aaInventory[aItem.name].id)
+              this.afs.collection('servers/'+this.ss.activeServer+'/inventories').doc(this.ws.aaInventory[aItem.itemID].id)
                 .update({quantity: newQuantity, cost: newCost});
             }
             break;

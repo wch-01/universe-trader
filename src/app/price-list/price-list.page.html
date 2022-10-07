@@ -47,18 +47,18 @@
             <ion-grid>
               <ion-row>
                 <ion-col>
-                  <span (click)="sort(aItem.name+'_lp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                  <span (click)="sort(aItem.itemID+'_lp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
                     Buy
-                    <span *ngIf="sortField === aItem.name+'_lp'">
+                    <span *ngIf="sortField === aItem.itemID+'_lp'">
                       <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                       <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
                     </span>
                   </span>
                 </ion-col>
                 <ion-col>
-                  <span (click)="sort(aItem.name+'_bp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                  <span (click)="sort(aItem.itemID+'_bp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
                     (Sell)
-                    <span *ngIf="sortField === aItem.name+'_bp'">
+                    <span *ngIf="sortField === aItem.itemID+'_bp'">
                       <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                       <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
                     </span>
@@ -82,8 +82,8 @@
           <ion-col *ngFor="let aItem of ss.aDCMI">
             <ion-grid>
               <ion-row>
-                <ion-col>{{aColony[aItem.name + '_lp']}}</ion-col>
-                <ion-col>({{aColony[aItem.name + '_bp']}})</ion-col>
+                <ion-col>{{aColony[aItem.itemID + '_lp']}}</ion-col>
+                <ion-col>({{aColony[aItem.itemID + '_bp']}})</ion-col>
               </ion-row>
             </ion-grid>
           </ion-col>
@@ -125,18 +125,18 @@
               <ion-grid>
                 <ion-row>
                   <ion-col>
-                    <span (click)="sort(aItem.name+'_lp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                    <span (click)="sort(aItem.itemID+'_lp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
                       Buy
-                      <span *ngIf="sortField === aItem.name+'_lp'">
+                      <span *ngIf="sortField === aItem.itemID+'_lp'">
                         <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                         <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
                       </span>
                     </span>
                   </ion-col>
                   <ion-col>
-                    <span (click)="sort(aItem.name+'_bp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
+                    <span (click)="sort(aItem.itemID+'_bp', sortOrder= !sortOrder)"  style="cursor: pointer; color: lightblue">
                       (Sell)
-                      <span *ngIf="sortField === aItem.name+'_bp'">
+                      <span *ngIf="sortField === aItem.itemID+'_bp'">
                         <ion-icon *ngIf="sortOrder === false" name="arrow-up-circle-outline"></ion-icon>
                         <ion-icon *ngIf="sortOrder === true" name="arrow-down-circle-outline"></ion-icon>
                       </span>
@@ -164,8 +164,8 @@
             <ion-col *ngIf="chosenItem.value === aItem.name">
             <ion-grid>
               <ion-row>
-                <ion-col>{{aColony[aItem.name + '_lp']}}</ion-col>
-                <ion-col>({{aColony[aItem.name + '_bp']}})</ion-col>
+                <ion-col>{{aColony[aItem.itemID + '_lp']}}</ion-col>
+                <ion-col>({{aColony[aItem.itemID + '_bp']}})</ion-col>
               </ion-row>
             </ion-grid>
             </ion-col>

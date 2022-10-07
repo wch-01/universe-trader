@@ -9,7 +9,7 @@ import {ColonyModalPage} from '../modals/colony-modal/colony-modal.page';
 import {ModalController} from '@ionic/angular';
 import {PlatformService} from '../services/platform/platform.service';
 import {SolarBodyModalPage} from '../modals/solar-body-modal/solar-body-modal.page';
-import {GlobalService} from "../services/global/global.service";
+import {GlobalService} from '../services/global/global.service';
 const moment= require('moment');
 
 @Component({
@@ -96,8 +96,8 @@ export class PriceListPage implements OnInit, OnDestroy {
             //aColony.aInventory= aInventory;
             aInventory.some((aItem: any) => {
               aColony.aaInventory[aItem.name]= aItem;
-              aColony[aItem.name + '_lp']= aItem.listPrice;
-              aColony[aItem.name + '_bp']= aItem.buyPrice;
+              aColony[aItem.itemID + '_lp']= aItem.listPrice;
+              aColony[aItem.itemID + '_bp']= aItem.buyPrice;
             });
             localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies', JSON.stringify(this.aColonies));
             localStorage.setItem('ut_server_'+this.ss.activeServer+'_price_list_colonies_time', moment().valueOf());

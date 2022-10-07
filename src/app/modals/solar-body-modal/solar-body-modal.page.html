@@ -132,7 +132,12 @@
               {{item[col.filter] | number}}
             </div>
             <ng-template #standardCol>
-              {{item[col.filter]}}
+              <div *ngIf="col.filter === 'name'; else notName">
+                {{ss.aaDefaultItems[item.itemID].displayName}}
+              </div>
+              <ng-template #notName>
+                {{item[col.filter]}}
+              </ng-template>
             </ng-template>
           </ion-col>
         </ion-row>

@@ -61,7 +61,7 @@
                           class="solar-system-select"
                           [interfaceOptions]="{'cssClass':'wider-popover'}"
                         >
-                          <ion-select-option *ngFor="let solarSystem of aUniverse | async" [value]="solarSystem">
+                          <ion-select-option *ngFor="let solarSystem of aUniverse" [value]="solarSystem">
                             {{solarSystem.name}}: {{solarSystem.xCoordinate}}, {{solarSystem.yCoordinate}}
                           </ion-select-option>
                         </ion-select>
@@ -77,7 +77,7 @@
                           class="solar-system-select"
                           [interfaceOptions]="{'cssClass':'wider-popover'}"
                         >
-                          <ion-select-option *ngFor="let solarBody of aSolarBodies | async" [value]="solarBody">
+                          <ion-select-option *ngFor="let solarBody of aSolarBodies" [value]="solarBody">
                             {{solarBody.name}}: {{solarBody.xCoordinate}}, {{solarBody.yCoordinate}}
                           </ion-select-option>
                         </ion-select>

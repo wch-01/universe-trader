@@ -20,6 +20,8 @@ export class InventoryTransferPage implements OnInit {
   @Input() entity;
   @Input() entityViewed;
 
+  eID;
+  aEInventorySub;
   aEInventory;
   aaEInventory;
   eCapacity;
@@ -30,6 +32,8 @@ export class InventoryTransferPage implements OnInit {
     type: '',
   };
 
+  veID;
+  aEVInventorySub;
   aEVInventory;
   aaEVInventory;
   evCapacity;
@@ -58,36 +62,110 @@ export class InventoryTransferPage implements OnInit {
   ngOnInit() {
     switch (this.entity){
       case 'ship':
-        this.shipS.rpSI().then(() => {
+        this.eID= this.shipS.id;
+        this.aEInventorySub= this.shipS.rsSI();
+        /*this.shipS.rpSI().then(() => {
           this.aEInventory= this.shipS.aInventory;
           this.aFilteredEntityInventory= this.aEInventory;
-        });
-        // this.aEInventory= this.shipS.rsSI();
-        // this.aEInventory= this.shipS.aInventory;
-        this.aaEInventory= this.shipS.aaInventory;
-        this.eCapacity= this.shipS.capacityAvailable;
+          this.eCapacity= this.shipS.capacityAvailable;
+        });*/
         break;
       case 'station':
-        // this.aEInventory= this.stationS.rsSI();
-        this.aEInventory= this.stationS.aInventory;
-        this.aaEInventory= this.stationS.aaInventory;
-        this.eCapacity= this.stationS.capacityAvailable;
+        this.eID= this.stationS.stationID;
+        this.aEInventorySub= this.stationS.rsSI();
         break;
     }
+    this.aEInventorySub.subscribe((aInventory) => {
+      this.aEInventory= aInventory;
+      this.aFilteredEntityInventory= this.aEInventory;
+
+      //region Associated Array
+      this.aaEInventory= {};
+      aInventory.some((item: any) => {
+        if(this.ss.aRules.consoleLogging.mode >= 2){
+          console.log(item);
+        }
+        //this.aaInventory[item.itemID]= item;
+
+        if(item.type === 'Prepared Module'){
+          item.reference.type= 'Prepared Module';
+          this.aaEInventory[item.itemID+'_pm']= item;
+          this.aaEInventory[item.itemID+'_pm'].reference.type= 'Prepared Module';
+        }
+        else{
+          this.aaEInventory[item.itemID]= item;
+        }
+      });
+      //endregion
+
+      //region Entity Capacity
+      switch (this.entity){
+        case 'ship':
+          this.shipS.setCargoCapacity().then(() => {
+            this.eCapacity= this.shipS.capacityAvailable;
+          });
+          break;
+        case 'station':
+          this.shipS.setCargoCapacity().then(() => {
+            this.eCapacity= this.stationS.capacityAvailable;
+          });
+          break;
+      }
+      //endregion
+
+      this.filterEntityInventory();
+    });
 
     switch (this.entityViewed){
       case 'warehouse':
-        // this.aEVInventory= this.warehouseS.rsWI();
-        this.aEVInventory= this.warehouseS.aInventory;
-        this.evCapacity= this.warehouseS.capacityAvailable;
+        this.veID= this.warehouseS.aWarehouse.id;
+        this.aEVInventorySub= this.warehouseS.rsWI();
+        /*this.warehouseS.rpWI().then(() => {
+          this.aEVInventory= this.warehouseS.aInventory;
+          this.aFilteredEntityVInventory= this.aEVInventory;
+          this.evCapacity= this.warehouseS.capacityAvailable;
+        });*/
         break;
       case 'ship':
-        // this.aEVInventory= this.shipS.rsSI();
-        this.aEVInventory= this.shipS.aInventory;
-        this.evCapacity= this.shipS.capacityAvailable;
+        this.aEVInventorySub= this.shipS.rsSI();
         break;
     }
-    this.aFilteredEntityVInventory= this.aEVInventory;
+    this.aEVInventorySub.subscribe((aInventory) => {
+      this.aEVInventory= aInventory;
+      this.aFilteredEntityVInventory= this.aEVInventory;
+
+      //region Associated Array
+      this.aaEVInventory= {};
+      aInventory.some((item: any) => {
+        if(this.ss.aRules.consoleLogging.mode >= 2){
+          console.log(item);
+        }
+        //this.aaInventory[item.itemID]= item;
+
+        if(item.type === 'Prepared Module'){
+          item.reference.type= 'Prepared Module';
+          this.aaEVInventory[item.itemID+'_pm']= item;
+          this.aaEVInventory[item.itemID+'_pm'].reference.type= 'Prepared Module';
+        }
+        else{
+          this.aaEVInventory[item.itemID]= item;
+        }
+      });
+      //endregion
+
+      //region Viewed Entity Capacity
+      switch (this.entityViewed){
+        case 'warehouse':
+          this.evCapacity= this.warehouseS.capacityAvailable;
+          break;
+        case 'ship':
+          this.evCapacity= this.shipS.capacityAvailable;
+          break;
+      }
+      //endregion
+
+      this.filterEntityVInventory();
+    });
   }
 
   //region Update
@@ -120,7 +198,7 @@ export class InventoryTransferPage implements OnInit {
       if(enoughRoom === 1){
         const confirmTradeAlert = await this.ionAlert.create({
           cssClass: '',
-          header: 'Confirm Transfer',
+          header: 'Confirm Transfer ' + aItem.quantity,
           subHeader: '',
           message: 'Please Confirm: Transfer ' + amount + ' to ' + destination,
           inputs: [
@@ -144,6 +222,7 @@ export class InventoryTransferPage implements OnInit {
             {
               text: 'Confirm',
               handler: (data: any) => {
+                console.log(aItem.quantity);
                 this.performTrade(destination, aItem, amount);
               }
             }
@@ -158,27 +237,80 @@ export class InventoryTransferPage implements OnInit {
   }
 
   performTrade(destination, aItem, amount){
+    console.log(aItem.quantity);
     const twSItemCog= +aItem.cost / +aItem.quantity;
 
     switch (destination){
-      case 'warehouse':
-        //Add to warehouse
-        if(this.stationS.aaWInventory[aItem.name] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
-          const twWItemCog= +this.warehouseS.aaInventory[aItem.name].cost / +this.warehouseS.aaInventory[aItem.name].quantity;
+      case this.entityViewed:
+        if(this.aaEVInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+          const twWItemCog= +this.aaEVInventory[aItem.itemID].cost / +this.aaEVInventory[aItem.itemID].quantity;
           const wNewItemCog= +twWItemCog + +twSItemCog;
-          const wNewQuantity= +this.warehouseS.aaInventory[aItem.name].quantity + +amount;
+          const wNewQuantity= +this.aaEVInventory[aItem.itemID].quantity + +amount;
           const wNewItemCost= +wNewQuantity * +wNewItemCog;
 
           //Update Warehouse Inv
           this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
-            .doc(this.warehouseS.aaInventory[aItem.name].id)
+            .doc(this.aaEVInventory[aItem.itemID].id)
             .update({
               cost: wNewItemCost,
               quantity: wNewQuantity
             }).then(() => {});
         }
         else{
-          const newItem= aItem;
+          console.log('VE does not have item: ' + this.veID);
+          const newItem= Object.assign({}, aItem);
+          newItem.quantity= amount;
+          newItem.cost= +newItem.quantity * +twSItemCog;
+          newItem.ownerID= this.veID;
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
+            .add(newItem).then(() => {});
+        }
+        break;
+      case this.entity:
+        if(this.aaEInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+          const twWItemCog= +this.aaEInventory[aItem.itemID].cost / +this.aaEInventory[aItem.itemID].quantity;
+          const wNewItemCog= +twWItemCog + +twSItemCog;
+          const wNewQuantity= +this.aaEInventory[aItem.itemID].quantity + +amount;
+          const wNewItemCost= +wNewQuantity * +wNewItemCog;
+
+          //Update Warehouse Inv
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
+            .doc(this.aaEInventory[aItem.itemID].id)
+            .update({
+              cost: wNewItemCost,
+              quantity: wNewQuantity
+            }).then(() => {});
+        }
+        else{
+          const newItem= Object.assign({}, aItem);
+          newItem.quantity= amount;
+          newItem.cost= +newItem.quantity * +twSItemCog;
+          newItem.ownerID= this.eID;
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
+            .add(newItem).then(() => {});
+        }
+        break;
+    }
+
+    /*switch (destination){
+      case 'warehouse':
+        //Add to warehouse
+        if(this.warehouseS.aaInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+          const twWItemCog= +this.warehouseS.aaInventory[aItem.itemID].cost / +this.warehouseS.aaInventory[aItem.itemID].quantity;
+          const wNewItemCog= +twWItemCog + +twSItemCog;
+          const wNewQuantity= +this.warehouseS.aaInventory[aItem.itemID].quantity + +amount;
+          const wNewItemCost= +wNewQuantity * +wNewItemCog;
+
+          //Update Warehouse Inv
+          this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
+            .doc(this.warehouseS.aaInventory[aItem.itemID].id)
+            .update({
+              cost: wNewItemCost,
+              quantity: wNewQuantity
+            }).then(() => {});
+        }
+        else{
+          const newItem= Object.assign({}, aItem);
           newItem.quantity= amount;
           newItem.cost= +newItem.quantity * +twSItemCog;
           newItem.ownerID= this.warehouseS.aWarehouse.id;
@@ -188,22 +320,22 @@ export class InventoryTransferPage implements OnInit {
         break;
       case 'lWarehouse':
         //Add to warehouse
-        if(this.stationS.aaWInventory[aItem.name] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
-          const tlwWItemCog= +this.warehouseS.aaLInventory[aItem.name].cost / +this.warehouseS.aaLInventory[aItem.name].quantity;
+        if(this.warehouseS.aaInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+          const tlwWItemCog= +this.warehouseS.aaLInventory[aItem.itemID].cost / +this.warehouseS.aaLInventory[aItem.itemID].quantity;
           const lwNewItemCog= +tlwWItemCog + +twSItemCog;
-          const lwNewQuantity= +this.warehouseS.aaLInventory[aItem.name].quantity + +amount;
+          const lwNewQuantity= +this.warehouseS.aaLInventory[aItem.itemID].quantity + +amount;
           const lwNewItemCost= +lwNewQuantity * +lwNewItemCog;
 
           //Update Warehouse Inv
           this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
-            .doc(this.warehouseS.aaLInventory[aItem.name].id)
+            .doc(this.warehouseS.aaLInventory[aItem.itemID].id)
             .update({
               cost: lwNewItemCost,
               quantity: lwNewQuantity
             }).then(() => {});
         }
         else{
-          const newItem= aItem;
+          const newItem= Object.assign({}, aItem);
           newItem.quantity= amount;
           newItem.cost= +newItem.quantity * +twSItemCog;
           newItem.ownerID= this.warehouseS.aLWarehouse.id;
@@ -213,23 +345,23 @@ export class InventoryTransferPage implements OnInit {
         break;
       case 'ship':
         //Add to Ship
-        if(this.shipS.aaInventory[aItem.name] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+        if(this.shipS.aaInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
           console.log('Add item back to ship');
-          const tsSItemCog= +this.shipS.aaInventory[aItem.name].cost / +this.shipS.aaInventory[aItem.name].quantity;
+          const tsSItemCog= +this.shipS.aaInventory[aItem.itemID].cost / +this.shipS.aaInventory[aItem.itemID].quantity;
           const sNewItemCog= +twSItemCog + +tsSItemCog;
-          const sNewQuantity= +this.shipS.aaInventory[aItem.name].quantity + +amount;
+          const sNewQuantity= +this.shipS.aaInventory[aItem.itemID].quantity + +amount;
           const sNewItemCost= +sNewQuantity * +sNewItemCog;
 
           //Update Ship Inv
           this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
-            .doc(this.shipS.aaInventory[aItem.name].id)
+            .doc(this.shipS.aaInventory[aItem.itemID].id)
             .update({
               cost: sNewItemCost,
               quantity: sNewQuantity
             }).then(() => {});
         }
         else{
-          const newItem= aItem;
+          const newItem= Object.assign({}, aItem);
           newItem.quantity= amount;
           newItem.cost= +newItem.quantity * +twSItemCog;
           newItem.ownerID= this.shipS.aShip.id;
@@ -239,22 +371,22 @@ export class InventoryTransferPage implements OnInit {
         break;
       case 'station':
         //Add to Station
-        if(this.stationS.aaInventory[aItem.name] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
-          const tsSItemCog= +this.stationS.aaInventory[aItem.name].cost / +this.stationS.aaInventory[aItem.name].quantity;
+        if(this.stationS.aaInventory[aItem.itemID] && aItem.type !== 'Prepared Module' && aItem.type !== 'Prepared Station Module'){
+          const tsSItemCog= +this.stationS.aaInventory[aItem.itemID].cost / +this.stationS.aaInventory[aItem.itemID].quantity;
           const sNewItemCog= +twSItemCog + +tsSItemCog;
-          const sNewQuantity= +this.stationS.aaInventory[aItem.name].quantity + +amount;
+          const sNewQuantity= +this.stationS.aaInventory[aItem.itemID].quantity + +amount;
           const sNewItemCost= +sNewQuantity * +sNewItemCog;
 
           //Update Ship Inv
           this.afs.collection('servers/' + this.ss.activeServer + '/inventories')
-            .doc(this.stationS.aaInventory[aItem.name].id)
+            .doc(this.stationS.aaInventory[aItem.itemID].id)
             .update({
               cost: sNewItemCost,
               quantity: sNewQuantity
             }).then(() => {});
         }
         else{
-          const newItem= aItem;
+          const newItem= Object.assign({}, aItem);
           newItem.quantity= amount;
           newItem.cost= +newItem.quantity * +twSItemCog;
           newItem.ownerID= this.stationS.aStation.id;
@@ -262,10 +394,13 @@ export class InventoryTransferPage implements OnInit {
             .add(newItem).then(() => {});
         }
         break;
-    }
+    }*/
 
+    console.log(aItem.quantity);
     //region Remove from Entity
     if((+aItem.quantity - +amount) === 0){
+      console.log('Amount Remaining is 0');
+      console.log(aItem.quantity +' - '+ amount);
       this.afs.collection('servers/' + this.ss.activeServer + '/inventories').doc(aItem.id).delete().then(() => {
         this.getCaps();
       });
